@@ -1,0 +1,1 @@
+export type WorkoutType = 'Private' | 'Group class' | 'Competition class' | 'Open Gym'
