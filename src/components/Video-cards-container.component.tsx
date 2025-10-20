@@ -14,7 +14,7 @@ const VideoContainer = () => {
           //id={video.id}
           title={video.videoTitle}
           videoDescription={video.description}
-          //youtubeLink={video.youtubeLink}
+          youtubeLink={video.youtubeLink as string}
         />
       ))}
     </div>
