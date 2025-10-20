@@ -4,23 +4,32 @@ import Image from "next/image";
 import React from "react";
 
 export interface GalleryProps{
-  externalIndex?:number;
+ externalIndex?: number;
+  onGalleryEnd?: () => void;
 }
-const Gallery:React.FC<GalleryProps> = ({externalIndex=0}) => {
+const Gallery:React.FC<GalleryProps> = ({externalIndex=0, onGalleryEnd}) => {
   const [currentPicture, setCurrentPicture] = React.useState(externalIndex);
 
-  React.useEffect(()=>{
-    if(externalIndex !== undefined){
+ 
+  React.useEffect(() => {
+    if (externalIndex !== undefined) {
       setCurrentPicture(externalIndex % ImageGallery.length);
     }
-  },[externalIndex])
+  }, [externalIndex]);
 
-  React.useEffect(() => {
+ React.useEffect(() => {
     const intervalId = setInterval(() => {
-      setCurrentPicture((prev) => (prev + 1) % ImageGallery.length);
+      setCurrentPicture((prev) => {
+        const nextPicture = (prev + 1) % ImageGallery.length;
+        // If we've cycled back to 0, we've reached the end
+        if (nextPicture === 0 && prev !== 0) {
+          onGalleryEnd?.();
+        }
+        return nextPicture;
+      });
     }, 4000);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [onGalleryEnd]);
 
 
   const goToPrevious = () =>

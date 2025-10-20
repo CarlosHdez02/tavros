@@ -7,7 +7,6 @@ import SingleVideo from "./Video-cards.component";
 
 const GalleryComponent = dynamic(() => import("./Gallery.component"));
 const TableComponent = dynamic(() => import("./Table.component"));
-//const SingleVideo = dynamic(() => import("./Video-cards-container.component"));
 
 export interface CarrouselInterface {
   id: number;
@@ -24,21 +23,29 @@ const CarrouselWrapper = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [paused, setPaused] = React.useState(false);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
+  const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
   const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  
   React.useEffect(() => {
     if (paused) return;
 
     intervalRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % carrouselComponents.length);
-    }, 6000); // 6s per section
+      setCurrentIndex((prevIndex) => {
+        const nextIndex = (prevIndex + 1) % carrouselComponents.length;
+        
+        // Increment gallery index when arriving at gallery (index 2)
+        if (nextIndex === 2) {
+          setCurrentGalleryIndex((prev) => prev + 1);
+        }
+        
+        return nextIndex;
+      });
+    }, 6000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [paused]);
-
 
   React.useEffect(() => {
     if (carrouselComponents[currentIndex].id === 2) {
@@ -51,9 +58,16 @@ const CarrouselWrapper = () => {
     if (currentVideoIndex < VideoMockData.length - 1) {
       setCurrentVideoIndex((prev) => prev + 1); 
     } else {
-      setPaused(false); // resume carousel
-      setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length); // move to next slide
+      setPaused(false);
+      setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
     }
+  };
+
+  const handleGalleryEnd = () => {
+    // Move to next carousel index (back to Table)
+    setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
+    // Reset gallery index for next cycle
+    setCurrentGalleryIndex(0);
   };
 
   const CurrentComponent = carrouselComponents[currentIndex].currentComponent;
@@ -66,13 +80,17 @@ const CarrouselWrapper = () => {
           videoDescription: VideoMockData[currentVideoIndex]?.description,
           onVideoEnd: handleVideoEnd,
         }
+      : currentIndex === 2
+      ? {
+          externalIndex: currentGalleryIndex,
+          onGalleryEnd: handleGalleryEnd,
+        }
       : {};
 
   return (
     <div className="relative">
       <CurrentComponent {...componentProps} />
 
-      {/* Navigation Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
         {carrouselComponents.map((component, index) => (
           <button
