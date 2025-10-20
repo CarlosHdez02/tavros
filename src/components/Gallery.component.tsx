@@ -1,32 +1,75 @@
+'use client'
 import { ImageGallery } from "@/mockData/Gallery.mock";
 import Image from "next/image";
+import React from "react";
 
-const Gallery = () => {
+export interface GalleryProps{
+  externalIndex?:number;
+}
+const Gallery:React.FC<GalleryProps> = ({externalIndex=0}) => {
+  const [currentPicture, setCurrentPicture] = React.useState(externalIndex);
+
+  React.useEffect(()=>{
+    if(externalIndex !== undefined){
+      setCurrentPicture(externalIndex % ImageGallery.length);
+    }
+  },[externalIndex])
+
+  React.useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentPicture((prev) => (prev + 1) % ImageGallery.length);
+    }, 4000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+
+  const goToPrevious = () =>
+    setCurrentPicture((prev) => (prev - 1 + ImageGallery.length) % ImageGallery.length);
+  const goToNext = () =>
+    setCurrentPicture((prev) => (prev + 1) % ImageGallery.length);
+
+  const currentImage = ImageGallery[currentPicture];
+
   return (
-    <div className="p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {ImageGallery.map((image) => (
-          <div
-            key={image.id}
-            className="bg-[#1e293b] border border-[#334155] rounded-xl shadow-lg hover:shadow-xl hover:border-[#60a5fa] hover:-translate-y-1 transition-all duration-150 ease-in-out overflow-hidden group cursor-pointer"
-          >
-            <div className="relative w-full h-64 overflow-hidden">
-              <Image
-                src={image.image}
-                alt={`Gallery image ${image.id}`}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0f1419] via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
-            
-            <div className="p-4 bg-[#1e293b]">
-              <p className="text-[#e4e9f1] text-sm font-semibold truncate">
-                {image.description}
-              </p>
-            </div>
+    <div className="my-10 flex justify-center mx-2">
+      <div className="relative w-full  h-[75vh] bg-[#0f1419] rounded-3xl overflow-hidden shadow-2xl transition-all duration-700 ease-in-out transform hover:scale-[1.01] hover:shadow-[0_10px_50px_rgba(0,0,0,0.4)]">
+        {/* Animated Card Image */}
+        <div className="relative w-full h-full transition-transform duration-700 ease-in-out">
+          <Image
+            src={currentImage?.image}
+            alt={"image"}
+            fill
+            priority
+            className="object-cover rounded-3xl"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent rounded-3xl"></div>
+
+  
+          <div className="absolute bottom-0 left-0 right-0 p-8 text-white z-10">
+            <p className="text-3xl font-bold mb-2 drop-shadow-lg">
+              {currentImage?.description ?? "img"}
+            </p>
           </div>
-        ))}
+        </div>
+
+        <button
+          onClick={goToPrevious}
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 backdrop-blur-md hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 shadow-lg hover:scale-110"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button
+          onClick={goToNext}
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/10 backdrop-blur-md hover:bg-white/30 text-white p-3 rounded-full transition-all duration-300 shadow-lg hover:scale-110"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </div>
   );
