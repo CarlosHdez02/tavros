@@ -2,6 +2,12 @@ import { VideosInterface } from "@/types/videos.type";
 
 export const VideoMockData: VideosInterface[] = [
   {
+    id: 7,
+    videoTitle: "Peso muerto",
+    description: "Aprende a levantar correctamente sin comprometer tu espalda.",
+    youtubeLink: "https://www.youtube.com/watch?v=pT4l9uV98fM",
+  },
+  {
     id: 1,
     videoTitle: "¿Cómo hacer una sentadilla?",
     description: "Aprende la técnica correcta para una sentadilla segura y efectiva.",
