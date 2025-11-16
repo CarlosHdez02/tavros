@@ -1,146 +1,143 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { createColumnHelper, getCoreRowModel, useReactTable, flexRender, getSortedRowModel } from '@tanstack/react-table';
-import calendarData from '../data/calendar_data_14_11_2025.json';
+import checkinData from '../data/checkin_data_16_11_2025.json';
 
 // ========================================
 // TYPE DEFINITIONS
 // ========================================
 
-interface ModalDetails {
-  day?: string;
-  className?: string;
-  program?: string;
-  capacity?: string | number;
-  teachers?: string;
-  startTime?: string;
-  endTime?: string;
-  trialClass?: string;
-  onlineClass?: string;
-  freeClass?: string;
-  fullModalText?: string;
+interface Reservation {
+  id: number;
+  reserva_id: number;
+  hash_reserva_id: string;
+  name: string;
+  last_name: string;
+  full_name: string;
+  email: string;
+  telefono: string;
+  status: string;
+  nombre_plan: string;
+  canal: string;
+  fecha_creacion: string;
+  asistencia_confirmada: number;
+  pago_pendiente: boolean;
+  form_asistencia_url: boolean;
+  mostrar_formulario: boolean;
+  rating: unknown;
+  imagen: string;
 }
 
-interface CalendarEvent {
-  index: number;
-  text: string;
-  startTime: string | null;
-  endTime: string | null;
-  style: string;
-  hasTime: boolean;
-  modalDetails?: ModalDetails;
-  filteredCoach?: string | null;
+interface ClassData {
+  class: string;
+  classId: string;
+  reservations: Reservation[];
+  totalReservations: number;
+  limite: number;
+  clase_online: number;
+  clase_coach_id: string | null;
+  extractedAt: string;
 }
 
-interface CalendarData {
-  coach?: string | null;
-  events: CalendarEvent[];
-  totalEvents: number;
-  pageTitle: string;
-  url: string;
+interface DateData {
+  date: string;
+  classes: Record<string, ClassData>;
+  totalClasses: number;
   scrapedAt: string;
 }
 
-interface ParsedModalDetails {
-  day: string | null;
-  className: string | null;
-  program: string | null;
-  capacity: number | null;
-  teachers: string;
+interface CheckinData {
+  scrapedAt: string;
+  dateRange: {
+    startDay: number;
+    endDay: number;
+    month: number;
+    year: number;
+  };
+  dates: Record<string, DateData>;
+  summary: {
+    totalDates: number;
+    totalClasses: number;
+    totalReservations: number;
+  };
 }
 
 type SessionType = 'Group' | 'Semi-Private' | 'Private' | 'Open Gym' | 'Other';
 
 interface ProcessedSession {
-  id: number;
+  id: string;
   time: string;
-  day: string;
+  date: string;
   sessionType: SessionType;
   className: string;
-  capacity: number | string;
-  coach: string;
+  capacity: number;
+  reservations: Reservation[];
+  reservationsCount: number;
   color: string;
-  program: string;
+  classId: string;
 }
 
 // ========================================
 // HELPER FUNCTIONS
 // ========================================
 
-// Helper to decode HTML entities
-const decodeHtml = (text: string | null | undefined): string => {
-  if (!text) return '';
-  const txt = document.createElement('textarea');
-  txt.innerHTML = text;
-  return txt.value;
+// Get current date in DD-MM-YYYY format
+const getCurrentDateString = (): string => {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  return `${day}-${month}-${year}`;
 };
 
-// Parse modal details - now handles both old fullModalText and new clean structure
-const parseModalDetails = (modalDetails: ModalDetails | undefined): ParsedModalDetails => {
-  if (!modalDetails) {
-    return {
-      day: null,
-      className: null,
-      program: null,
-      capacity: null,
-      teachers: 'Staff'
-    };
-  }
-  
-  // If we have the new clean structure, use it directly
-  if (modalDetails.day && !modalDetails.day.includes('\n')) {
-    return {
-      day: modalDetails.day,
-      className: modalDetails.className || null,
-      program: modalDetails.program || null,
-      capacity: modalDetails.capacity ? parseInt(String(modalDetails.capacity)) : null,
-      teachers: modalDetails.teachers || 'Staff'
-    };
-  }
-  
-  // Fallback: parse from fullModalText if available
-  const fullText = modalDetails.fullModalText || modalDetails.day || '';
-  const clean = fullText.replace(/\s+/g, ' ').trim();
-  
-  // Extract day - find first occurrence of weekday name
-  const dayMatch = clean.match(/Día:\s*(\w+)|Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo/i);
-  const day = dayMatch ? dayMatch[1] || dayMatch[0] : null;
-  
-  // Extract class name
-  const classMatch = clean.match(/Clase:\s*([^P]+?)(?=Programa|Hora)/i);
-  const className = classMatch ? classMatch[1].trim() : null;
-  
-  // Extract program type
-  const programMatch = clean.match(/Programa\s+([^H]+?)(?=Hora|$)/i);
-  const program = programMatch ? programMatch[1].trim() : null;
-  
-  // Extract capacity
-  const capacityMatch = clean.match(/Cupos[^:]*:\s*(\d+)/i);
-  const capacity = capacityMatch ? parseInt(capacityMatch[1]) : null;
-  
-  // Extract teachers - clean up duplicates
-  const teachersMatch = clean.match(/Profesores[^:]*:\s*([^S]+?)(?=Select|Sala|$)/i);
-  let teachers = 'Staff';
-  
-  if (teachersMatch) {
-    const raw = teachersMatch[1].trim();
-    // Split by capital letters to separate names
-    const names = raw.match(/[A-Z][a-z]+\s+[A-Z][a-z]+/g) || [];
-    // Remove duplicates
-    teachers = [...new Set(names)].join(', ') || 'Staff';
-  }
-  
-  return { day, className, program, capacity, teachers };
+// Get current time in HH:MM format (24-hour)
+const getCurrentTimeString = (): string => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
 };
 
-// Determine session type from text and program
-const getSessionType = (text: string, program: string | null): SessionType => {
-  const decoded = decodeHtml(text).toLowerCase();
-  const prog = (program || '').toLowerCase();
+// Convert time string (HH:MM) to minutes since midnight for comparison
+const timeToMinutes = (timeStr: string): number => {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+// Extract time range from class name (format: "HH:MM a HH:MM")
+const extractTimeRange = (className: string): { startTime: string; endTime: string } | null => {
+  // Pattern matches "HH:MM a HH:MM" in the class name
+  const timeMatch = className.match(/(\d{2}:\d{2})\s+a\s+(\d{2}:\d{2})/);
+  if (timeMatch) {
+    return {
+      startTime: timeMatch[1],
+      endTime: timeMatch[2]
+    };
+  }
+  return null;
+};
+
+// Check if current time falls within the class time range
+const isTimeInRange = (startTime: string, endTime: string, currentTime: string): boolean => {
+  const currentMinutes = timeToMinutes(currentTime);
+  const startMinutes = timeToMinutes(startTime);
+  const endMinutes = timeToMinutes(endTime);
   
-  if (prog.includes('grupal') || decoded.includes('grupal')) return 'Group';
-  if (prog.includes('semiprivad') || decoded.includes('semiprivad')) return 'Semi-Private';
-  if (prog.includes('privad') || decoded.includes('privad')) return 'Private';
-  if (prog.includes('open gym')) return 'Open Gym';
+  // Handle case where end time is next day (e.g., 23:00 to 00:00)
+  if (endMinutes < startMinutes) {
+    return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
+  }
+  
+  return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+};
+
+// Determine session type from class name
+const getSessionType = (className: string): SessionType => {
+  const lower = className.toLowerCase();
+  
+  if (lower.includes('grupal')) return 'Group';
+  if (lower.includes('semiprivad')) return 'Semi-Private';
+  if (lower.includes('privad')) return 'Private';
+  if (lower.includes('open gym')) return 'Open Gym';
   
   return 'Other';
 };
@@ -157,76 +154,98 @@ const getColor = (sessionType: SessionType): string => {
   return colors[sessionType];
 };
 
+// Format date string to readable format
+const formatDate = (dateStr: string): string => {
+  const [day, month, year] = dateStr.split('-');
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+  const weekdays = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                  'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  return `${weekdays[date.getDay()]}, ${day} de ${months[parseInt(month) - 1]}`;
+};
+
 // ========================================
 // COMPONENT
 // ========================================
 
 const ScheduleTable: React.FC = () => {
-  const [filterType, setFilterType] = useState<SessionType | 'all'>('all');
-  const [filterDay, setFilterDay] = useState<string>('all');
+  // TEMPORARY: Set to true to see all data, false to filter by current time
+  const SHOW_ALL_DATA = true;
+  
+  const [currentTime, setCurrentTime] = useState<string>(getCurrentTimeString());
+  const [currentDate, setCurrentDate] = useState<string>(getCurrentDateString());
+
+  // Update time every minute
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(getCurrentTimeString());
+      setCurrentDate(getCurrentDateString());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Type assertion for imported JSON data
-  const typedCalendarData = calendarData as any;
+  const typedCheckinData = checkinData as CheckinData;
 
-  // Process and transform the data
+  // Process and filter data based on current time
   const processedData = useMemo<ProcessedSession[]>(() => {
-    if (!typedCalendarData?.events) return [];
-    
-    return typedCalendarData.events
-      .filter((event:any): event is CalendarEvent & { startTime: string; endTime: string } => 
-        Boolean(event.startTime && event.endTime)
-      )
-      .map((event:any, index:any): ProcessedSession => {
-        const parsed = parseModalDetails(event.modalDetails);
-        const sessionType = getSessionType(event.text, parsed.program);
+    if (!typedCheckinData?.dates) return [];
+
+    const sessions: ProcessedSession[] = [];
+
+    // If showing all data, iterate through all dates, otherwise just current date
+    const datesToProcess = SHOW_ALL_DATA 
+      ? Object.keys(typedCheckinData.dates)
+      : [currentDate];
+
+    datesToProcess.forEach((dateKey) => {
+      const dateData = typedCheckinData.dates[dateKey];
+      if (!dateData) return;
+
+      // Iterate through all classes for this date
+      Object.entries(dateData.classes).forEach(([className, classData]) => {
+        const timeRange = extractTimeRange(className);
         
-        return {
-          id: index,
-          time: `${event.startTime} - ${event.endTime}`,
-          day: parsed.day || 'N/A',
+        if (!timeRange) return;
+
+        // Only filter by time if SHOW_ALL_DATA is false
+        if (!SHOW_ALL_DATA && !isTimeInRange(timeRange.startTime, timeRange.endTime, currentTime)) {
+          return;
+        }
+
+        const sessionType = getSessionType(className);
+        
+        // Extract clean class name (remove AM/PM time if present)
+        let cleanClassName = className.split(' - ')[0];
+        // Remove time patterns like "6:00 am" or "7:00 pm" from class name
+        cleanClassName = cleanClassName.replace(/\d{1,2}:\d{2}\s*(am|pm)/gi, '').trim();
+        
+        sessions.push({
+          id: `${classData.classId}-${dateKey}`,
+          time: `${timeRange.startTime} - ${timeRange.endTime}`,
+          date: formatDate(dateKey),
           sessionType,
-          className: decodeHtml(parsed.className || event.text.split(/\d/)[0]),
-          capacity: parsed.capacity || 'N/A',
-          coach: parsed.teachers,
+          className: cleanClassName || className.split(' - ')[0],
+          capacity: classData.limite,
+          reservations: classData.reservations,
+          reservationsCount: classData.totalReservations,
           color: getColor(sessionType),
-          program: parsed.program || sessionType
-        };
-      })
-      .sort((a:any, b:any) => {
-        // Sort by time
+          classId: classData.classId
+        });
+      });
+    });
+
+    // Sort by date first, then by start time
+    return sessions.sort((a, b) => {
+      const dateCompare = a.date.localeCompare(b.date);
+      if (dateCompare !== 0) return dateCompare;
+      
         const timeA = a.time.split(' - ')[0];
         const timeB = b.time.split(' - ')[0];
         return timeA.localeCompare(timeB);
       });
-  }, []);
-
-  // Apply filters
-  const filteredData = useMemo<ProcessedSession[]>(() => {
-    let filtered = processedData;
-    
-    if (filterType !== 'all') {
-      filtered = filtered.filter(item => item.sessionType === filterType);
-    }
-    
-    if (filterDay !== 'all') {
-      filtered = filtered.filter(item => 
-        item.day.toLowerCase() === filterDay.toLowerCase()
-      );
-    }
-    
-    return filtered;
-  }, [processedData, filterType, filterDay]);
-
-  // Get unique values for filters
-  const sessionTypes = useMemo<SessionType[]>(() => 
-    [...new Set(processedData.map(item => item.sessionType))].sort(),
-    [processedData]
-  );
-
-  const days = useMemo<string[]>(() => 
-    [...new Set(processedData.map(item => item.day))].filter(d => d !== 'N/A').sort(),
-    [processedData]
-  );
+  }, [typedCheckinData, currentDate, currentTime]);
 
   const columnHelper = createColumnHelper<ProcessedSession>();
 
@@ -244,8 +263,8 @@ const ScheduleTable: React.FC = () => {
         </div>
       )
     }),
-    columnHelper.accessor('day', {
-      header: 'Day',
+    columnHelper.accessor('date', {
+      header: 'Date',
       cell: (info) => (
         <span style={{ 
           padding: '4px 12px',
@@ -293,7 +312,7 @@ const ScheduleTable: React.FC = () => {
       )
     }),
     columnHelper.accessor('capacity', {
-      header: 'Spots',
+      header: 'Capacity',
       cell: (info) => (
         <div style={{
           textAlign: 'center',
@@ -305,27 +324,76 @@ const ScheduleTable: React.FC = () => {
         </div>
       )
     }),
-    columnHelper.accessor('coach', {
-      header: 'Coach',
-      cell: (info) => (
-        <span style={{ 
-          padding: '6px 12px',
-          backgroundColor: '#334155',
-          borderRadius: '6px',
-          fontSize: '13px',
-          fontWeight: '500',
-          border: '1px solid #475569',
-          whiteSpace: 'nowrap'
-        }}>
-          {info.getValue()}
-        </span>
-      )
+    columnHelper.accessor('reservations', {
+      header: 'Reservations',
+      cell: (info) => {
+        const reservations = info.getValue();
+        const reservationsCount = info.row.original.reservationsCount;
+        const capacity = info.row.original.capacity;
+        
+        if (reservations.length === 0) {
+          return (
+            <div style={{
+              textAlign: 'center',
+              fontWeight: '500',
+              color: '#94a3b8',
+              fontSize: '14px',
+              fontStyle: 'italic'
+            }}>
+              No reservations
+            </div>
+          );
+        }
+        
+        return (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            minWidth: '200px'
+          }}>
+            <div style={{
+              textAlign: 'center',
+              fontWeight: '700',
+              color: '#f59e0b',
+              fontSize: '14px',
+              marginBottom: '8px',
+              paddingBottom: '8px',
+              borderBottom: '1px solid #334155'
+            }}>
+              {reservationsCount} / {capacity}
+            </div>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }}>
+              {reservations.map((reservation) => (
+                <div
+                  key={reservation.id}
+                  style={{
+                    padding: '6px 10px',
+                    fontSize: '13px',
+                    fontWeight: '500',
+                    color: '#e4e9f1',
+                    whiteSpace: 'nowrap',
+                    textAlign: 'center'
+                  }}
+                  title={`${reservation.full_name} - ${reservation.email}`}
+                >
+                  {reservation.name} {reservation.last_name}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
     })
   ];
 
   const table = useReactTable({
     columns,
-    data: filteredData,
+    data: processedData,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
@@ -366,7 +434,7 @@ const ScheduleTable: React.FC = () => {
             ))}
           </thead>
           <tbody>
-            {filteredData.length === 0 ? (
+            {processedData.length === 0 ? (
               <tr>
                 <td colSpan={6} style={{ 
                   textAlign: 'center', 
@@ -374,7 +442,7 @@ const ScheduleTable: React.FC = () => {
                   color: '#94a3b8',
                   fontSize: '16px'
                 }}>
-                  No sessions found
+                  No active classes at this time
                 </td>
               </tr>
             ) : (
