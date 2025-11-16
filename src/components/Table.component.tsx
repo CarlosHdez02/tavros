@@ -169,18 +169,23 @@ const formatDate = (dateStr: string): string => {
 // ========================================
 
 const ScheduleTable: React.FC = () => {
-  // TEMPORARY: Set to true to see all data, false to filter by current time
-  const SHOW_ALL_DATA = true;
+  // Set to true to see all data, false to filter by current time
+  const SHOW_ALL_DATA = false;
   
   const [currentTime, setCurrentTime] = useState<string>(getCurrentTimeString());
   const [currentDate, setCurrentDate] = useState<string>(getCurrentDateString());
 
-  // Update time every minute
+  // Update time every 30 seconds to keep data current
   useEffect(() => {
+    // Update immediately on mount
+    setCurrentTime(getCurrentTimeString());
+    setCurrentDate(getCurrentDateString());
+    
+    // Then update every 30 seconds
     const interval = setInterval(() => {
       setCurrentTime(getCurrentTimeString());
       setCurrentDate(getCurrentDateString());
-    }, 60000); // Update every minute
+    }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
   }, []);
