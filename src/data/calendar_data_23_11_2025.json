@@ -1,0 +1,872 @@
+{
+  "scrapedAt": "2025-11-23T10:42:51.403514",
+  "dateRange": {
+    "startDay": 23,
+    "endDay": 29,
+    "month": 11,
+    "year": 2025
+  },
+  "dates": {
+    "23-11-2025": {
+      "date": "23-11-2025",
+      "classes": {},
+      "totalClasses": 0,
+      "scrapedAt": "2025-11-23T10:43:07.830217"
+    },
+    "24-11-2025": {
+      "date": "24-11-2025",
+      "classes": {
+        "Sesión grupal 6:00 am - 06:00 a 07:00 - Presencial": {
+          "class": "Sesión grupal 6:00 am - 06:00 a 07:00 - Presencial",
+          "classId": "104996-237092",
+          "reservations": [
+            {
+              "id": 900283,
+              "reserva_id": 27365536,
+              "hash_reserva_id": "QDNMx5rW0M",
+              "name": "Carlos Alfonso",
+              "last_name": "Zamora Pastrana",
+              "full_name": "Carlos Alfonso Zamora Pastrana",
+              "email": "carlos_zmc@hotmail.es",
+              "telefono": "33 3965 9121",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "20/11 01:04:31",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default7.jpg"
+            }
+          ],
+          "totalReservations": 1,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:19.803924"
+        },
+        "Sesión grupal 7:00 am - 07:00 a 08:00 - Presencial": {
+          "class": "Sesión grupal 7:00 am - 07:00 a 08:00 - Presencial",
+          "classId": "105109-237407",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:25.162548"
+        },
+        "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial": {
+          "class": "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial",
+          "classId": "105110-237410",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:30.657295"
+        },
+        "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial": {
+          "class": "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial",
+          "classId": "105111-237415",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:36.268436"
+        },
+        "Privadas Hector - 10:00 a 11:00 - Presencial": {
+          "class": "Privadas Hector - 10:00 a 11:00 - Presencial",
+          "classId": "118024-260998",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:41.906023"
+        },
+        "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial": {
+          "class": "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial",
+          "classId": "105112-237418",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:47.475107"
+        },
+        "Privadas Hector - 11:00 a 00:00 - Presencial": {
+          "class": "Privadas Hector - 11:00 a 00:00 - Presencial",
+          "classId": "118025-261002",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:52.917916"
+        },
+        "Privadas Hector - 12:00 a 13:00 - Presencial": {
+          "class": "Privadas Hector - 12:00 a 13:00 - Presencial",
+          "classId": "118026-261006",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:43:58.479547"
+        },
+        "Sesión privada 3:00 pm - 15:00 a 16:00 - Presencial": {
+          "class": "Sesión privada 3:00 pm - 15:00 a 16:00 - Presencial",
+          "classId": "107304-241499",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:04.043706"
+        },
+        "Sesión semiprivada 4:00 pm - 16:00 a 17:00 - Presencial": {
+          "class": "Sesión semiprivada 4:00 pm - 16:00 a 17:00 - Presencial",
+          "classId": "107295-241480",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:09.548843"
+        },
+        "Sesión grupal 5:00 pm - 17:00 a 18:00 - Presencial": {
+          "class": "Sesión grupal 5:00 pm - 17:00 a 18:00 - Presencial",
+          "classId": "107297-241485",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:15.014183"
+        },
+        "Sesión grupal 6:00 pm - 18:00 a 19:00 - Presencial": {
+          "class": "Sesión grupal 6:00 pm - 18:00 a 19:00 - Presencial",
+          "classId": "107301-241491",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:20.714138"
+        },
+        "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial": {
+          "class": "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial",
+          "classId": "107302-241494",
+          "reservations": [
+            {
+              "id": 896823,
+              "reserva_id": 27419150,
+              "hash_reserva_id": "rLaj8oKx4j",
+              "name": "Diana",
+              "last_name": "Aparicio",
+              "full_name": "Diana Aparicio",
+              "email": "ar-consultoriaymas@outlook.com",
+              "telefono": "33 3201 8119",
+              "status": "activo",
+              "nombre_plan": "Paquete semestral",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:31:38",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default1.jpg"
+            },
+            {
+              "id": 967913,
+              "reserva_id": 27419167,
+              "hash_reserva_id": "WD793bwx4o",
+              "name": "Cristian",
+              "last_name": "Rodriguez",
+              "full_name": "Cristian Rodriguez",
+              "email": "dab.040313@gmail.com",
+              "telefono": "",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:32:53",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default2.jpg"
+            },
+            {
+              "id": 966846,
+              "reserva_id": 27419169,
+              "hash_reserva_id": "VLZV1lxPLz",
+              "name": "Cuauthemoc",
+              "last_name": "Rodriguez",
+              "full_name": "Cuauthemoc Rodriguez",
+              "email": "cuauthemoc.rodriguez@grupolala.com",
+              "telefono": "",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:32:53",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default11.jpg"
+            }
+          ],
+          "totalReservations": 3,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:26.332127"
+        },
+        "Sesión grupal 8:00 pm - 20:00 a 21:00 - Presencial": {
+          "class": "Sesión grupal 8:00 pm - 20:00 a 21:00 - Presencial",
+          "classId": "107303-241497",
+          "reservations": [
+            {
+              "id": 945091,
+              "reserva_id": 27298590,
+              "hash_reserva_id": "GDPa6mMMLb",
+              "name": "Fernanda",
+              "last_name": "Vazquez",
+              "full_name": "Fernanda Vazquez",
+              "email": "fernandavazglez@gmail.com",
+              "telefono": "3311818605",
+              "status": "activo",
+              "nombre_plan": "Fernanda Vázquez",
+              "canal": "app",
+              "fecha_creacion": "17/11 22:26:05",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default2.jpg"
+            }
+          ],
+          "totalReservations": 1,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:31.894508"
+        }
+      },
+      "totalClasses": 14,
+      "scrapedAt": "2025-11-23T10:43:15.029168"
+    },
+    "25-11-2025": {
+      "date": "25-11-2025",
+      "classes": {
+        "Sesión privada 6:00 am - 06:00 a 07:00 - Presencial": {
+          "class": "Sesión privada 6:00 am - 06:00 a 07:00 - Presencial",
+          "classId": "105113-237421",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:44.953016"
+        },
+        "Sesión semiprivada 7:00 am - 07:00 a 08:00 - Presencial": {
+          "class": "Sesión semiprivada 7:00 am - 07:00 a 08:00 - Presencial",
+          "classId": "107296-241483",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:50.511976"
+        },
+        "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial": {
+          "class": "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial",
+          "classId": "105110-237411",
+          "reservations": [
+            {
+              "id": 945091,
+              "reserva_id": 27338210,
+              "hash_reserva_id": "vLYzmxnn47",
+              "name": "Fernanda",
+              "last_name": "Vazquez",
+              "full_name": "Fernanda Vazquez",
+              "email": "fernandavazglez@gmail.com",
+              "telefono": "3311818605",
+              "status": "activo",
+              "nombre_plan": "Fernanda Vázquez",
+              "canal": "app",
+              "fecha_creacion": "19/11 03:09:37",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default2.jpg"
+            }
+          ],
+          "totalReservations": 1,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:44:56.143946"
+        }
+      },
+      "totalClasses": 3,
+      "scrapedAt": "2025-11-23T10:44:40.233051"
+    },
+    "26-11-2025": {
+      "date": "26-11-2025",
+      "classes": {
+        "Sesión grupal 6:00 am - 06:00 a 07:00 - Presencial": {
+          "class": "Sesión grupal 6:00 am - 06:00 a 07:00 - Presencial",
+          "classId": "104996-237093",
+          "reservations": [
+            {
+              "id": 900283,
+              "reserva_id": 27365549,
+              "hash_reserva_id": "Y0lO81x84k",
+              "name": "Carlos Alfonso",
+              "last_name": "Zamora Pastrana",
+              "full_name": "Carlos Alfonso Zamora Pastrana",
+              "email": "carlos_zmc@hotmail.es",
+              "telefono": "33 3965 9121",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "20/11 01:04:43",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default7.jpg"
+            }
+          ],
+          "totalReservations": 1,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:09.116116"
+        },
+        "Sesión grupal 7:00 am - 07:00 a 08:00 - Presencial": {
+          "class": "Sesión grupal 7:00 am - 07:00 a 08:00 - Presencial",
+          "classId": "105109-237408",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:14.683964"
+        },
+        "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial": {
+          "class": "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial",
+          "classId": "105110-237412",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:20.214795"
+        },
+        "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial": {
+          "class": "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial",
+          "classId": "105111-237416",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:25.819623"
+        },
+        "Privadas Hector - 10:00 a 11:00 - Presencial": {
+          "class": "Privadas Hector - 10:00 a 11:00 - Presencial",
+          "classId": "118024-260999",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:31.456438"
+        },
+        "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial": {
+          "class": "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial",
+          "classId": "105112-237419",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:37.133644"
+        },
+        "Privadas Hector - 11:00 a 00:00 - Presencial": {
+          "class": "Privadas Hector - 11:00 a 00:00 - Presencial",
+          "classId": "118025-261003",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:42.658709"
+        },
+        "Privadas Hector - 12:00 a 13:00 - Presencial": {
+          "class": "Privadas Hector - 12:00 a 13:00 - Presencial",
+          "classId": "118026-261007",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:48.148458"
+        },
+        "Sesión privada 3:00 pm - 15:00 a 16:00 - Presencial": {
+          "class": "Sesión privada 3:00 pm - 15:00 a 16:00 - Presencial",
+          "classId": "107304-241500",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:53.617242"
+        },
+        "Sesión semiprivada 4:00 pm - 16:00 a 17:00 - Presencial": {
+          "class": "Sesión semiprivada 4:00 pm - 16:00 a 17:00 - Presencial",
+          "classId": "107295-241481",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:45:59.118447"
+        },
+        "Sesión grupal 5:00 pm - 17:00 a 18:00 - Presencial": {
+          "class": "Sesión grupal 5:00 pm - 17:00 a 18:00 - Presencial",
+          "classId": "107297-241486",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:04.564827"
+        },
+        "Sesión grupal 6:00 pm - 18:00 a 19:00 - Presencial": {
+          "class": "Sesión grupal 6:00 pm - 18:00 a 19:00 - Presencial",
+          "classId": "107301-241492",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:10.108878"
+        },
+        "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial": {
+          "class": "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial",
+          "classId": "107302-241495",
+          "reservations": [
+            {
+              "id": 896823,
+              "reserva_id": 27419152,
+              "hash_reserva_id": "V4dY8G2p0r",
+              "name": "Diana",
+              "last_name": "Aparicio",
+              "full_name": "Diana Aparicio",
+              "email": "ar-consultoriaymas@outlook.com",
+              "telefono": "33 3201 8119",
+              "status": "activo",
+              "nombre_plan": "Paquete semestral",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:31:55",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default1.jpg"
+            },
+            {
+              "id": 966846,
+              "reserva_id": 27419175,
+              "hash_reserva_id": "A02MWbQP45",
+              "name": "Cuauthemoc",
+              "last_name": "Rodriguez",
+              "full_name": "Cuauthemoc Rodriguez",
+              "email": "cuauthemoc.rodriguez@grupolala.com",
+              "telefono": "",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:33:03",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default11.jpg"
+            },
+            {
+              "id": 967913,
+              "reserva_id": 27419176,
+              "hash_reserva_id": "eL3lWbw64a",
+              "name": "Cristian",
+              "last_name": "Rodriguez",
+              "full_name": "Cristian Rodriguez",
+              "email": "dab.040313@gmail.com",
+              "telefono": "",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:33:04",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default2.jpg"
+            }
+          ],
+          "totalReservations": 3,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:15.706792"
+        },
+        "Sesión grupal 8:00 pm - 20:00 a 21:00 - Presencial": {
+          "class": "Sesión grupal 8:00 pm - 20:00 a 21:00 - Presencial",
+          "classId": "107303-241498",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:21.121148"
+        }
+      },
+      "totalClasses": 14,
+      "scrapedAt": "2025-11-23T10:45:04.450443"
+    },
+    "27-11-2025": {
+      "date": "27-11-2025",
+      "classes": {
+        "Sesión privada 6:00 am - 06:00 a 07:00 - Presencial": {
+          "class": "Sesión privada 6:00 am - 06:00 a 07:00 - Presencial",
+          "classId": "105113-237422",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:34.056810"
+        },
+        "Sesión semiprivada 7:00 am - 07:00 a 08:00 - Presencial": {
+          "class": "Sesión semiprivada 7:00 am - 07:00 a 08:00 - Presencial",
+          "classId": "107296-241484",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:39.618730"
+        },
+        "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial": {
+          "class": "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial",
+          "classId": "105110-237413",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:45.134231"
+        },
+        "Sesión grupal 5:30 pm - 17:30 a 18:30 - Presencial": {
+          "class": "Sesión grupal 5:30 pm - 17:30 a 18:30 - Presencial",
+          "classId": "107306-241503",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:46:50.603433"
+        }
+      },
+      "totalClasses": 4,
+      "scrapedAt": "2025-11-23T10:46:29.414649"
+    },
+    "28-11-2025": {
+      "date": "28-11-2025",
+      "classes": {
+        "Sesión grupal 6:00 am - 06:00 a 07:00 - Presencial": {
+          "class": "Sesión grupal 6:00 am - 06:00 a 07:00 - Presencial",
+          "classId": "104996-237094",
+          "reservations": [
+            {
+              "id": 900283,
+              "reserva_id": 27365556,
+              "hash_reserva_id": "BLo5pOWP0n",
+              "name": "Carlos Alfonso",
+              "last_name": "Zamora Pastrana",
+              "full_name": "Carlos Alfonso Zamora Pastrana",
+              "email": "carlos_zmc@hotmail.es",
+              "telefono": "33 3965 9121",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "20/11 01:04:54",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default7.jpg"
+            }
+          ],
+          "totalReservations": 1,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:03.507601"
+        },
+        "Sesión grupal 7:00 am - 07:00 a 08:00 - Presencial": {
+          "class": "Sesión grupal 7:00 am - 07:00 a 08:00 - Presencial",
+          "classId": "105109-237409",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:09.061531"
+        },
+        "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial": {
+          "class": "Sesión grupal 8:00 am - 08:00 a 09:00 - Presencial",
+          "classId": "105110-237414",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:14.583915"
+        },
+        "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial": {
+          "class": "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial",
+          "classId": "105111-237417",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:20.074286"
+        },
+        "Privadas Hector - 10:00 a 11:00 - Presencial": {
+          "class": "Privadas Hector - 10:00 a 11:00 - Presencial",
+          "classId": "118024-261000",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:25.499531"
+        },
+        "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial": {
+          "class": "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial",
+          "classId": "105112-237420",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:31.067285"
+        },
+        "Privadas Hector - 11:00 a 00:00 - Presencial": {
+          "class": "Privadas Hector - 11:00 a 00:00 - Presencial",
+          "classId": "118025-261004",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:36.711007"
+        },
+        "Privadas Hector - 12:00 a 13:00 - Presencial": {
+          "class": "Privadas Hector - 12:00 a 13:00 - Presencial",
+          "classId": "118026-261008",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:42.223750"
+        },
+        "Sesión privada 3:00 pm - 15:00 a 16:00 - Presencial": {
+          "class": "Sesión privada 3:00 pm - 15:00 a 16:00 - Presencial",
+          "classId": "107304-241501",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:47.741115"
+        },
+        "Sesión semiprivada 4:00 pm - 16:00 a 17:00 - Presencial": {
+          "class": "Sesión semiprivada 4:00 pm - 16:00 a 17:00 - Presencial",
+          "classId": "107295-241482",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:53.292817"
+        },
+        "Sesión grupal 5:00 pm - 17:00 a 18:00 - Presencial": {
+          "class": "Sesión grupal 5:00 pm - 17:00 a 18:00 - Presencial",
+          "classId": "107297-241487",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:47:58.788978"
+        },
+        "Sesión grupal 6:00 pm - 18:00 a 19:00 - Presencial": {
+          "class": "Sesión grupal 6:00 pm - 18:00 a 19:00 - Presencial",
+          "classId": "107301-241493",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:48:04.655950"
+        },
+        "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial": {
+          "class": "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial",
+          "classId": "107302-241496",
+          "reservations": [
+            {
+              "id": 896823,
+              "reserva_id": 27419156,
+              "hash_reserva_id": "BLo5pAdN0n",
+              "name": "Diana",
+              "last_name": "Aparicio",
+              "full_name": "Diana Aparicio",
+              "email": "ar-consultoriaymas@outlook.com",
+              "telefono": "33 3201 8119",
+              "status": "activo",
+              "nombre_plan": "Paquete semestral",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:32:10",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default1.jpg"
+            },
+            {
+              "id": 966846,
+              "reserva_id": 27419181,
+              "hash_reserva_id": "KL6Z287jLB",
+              "name": "Cuauthemoc",
+              "last_name": "Rodriguez",
+              "full_name": "Cuauthemoc Rodriguez",
+              "email": "cuauthemoc.rodriguez@grupolala.com",
+              "telefono": "",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:33:15",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default11.jpg"
+            },
+            {
+              "id": 967913,
+              "reserva_id": 27419183,
+              "hash_reserva_id": "bDWNqmxZ0R",
+              "name": "Cristian",
+              "last_name": "Rodriguez",
+              "full_name": "Cristian Rodriguez",
+              "email": "dab.040313@gmail.com",
+              "telefono": "",
+              "status": "activo",
+              "nombre_plan": "Grupal (Paquete Full)",
+              "canal": "app",
+              "fecha_creacion": "22/11 03:33:21",
+              "asistencia_confirmada": 0,
+              "pago_pendiente": false,
+              "form_asistencia_url": false,
+              "mostrar_formulario": true,
+              "rating": null,
+              "imagen": "default2.jpg"
+            }
+          ],
+          "totalReservations": 3,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:48:10.286838"
+        }
+      },
+      "totalClasses": 13,
+      "scrapedAt": "2025-11-23T10:46:58.844277"
+    },
+    "29-11-2025": {
+      "date": "29-11-2025",
+      "classes": {
+        "Sesión semiprivada 8:00 am - 08:00 a 09:00 - Presencial": {
+          "class": "Sesión semiprivada 8:00 am - 08:00 a 09:00 - Presencial",
+          "classId": "107300-241490",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 5,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:48:23.300879"
+        },
+        "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial": {
+          "class": "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial",
+          "classId": "107298-241488",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 11,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:48:28.823136"
+        },
+        "Sesión privada 10:15 am - 10:15 a 11:15 - Presencial": {
+          "class": "Sesión privada 10:15 am - 10:15 a 11:15 - Presencial",
+          "classId": "107299-241489",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:48:34.363243"
+        },
+        "Privadas Hector - 10:15 a 11:15 - Presencial": {
+          "class": "Privadas Hector - 10:15 a 11:15 - Presencial",
+          "classId": "118024-261001",
+          "reservations": [],
+          "totalReservations": 0,
+          "limite": 1,
+          "clase_online": 0,
+          "clase_coach_id": null,
+          "extractedAt": "2025-11-23T10:48:40.194979"
+        }
+      },
+      "totalClasses": 4,
+      "scrapedAt": "2025-11-23T10:48:18.569986"
+    }
+  },
+  "summary": {
+    "totalDates": 7,
+    "totalClasses": 52,
+    "totalReservations": 14
+  }
+}

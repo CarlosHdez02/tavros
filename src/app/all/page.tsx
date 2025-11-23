@@ -1,16 +1,21 @@
+'use client'
 import React, { useMemo, useState, useEffect } from 'react';
 import { createColumnHelper, getCoreRowModel, useReactTable, flexRender, getSortedRowModel } from '@tanstack/react-table';
-import {CheckinData, ProcessedSession,  } from '@/types/Table.interface';
-import { getCurrentDateString, getCurrentTimeString, extractTimeRange, isClassActiveNow, getColor, getSessionType, formatDate } from '@/utils/helpers';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://tavros-scraper-1.onrender.com';
+// Import your interfaces and helpers
+import { CheckinData, ProcessedSession } from '@/types/Table.interface';
+import { getCurrentDateString, getCurrentTimeString, extractTimeRange, getColor, getSessionType, formatDate } from '@/utils/helpers';
+
+// Import your JSON data
+import calendar_data_23_11 from '../../data/calendar_data_23_11_2025.json';
 
 const TVScheduleDisplay: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string>(getCurrentTimeString());
   const [currentDate, setCurrentDate] = useState<string>(getCurrentDateString());
-  const [checkinData, setCheckinData] = useState<CheckinData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [checkinData] = useState<CheckinData | null>(calendar_data_23_11 as CheckinData);
+  const [loading] = useState<boolean>(false); // Set to false since we have data
+  const [error] = useState<string | null>(null);
+  const [manualDate, setManualDate] = useState<string>('24-11-2025'); // For testing specific dates
 
   // Wake lock to prevent screen from sleeping
   useEffect(() => {
@@ -36,50 +41,10 @@ const TVScheduleDisplay: React.FC = () => {
     };
   }, []);
 
-  // Fetch data
-  const fetchCheckinData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch(`${API_BASE_URL}/api/checkin`);
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data: CheckinData = await response.json();
-      setCheckinData(data);
-    } catch (err) {
-      console.error('Error fetching check-in data:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Keep server awake
+  // Log data on mount
   useEffect(() => {
-    const keepAlive = setInterval(async () => {
-      try {
-        await fetch(`${API_BASE_URL}/health`);
-      } catch (e) {
-        console.log('Keep-alive ping failed');
-      }
-    }, 10 * 60 * 1000);
-
-    return () => clearInterval(keepAlive);
-  }, []);
-
-  // Initial fetch and auto-refresh every 5 minutes
-  useEffect(() => {
-    fetchCheckinData();
-    
-    const dataRefreshInterval = setInterval(() => {
-      fetchCheckinData();
-    }, 5 * 60 * 1000);
-
-    return () => clearInterval(dataRefreshInterval);
+    console.log('✅ Data loaded from import:', checkinData);
+    console.log('Available dates:', Object.keys(checkinData?.dates || {}));
   }, []);
 
   // Update time every 30 seconds
@@ -95,44 +60,49 @@ const TVScheduleDisplay: React.FC = () => {
     return () => clearInterval(timeInterval);
   }, []);
 
-  // Auto-reload if no data for 30 minutes
-  useEffect(() => {
-    let noDataTimer: NodeJS.Timeout;
-    
-    if (!checkinData && !loading) {
-      noDataTimer = setTimeout(() => {
-        console.log('No data for 30min, reloading...');
-        window.location.reload();
-      }, 30 * 60 * 1000);
-    }
-    
-    return () => clearTimeout(noDataTimer);
-  }, [checkinData, loading]);
-
-  // Process data
+  // Process data - SHOWING ALL CLASSES (testing mode)
   const processedData = useMemo<ProcessedSession[]>(() => {
-    if (!checkinData?.dates) return [];
+    if (!checkinData?.dates) {
+      console.log('⚠️ No checkin data available');
+      return [];
+    }
+
+    // Use manualDate for testing
+    const dateToUse = manualDate || currentDate;
+    
+    console.log(`📅 Showing ALL classes for date: ${dateToUse}`);
 
     const sessions: ProcessedSession[] = [];
-    const dateData = checkinData.dates[currentDate];
+    const dateData = checkinData.dates[dateToUse];
     
-    if (!dateData) return [];
+    if (!dateData) {
+      console.log(`❌ No data found for date: ${dateToUse}`);
+      console.log('Available dates:', Object.keys(checkinData.dates));
+      return [];
+    }
+
+    console.log(`📊 Processing ${Object.keys(dateData.classes).length} classes for ${dateToUse}`);
 
     Object.entries(dateData.classes).forEach(([className, classData]) => {
       const timeRange = extractTimeRange(className);
-      if (!timeRange) return;
+      
+      if (!timeRange) {
+        console.log(`⚠️ No time range found for class: ${className}`);
+        return;
+      }
 
-      const isActive = isClassActiveNow(timeRange.startTime, timeRange.endTime, currentTime);
-      if (!isActive) return;
+      // ✅ TESTING MODE: Show ALL classes regardless of time
+      console.log(`✅ Including class: ${timeRange.startTime}-${timeRange.endTime}`);
 
       const sessionType = getSessionType(className);
+      
       let cleanClassName = className.split(' - ')[0];
       cleanClassName = cleanClassName.replace(/\d{1,2}:\d{2}\s*(am|pm)/gi, '').trim();
       
       sessions.push({
-        id: `${classData.classId}-${currentDate}`,
+        id: `${classData.classId}-${dateToUse}`,
         time: `${timeRange.startTime} - ${timeRange.endTime}`,
-        date: formatDate(currentDate),
+        date: formatDate(dateToUse),
         sessionType,
         className: cleanClassName || className.split(' - ')[0],
         capacity: classData.limite,
@@ -143,8 +113,9 @@ const TVScheduleDisplay: React.FC = () => {
       });
     });
 
+    console.log(`✅ Showing ALL ${sessions.length} classes (TESTING MODE - no time filter)`);
     return sessions.sort((a, b) => a.time.localeCompare(b.time));
-  }, [checkinData, currentDate, currentTime]);
+  }, [checkinData, currentDate, manualDate]); // Removed currentTime dependency
 
   const columnHelper = createColumnHelper<ProcessedSession>();
 
@@ -333,9 +304,10 @@ const TVScheduleDisplay: React.FC = () => {
           <div style={{ 
             fontSize: '28px', 
             color: '#94a3b8',
-            fontWeight: '600'
+            fontWeight: '600',
+            marginBottom: '24px'
           }}>
-            No se pudo cargar el horario
+            {error}
           </div>
         </div>
       </div>
@@ -349,6 +321,51 @@ const TVScheduleDisplay: React.FC = () => {
       padding: '32px',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
+      {/* Testing Controls - Remove for production */}
+      <div style={{
+        position: 'fixed',
+        top: '16px',
+        right: '16px',
+        backgroundColor: '#1e293b',
+        padding: '16px',
+        borderRadius: '12px',
+        border: '2px solid #334155',
+        zIndex: 1000
+      }}>
+        <div style={{ 
+          color: '#fbbf24', 
+          fontSize: '16px', 
+          marginBottom: '8px',
+          fontWeight: '700'
+        }}>
+          🧪 TESTING MODE
+        </div>
+        <div style={{ 
+          color: '#94a3b8', 
+          fontSize: '12px', 
+          marginBottom: '12px'
+        }}>
+          Showing ALL classes (no time filter)
+        </div>
+        <select
+          value={manualDate}
+          onChange={(e) => setManualDate(e.target.value)}
+          style={{
+            padding: '8px',
+            fontSize: '14px',
+            backgroundColor: '#0f172a',
+            color: '#fff',
+            border: '1px solid #334155',
+            borderRadius: '6px',
+            width: '140px'
+          }}
+        >
+          {checkinData && Object.keys(checkinData.dates).map(date => (
+            <option key={date} value={date}>{date}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Header */}
       <div style={{
         marginBottom: '32px',
@@ -376,7 +393,7 @@ const TVScheduleDisplay: React.FC = () => {
               color: '#94a3b8',
               fontWeight: '600'
             }}>
-              {formatDate(currentDate)}
+              {formatDate(manualDate || currentDate)}
             </div>
           </div>
           <div style={{
@@ -450,7 +467,7 @@ const TVScheduleDisplay: React.FC = () => {
                   fontSize: '36px',
                   fontWeight: '700'
                 }}>
-                  No hay clases activas en este momento
+                  No hay clases para esta fecha
                 </td>
               </tr>
             ) : (
@@ -479,6 +496,26 @@ const TVScheduleDisplay: React.FC = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Debug Info */}
+      <div style={{
+        marginTop: '24px',
+        padding: '16px',
+        backgroundColor: '#1e293b',
+        borderRadius: '12px',
+        border: '1px solid #334155',
+        fontSize: '14px',
+        color: '#64748b',
+        fontFamily: 'monospace'
+      }}>
+        <div style={{ color: '#fbbf24', fontWeight: '700', marginBottom: '8px' }}>
+          🧪 TESTING MODE - Showing ALL classes (no time filter)
+        </div>
+        <div>📅 Viewing Date: {manualDate}</div>
+        <div>⏰ Current Time: {currentTime} (ignored in testing mode)</div>
+        <div>📊 Total Classes Showing: {processedData.length}</div>
+        <div>💾 Available Dates: {checkinData ? Object.keys(checkinData.dates).join(', ') : 'None'}</div>
       </div>
     </div>
   );
