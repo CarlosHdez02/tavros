@@ -17,6 +17,7 @@ interface Reservation {
   last_name: string;
   full_name: string;
   email: string;
+  asistencia_confirmada?: string;
 }
 
 interface ProcessedSession {
@@ -46,7 +47,7 @@ const TableDev = () => {
     sessionType: 'Group',
     className: 'Sesión grupal',
     capacity: classData.limite,
-    reservations: classData.reservations,
+    reservations: (classData).reservations,
     reservationsCount: classData.totalReservations,
     color: '#10b981'
   };
@@ -217,8 +218,7 @@ const TableDev = () => {
 
           <tbody>
             {table.getRowModel().rows.map((row) => {
-              const { reservations, reservationsCount, capacity } =
-                row.original;
+              const { reservations } = row.original;
 
               return (
                 <React.Fragment key={row.id}>
@@ -246,7 +246,7 @@ const TableDev = () => {
                     ))}
                   </tr>
 
-                  {/* Second row for reservations */}
+                  {/* Second row (Reservations) */}
                   <tr>
                     <td colSpan={row.getVisibleCells().length}>
                       <div
@@ -271,25 +271,45 @@ const TableDev = () => {
                             style={{
                               margin: '0 auto',
                               borderCollapse: 'collapse',
-                             
                               borderRadius: '12px',
                               overflow: 'hidden',
                               minWidth: '60%',
                               maxWidth: '80%'
                             }}
                           >
+                            {/* UPDATED THEAD HERE */}
                             <thead>
-                              <tr style={{ }}>
+                              <tr
+                                style={{
+                                  borderBottom: '4px solid #475569',
+                                  backgroundColor: '#0f1419'
+                                }}
+                              >
                                 <th
                                   style={{
-                                    padding: '12px',
-                                    fontSize: '20px',
-                                    fontWeight: '700',
+                                    padding: '18px 12px',
+                                    textAlign: 'left',
+                                    fontSize: '22px',
+                                    fontWeight: '900',
                                     color: '#60a5fa',
-                                    textAlign: 'center'
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '2px'
                                   }}
                                 >
-                                  Reservados ({reservationsCount}/{capacity})
+                                  Cliente
+                                </th>
+                                <th
+                                  style={{
+                                    padding: '18px 12px',
+                                    textAlign: 'center',
+                                    fontSize: '22px',
+                                    fontWeight: '900',
+                                    color: '#60a5fa',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '2px'
+                                  }}
+                                >
+                                  Asistencia Confirmada
                                 </th>
                               </tr>
                             </thead>
@@ -311,10 +331,25 @@ const TableDev = () => {
                                       fontSize: '20px',
                                       color: '#f1f5f9',
                                       fontWeight: '600',
-                                      textAlign: 'center'
+                                      textAlign: 'start'
                                     }}
                                   >
                                     {r.name} {r.last_name}
+                                  </td>
+
+                                  {/* UPDATED MAPPING HERE */}
+                                  <td
+                                    style={{
+                                      padding: '12px',
+                                      fontSize: '20px',
+                                      color: '#f1f5f9',
+                                      fontWeight: '600',
+                                      textAlign: 'center'
+                                    }}
+                                  >
+                                    {r.asistencia_confirmada === '1'
+                                      ? 'Confirmada'
+                                      : 'No confirmada'}
                                   </td>
                                 </tr>
                               ))}
