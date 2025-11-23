@@ -45,7 +45,7 @@ const TableDev = () => {
     time: '19:00 - 20:00',
     date: 'Lunes, 24 de noviembre',
     sessionType: 'Group',
-    className: 'Sesión grupal',
+    className: 'Sesión',
     capacity: classData.limite,
     reservations: (classData).reservations,
     reservationsCount: classData.totalReservations,
@@ -171,6 +171,9 @@ const TableDev = () => {
         <div style={{ fontSize: '32px', color: '#94a3b8', fontWeight: '600' }}>
           {sessionData.date}
         </div>
+       {/*  <div className="flex items-start gap-x-2">
+          {sessionData.time} {sessionData.reservationsCount /sessionData.capacity}
+        </div> */}
       </div>
 
       {/* Table */}
