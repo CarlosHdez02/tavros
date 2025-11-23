@@ -17,7 +17,7 @@ interface Reservation {
   last_name: string;
   full_name: string;
   email: string;
-  asistencia_confirmada?: string;
+  asistencia_confirmada?: number;
 }
 
 interface ProcessedSession {
@@ -347,7 +347,7 @@ const TableDev = () => {
                                       textAlign: 'center'
                                     }}
                                   >
-                                    {r.asistencia_confirmada === '1'
+                                    {r.asistencia_confirmada == 1
                                       ? 'Confirmada'
                                       : 'No confirmada'}
                                   </td>
