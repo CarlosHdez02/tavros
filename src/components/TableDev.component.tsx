@@ -251,7 +251,6 @@ const TableDev = () => {
                     <td colSpan={row.getVisibleCells().length}>
                       <div
                         style={{
-                          padding: '24px 0',
                           display: 'flex',
                           justifyContent: 'center'
                         }}
@@ -269,12 +268,11 @@ const TableDev = () => {
                         ) : (
                           <table
                             style={{
-                              margin: '0 auto',
                               borderCollapse: 'collapse',
                               borderRadius: '12px',
                               overflow: 'hidden',
                               minWidth: '60%',
-                              maxWidth: '80%'
+                              maxWidth: '100%'
                             }}
                           >
                             {/* UPDATED THEAD HERE */}
