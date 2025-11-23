@@ -14,7 +14,7 @@ export interface CarrouselInterface {
   type: 'table' | 'video' | 'gallery';
 }
 
-const componentMap = {
+export const componentMap = {
   table: TableComponent,
   video: SingleVideo,
   gallery: GalleryComponent,
@@ -42,7 +42,7 @@ const CarrouselWrapper = () => {
   // Get current item data
   const currentItem = carrouselComponents[currentIndex];
   const currentDuration = currentItem?.data?.durationSeconds 
-    ? currentItem.data.durationSeconds * 1000 
+    ? currentItem.data.durationSeconds * 100
     : 6000; // Default 6 seconds
 
   // Get all video items for video cycling
