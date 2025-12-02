@@ -6,7 +6,7 @@ import {
   flexRender,
   getSortedRowModel
 } from '@tanstack/react-table';
-//import tavrosLogo from '../../public/tavros-logo.png';
+import tavrosLogo from '../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png'
 
 // Import your JSON data
 import calendar_data_23_11 from '../data/calendar_data_23_11_2025.json';
@@ -138,7 +138,7 @@ const TableDev = () => {
           borderBottom: '4px solid #E8B44F'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
           <h1
             style={{
               fontSize: '56px',
@@ -151,22 +151,26 @@ const TableDev = () => {
           >
             Sesiones
           </h1>
-       {/*    <img 
+          <img 
             src={typeof tavrosLogo === 'string' ? tavrosLogo : tavrosLogo.src} 
             alt="Tavros Logo"
             style={{
-              height: '80px',
+              height: '120px',
               width: 'auto',
-              background:"transparent",
-              backgroundColor:"transparent"
+              objectFit: 'contain'
             }}
-          /> */}
+          />
         </div>
         <div style={{ fontSize: '32px', color: '#D4D4D4', fontWeight: '600', marginTop: '8px' }}>
           {sessionData.date}
         </div>
-        <div style={{ fontSize: '28px', color: '#B8B8B8', fontWeight: '600', marginTop: '8px' }}>
-          {sessionData.time} • {sessionData.reservationsCount}/{sessionData.capacity} reservas
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+          <div style={{ fontSize: '28px', color: '#B8B8B8', fontWeight: '600' }}>
+            {sessionData.time}
+          </div>
+          <div style={{ fontSize: '28px', color: '#B8B8B8', fontWeight: '600' }}>
+            {sessionData.reservationsCount}/{sessionData.capacity} reservas
+          </div>
         </div>
       </div>
 
