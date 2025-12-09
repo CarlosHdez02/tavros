@@ -226,7 +226,7 @@ const TVScheduleDisplay = () => {
             textAlign: 'center'
           }}
         >
-          {info.getValue() || 'N/A'}
+          {info.getValue() || 'N/A.'}
         </div>
       )
     }),
@@ -372,19 +372,6 @@ const TVScheduleDisplay = () => {
           overflow: 'hidden'
         }}
       >
-        {displayData.reservations.length === 0 ? (
-          <div
-            style={{
-              padding: '64px',
-              textAlign: 'center',
-              fontSize: '24px',
-              color: '#B8B8B8',
-              fontStyle: 'italic'
-            }}
-          >
-            Sin reservas
-          </div>
-        ) : (
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -419,34 +406,50 @@ const TVScheduleDisplay = () => {
             </thead>
 
             <tbody>
-              {table.getRowModel().rows.map((row, index) => (
-                <tr
-                  key={row.id}
-                  style={{
-                    borderBottom: index < table.getRowModel().rows.length - 1 ? '2px solid #3a3a3a' : 'none',
-                    backgroundColor: '#2a2a2a'
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      style={{
-                        padding: '24px',
-                        color: '#F5F5F5',
-                        verticalAlign: 'middle'
-                      }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </td>
-                  ))}
+              {table.getRowModel().rows.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    style={{
+                      padding: '64px',
+                      textAlign: 'center',
+                      fontSize: '24px',
+                      color: '#B8B8B8',
+                      fontStyle: 'italic'
+                    }}
+                  >
+                    Sin reservas
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                table.getRowModel().rows.map((row, index) => (
+                  <tr
+                    key={row.id}
+                    style={{
+                      borderBottom: index < table.getRowModel().rows.length - 1 ? '2px solid #3a3a3a' : 'none',
+                      backgroundColor: '#2a2a2a'
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td
+                        key={cell.id}
+                        style={{
+                          padding: '24px',
+                          color: '#F5F5F5',
+                          verticalAlign: 'middle'
+                        }}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
-        )}
       </div>
     </div>
   );
