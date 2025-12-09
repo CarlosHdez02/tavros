@@ -68,15 +68,36 @@ const TVScheduleDisplay = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper to get current date in DD-MM-YYYY format
+  const getCurrentDateString = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   // Fetch data from API
   const fetchCheckinData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await fetch(`${API_BASE_URL}/api/checkin`);
+      const dateStr = getCurrentDateString();
+      const response = await fetch(`${API_BASE_URL}/api/checkin/${dateStr}`);
       
       if (!response.ok) {
+        // Check if it's the specific "No data available" error
+        try {
+          const errorJson = await response.json();
+          if (errorJson.error === "No data available") {
+            console.log('No data available for this date, showing empty table');
+            setCheckinData(null); // This will trigger the empty state fallback
+            return;
+          }
+        } catch (e) {
+          // Ignore JSON parse error on error response
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
@@ -84,6 +105,10 @@ const TVScheduleDisplay = () => {
       setCheckinData(data);
     } catch (err) {
       console.error('Error fetching check-in data:', err);
+      // Only set error if it's not the "No data available" case (which we might have caught above)
+      // But if we threw above, we land here.
+      // Let's rely on the logic above: if we returned, we don't get here.
+      // If we threw, it's a real error.
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setLoading(false);
@@ -118,18 +143,54 @@ const TVScheduleDisplay = () => {
   const sessionData: ProcessedSession | null = useMemo(() => {
     if (!checkinData?.dates) return null;
 
-    const dateData = checkinData.dates['24-11-2025'];
+    const dateStr = getCurrentDateString();
+    const dateData = checkinData.dates[dateStr];
+    
+    // Fallback to finding the first available date if current date not found (for testing/safety)
+    // const targetDateData = dateData || Object.values(checkinData.dates)[0];
+    
     if (!dateData) return null;
 
-    const classData = dateData.classes['Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial'];
-    if (!classData) return null;
+    const now = new Date();
+    const currentHour = now.getHours();
+    
+    // Find the class that matches the current hour
+    // Class keys are like "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial"
+    const classEntries = Object.entries(dateData.classes);
+    
+    const currentClassEntry = classEntries.find(([key, _]) => {
+      // Extract time range from key, e.g., "19:00 a 20:00"
+      const timeMatch = key.match(/(\d{1,2}):(\d{2})\s*a\s*(\d{1,2}):(\d{2})/);
+      if (timeMatch) {
+        const startHour = parseInt(timeMatch[1]);
+        // const startMinute = parseInt(timeMatch[2]);
+        const endHour = parseInt(timeMatch[3]);
+        // const endMinute = parseInt(timeMatch[4]);
+        
+        // Check if current hour is within the range (inclusive start, exclusive end)
+        return currentHour >= startHour && currentHour < endHour;
+      }
+      return false;
+    });
+
+    // If no class found for current time, maybe show the next upcoming class?
+    // For now, let's stick to the request: "show the class attendees that are in that specific time interval"
+    // If no class, we return null (which shows "No hay datos disponibles")
+    
+    if (!currentClassEntry) return null;
+
+    const [classNameKey, classData] = currentClassEntry;
+    
+    // Extract clean time string for display
+    const timeDisplayMatch = classNameKey.match(/(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/);
+    const timeDisplay = timeDisplayMatch ? timeDisplayMatch[1] : 'Hora desconocida';
 
     return {
       id: classData.classId,
-      time: '19:00 - 20:00',
-      date: 'Lunes, 24 de noviembre',
+      time: timeDisplay,
+      date: new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(now),
       sessionType: 'Group',
-      className: 'Sesión',
+      className: classNameKey.split('-')[0].trim(),
       capacity: classData.limite,
       reservations: classData.reservations,
       reservationsCount: classData.totalReservations,
@@ -186,9 +247,22 @@ const TVScheduleDisplay = () => {
     })
   ];
 
+  // Ensure we always have a sessionData object to render, even if empty
+  const displayData = sessionData || {
+    id: 'empty',
+    time: '00:00 - 00:00',
+    date: new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()),
+    sessionType: 'Sin sesión',
+    className: 'Sin sesión activa',
+    capacity: 0,
+    reservations: [],
+    reservationsCount: 0,
+    color: '#374151'
+  };
+
   const table = useReactTable({
     columns,
-    data: sessionData?.reservations || [],
+    data: displayData.reservations,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel()
   });
@@ -232,85 +306,8 @@ const TVScheduleDisplay = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#1a1a1a',
-          padding: '48px'
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              fontSize: '48px',
-              color: '#ef4444',
-              marginBottom: '24px',
-              fontWeight: '900'
-            }}
-          >
-            ⚠️ Error
-          </div>
-          <div
-            style={{
-              fontSize: '28px',
-              color: '#B8B8B8',
-              fontWeight: '600'
-            }}
-          >
-            No se pudo cargar los datos
-          </div>
-          <button
-            onClick={fetchCheckinData}
-            style={{
-              marginTop: '32px',
-              padding: '16px 32px',
-              fontSize: '20px',
-              fontWeight: '700',
-              color: '#1a1a1a',
-              backgroundColor: '#E8B44F',
-              border: 'none',
-              borderRadius: '12px',
-              cursor: 'pointer'
-            }}
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
+  // Removed error and no-data early returns to show the table structure always
 
-  if (!sessionData) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: '#1a1a1a',
-          padding: '48px'
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div
-            style={{
-              fontSize: '36px',
-              color: '#B8B8B8',
-              fontWeight: '700'
-            }}
-          >
-            No hay datos disponibles para esta sesión
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -353,14 +350,14 @@ const TVScheduleDisplay = () => {
           />
         </div>
         <div style={{ fontSize: '32px', color: '#D4D4D4', fontWeight: '600', marginTop: '8px' }}>
-          {sessionData.date}
+          {displayData.date}
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
           <div style={{ fontSize: '28px', color: '#B8B8B8', fontWeight: '600' }}>
-            {sessionData.time}
+            {displayData.time}
           </div>
           <div style={{ fontSize: '28px', color: '#B8B8B8', fontWeight: '600' }}>
-            {sessionData.reservationsCount}/{sessionData.capacity} reservas
+            {displayData.reservationsCount}/{displayData.capacity} reservas
           </div>
         </div>
       </div>
@@ -375,7 +372,7 @@ const TVScheduleDisplay = () => {
           overflow: 'hidden'
         }}
       >
-        {sessionData.reservations.length === 0 ? (
+        {displayData.reservations.length === 0 ? (
           <div
             style={{
               padding: '64px',

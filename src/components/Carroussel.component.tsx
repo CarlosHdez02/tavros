@@ -50,12 +50,43 @@ const CarrouselWrapper = () => {
     return data.filter(item => item.type === 'video' && item.youtubeLink);
   }, [data]);
 
+  // Track current time
+  const [currentMinute, setCurrentMinute] = React.useState(new Date().getMinutes());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentMinute(new Date().getMinutes());
+    }, 10000); // Check every 10 seconds
+    return () => clearInterval(timer);
+  }, []);
+
+  // Determine if we should be frozen on the table
+  const isFrozen = React.useMemo(() => {
+    return currentMinute < 15 || currentMinute >= 45;
+  }, [currentMinute]);
+
   // Main carousel interval
   React.useEffect(() => {
     if (loading || carrouselComponents.length === 0) return;
+
+    // If frozen, force show table and stop cycling
+    if (isFrozen) {
+      const tableIndex = carrouselComponents.findIndex(c => c.type === 'table');
+      if (tableIndex !== -1 && currentIndex !== tableIndex) {
+        setCurrentIndex(tableIndex);
+        setCurrentVideoIndex(0);
+        setCurrentGalleryIndex(0);
+      }
+      return;
+    }
     
     // Don't auto-advance if we're on a video type (videos handle their own timing)
     if (currentItem?.type === 'video') return;
+
+    // Determine duration based on type
+    const duration = (currentItem?.type === 'table' || currentItem?.type === 'gallery')
+      ? 60000 // 1 minute for table and gallery
+      : currentDuration;
 
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -73,14 +104,15 @@ const CarrouselWrapper = () => {
         
         return nextIndex;
       });
-    }, currentDuration);
+    }, duration);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [loading, carrouselComponents, currentIndex, currentDuration, currentItem?.type]);
+  }, [loading, carrouselComponents, currentIndex, currentDuration, currentItem?.type, isFrozen]);
 
   const handleVideoEnd = () => {
+    if (isFrozen) return;
     if (currentVideoIndex < videoItems.length - 1) {
       setCurrentVideoIndex((prev) => prev + 1);
     } else {
@@ -91,6 +123,7 @@ const CarrouselWrapper = () => {
   };
 
   const handleGalleryEnd = () => {
+    if (isFrozen) return;
     setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
     setCurrentGalleryIndex(0);
   };
