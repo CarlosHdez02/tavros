@@ -39,16 +39,18 @@ interface ClassData {
   reservations: Reservation[];
 }
 
-interface DateData {
-  classes: {
-    [key: string]: ClassData;
-  };
-}
+
 
 interface CheckinData {
-  dates: {
-    [key: string]: DateData;
+  data: {
+    classes: {
+      [key: string]: ClassData;
+    };
+    date: string;
+    scrapedAt: string;
+    totalClasses: number;
   };
+  date: string;
 }
 
 interface ProcessedSession {
@@ -105,10 +107,6 @@ const TVScheduleDisplay = () => {
       setCheckinData(data);
     } catch (err) {
       console.error('Error fetching check-in data:', err);
-      // Only set error if it's not the "No data available" case (which we might have caught above)
-      // But if we threw above, we land here.
-      // Let's rely on the logic above: if we returned, we don't get here.
-      // If we threw, it's a real error.
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
     } finally {
       setLoading(false);
@@ -141,22 +139,15 @@ const TVScheduleDisplay = () => {
 
   // Process session data
   const sessionData: ProcessedSession | null = useMemo(() => {
-    if (!checkinData?.dates) return null;
+    if (!checkinData?.data?.classes) return null;
 
-    const dateStr = getCurrentDateString();
-    const dateData = checkinData.dates[dateStr];
-    
-    // Fallback to finding the first available date if current date not found (for testing/safety)
-    // const targetDateData = dateData || Object.values(checkinData.dates)[0];
-    
-    if (!dateData) return null;
-
+    const classes = checkinData.data.classes;
     const now = new Date();
     const currentHour = now.getHours();
     
     // Find the class that matches the current hour
     // Class keys are like "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial"
-    const classEntries = Object.entries(dateData.classes);
+    const classEntries = Object.entries(classes);
     
     const currentClassEntry = classEntries.find(([key, _]) => {
       // Extract time range from key, e.g., "19:00 a 20:00"
