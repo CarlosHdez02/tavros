@@ -263,7 +263,7 @@ const TVScheduleDisplay = () => {
   // Ensure we always have a sessionData object to render, even if empty
   const displayData = sessionData || {
     id: "empty",
-    time: `${startTime} - ${endTime}`,
+    time: `${startTime}:00 - ${endTime}:00`,
     date: new Intl.DateTimeFormat("es-ES", {
       weekday: "long",
       day: "numeric",
