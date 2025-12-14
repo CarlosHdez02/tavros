@@ -250,7 +250,6 @@ const TVScheduleDisplay = () => {
   // Start time (current time, rounded to minutes)
   const startTime = now.toLocaleTimeString("es-ES", {
     hour: "2-digit",
-    minute: "2-digit",
   });
 
   // End time (+1 hour)
@@ -259,7 +258,6 @@ const TVScheduleDisplay = () => {
 
   const endTime = endDate.toLocaleTimeString("es-ES", {
     hour: "2-digit",
-    minute: "2-digit",
   });
 
   // Ensure we always have a sessionData object to render, even if empty
