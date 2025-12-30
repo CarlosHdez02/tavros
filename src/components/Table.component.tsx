@@ -215,18 +215,35 @@ const TVScheduleDisplay = () => {
     }),
     columnHelper.accessor("nombre_plan", {
       header: "Tipo de Sesión",
-      cell: (info) => (
-        <div
-          style={{
-            fontSize: "20px",
-            color: "#F5F5F5",
-            fontWeight: "600",
-            textAlign: "center",
-          }}
-        >
-          {info.getValue() || "N/A."}
-        </div>
-      ),
+      cell: (info) => {
+        const rawValue = info.getValue() || "";
+        const lowerValue = rawValue.toLowerCase();
+        let displayValue = rawValue || "N/A";
+
+        if (lowerValue.includes("grupal")) {
+          displayValue = "Grupal";
+        } else if (lowerValue.includes("semiprivada")) {
+          displayValue = "Semiprivada";
+        } else if (
+          lowerValue.includes("privada") ||
+          lowerValue.includes("privado")
+        ) {
+          displayValue = "Privada";
+        }
+
+        return (
+          <div
+            style={{
+              fontSize: "20px",
+              color: "#F5F5F5",
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
+            {displayValue}
+          </div>
+        );
+      },
     }),
   ];
 
