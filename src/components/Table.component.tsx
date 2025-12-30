@@ -228,21 +228,6 @@ const TVScheduleDisplay = () => {
         </div>
       ),
     }),
-    columnHelper.accessor("asistencia_confirmada", {
-      header: "Asistencia Confirmada",
-      cell: (info) => (
-        <div
-          style={{
-            fontSize: "20px",
-            color: "#F5F5F5",
-            fontWeight: "600",
-            textAlign: "center",
-          }}
-        >
-          {info.getValue() === 1 ? "Confirmada" : "No confirmada"}
-        </div>
-      ),
-    }),
   ];
 
   const now = new Date();
@@ -372,31 +357,46 @@ const TVScheduleDisplay = () => {
             }}
           />
         </div>
-        <div
-          style={{
-            fontSize: "32px",
-            color: "#D4D4D4",
-            fontWeight: "600",
-            marginTop: "8px",
-          }}
-        >
-          {displayData.date}
-        </div>
+
         <div
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "center",
+            alignItems: "flex-end",
             marginTop: "8px",
           }}
         >
-          <div
-            style={{ fontSize: "28px", color: "#B8B8B8", fontWeight: "600" }}
-          >
-            {displayData.time}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              style={{
+                fontSize: "64px", // Increased size
+                color: "#F5F5F5", // Brighter color
+                fontWeight: "800", // Bold
+                lineHeight: "1",
+                marginBottom: "8px",
+              }}
+            >
+              {displayData.time}
+            </div>
+            <div
+              style={{
+                fontSize: "24px", // Smaller size
+                color: "#888888", // Dimmer color
+                fontWeight: "500",
+                textTransform: "capitalize",
+              }}
+            >
+              {displayData.date}
+            </div>
           </div>
+
           <div
-            style={{ fontSize: "28px", color: "#B8B8B8", fontWeight: "600" }}
+            style={{
+              fontSize: "28px",
+              color: "#B8B8B8",
+              fontWeight: "600",
+              marginBottom: "8px",
+            }}
           >
             {displayData.reservationsCount}/{displayData.capacity} reservas
           </div>
