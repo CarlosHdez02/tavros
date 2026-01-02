@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useMemo } from "react";
 import {
   createColumnHelper,
@@ -7,62 +8,15 @@ import {
   getSortedRowModel,
 } from "@tanstack/react-table";
 import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
-
+import {
+  Reservation,
+  //ClassData,
+  CheckinData,
+  ProcessedSession,
+  PLAN_MAPPING,
+} from "@/types/Table.type";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://tavros-scraper-1.onrender.com";
-
-// Types
-interface Reservation {
-  id: number;
-  reserva_id: number;
-  hash_reserva_id: string;
-  name: string;
-  last_name: string;
-  full_name: string;
-  email: string;
-  telefono: string;
-  status: string;
-  nombre_plan: string;
-  canal: string;
-  fecha_creacion: string;
-  asistencia_confirmada?: number;
-  pago_pendiente: boolean;
-  form_asistencia_url: boolean;
-  mostrar_formulario: boolean;
-  rating: string | null;
-  imagen: string;
-}
-
-interface ClassData {
-  classId: string;
-  limite: number;
-  totalReservations: number;
-  reservations: Reservation[];
-}
-
-interface CheckinData {
-  data: {
-    classes: {
-      [key: string]: ClassData;
-    };
-    date: string;
-    scrapedAt: string;
-    totalClasses: number;
-  };
-  date: string;
-}
-
-interface ProcessedSession {
-  id: string;
-  time: string;
-  date: string;
-  sessionType: string;
-  className: string;
-  capacity: number;
-  reservations: Reservation[];
-  reservationsCount: number;
-  color: string;
-}
 
 const TVScheduleDisplay = () => {
   const [checkinData, setCheckinData] = useState<CheckinData | null>(null);
@@ -217,18 +171,23 @@ const TVScheduleDisplay = () => {
       header: "Tipo de Sesión",
       cell: (info) => {
         const rawValue = info.getValue() || "";
-        const lowerValue = rawValue.toLowerCase();
-        let displayValue = rawValue || "N/A";
+        let displayValue = PLAN_MAPPING[rawValue];
 
-        if (lowerValue.includes("grupal")) {
-          displayValue = "Grupal";
-        } else if (lowerValue.includes("semiprivada")) {
-          displayValue = "Semiprivada";
-        } else if (
-          lowerValue.includes("privada") ||
-          lowerValue.includes("privado")
-        ) {
-          displayValue = "Privada";
+        if (!displayValue) {
+          const lowerValue = rawValue.toLowerCase();
+
+          if (lowerValue.includes("grupal")) {
+            displayValue = "Grupal";
+          } else if (lowerValue.includes("semiprivada")) {
+            displayValue = "Semiprivada";
+          } else if (
+            lowerValue.includes("privada") ||
+            lowerValue.includes("privado")
+          ) {
+            displayValue = "Privada";
+          } else {
+            displayValue = rawValue || "N/A";
+          }
         }
 
         return (
