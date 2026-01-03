@@ -23,11 +23,7 @@
     scrollbar-color: var(--primary) var(--secondary);
   }
 
-  body {
-    @apply bg-[--background] text-[--foreground] antialiased;
-    cursor: none;
-  }
-
+ 
   /* Scrollbar styling */
   ::-webkit-scrollbar {
     @apply w-2 h-2;

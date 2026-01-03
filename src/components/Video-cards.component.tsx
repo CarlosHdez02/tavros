@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React from "react";
 
@@ -10,26 +10,26 @@ interface SingleVideoProps {
 
 const SingleVideo: React.FC<SingleVideoProps> = ({ youtubeLink, title }) => {
   const getYoutubeEmbedUrl = (url?: string | null) => {
-  if (!url) return "";
+    if (!url) return "";
 
-  try {
-    const parsedUrl = new URL(url);
-    const videoId = parsedUrl.searchParams.get("v");
+    try {
+      const parsedUrl = new URL(url);
+      const videoId = parsedUrl.searchParams.get("v");
 
-    if (!videoId) return "https://www.youtube.com/watch?v=pT4l9uV98fM&autoplay=1";
-    
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
-  } catch {
-    return "";
-  }
-};
+      if (!videoId)
+        return "https://www.youtube.com/watch?v=pT4l9uV98fM&autoplay=1";
 
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
+    } catch {
+      return "";
+    }
+  };
 
   const embedUrl = getYoutubeEmbedUrl(youtubeLink);
-  console.log(youtubeLink)
+  console.log(youtubeLink);
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-[#0f1419] flex flex-col items-center justify-center z-50">
+    <div className="w-full h-screen bg-[#0f1419] flex flex-col items-center justify-center relative">
       <div className="absolute inset-0 bg-black/30"></div>
 
       <div className="relative w-full h-full">

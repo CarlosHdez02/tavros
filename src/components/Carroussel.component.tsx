@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import dynamic from "next/dynamic";
 import React from "react";
@@ -11,7 +11,7 @@ const TableComponent = dynamic(() => import("./Table.component"));
 export interface CarrouselInterface {
   id: number;
   currentComponent: React.ComponentType<any>;
-  type: 'table' | 'video' | 'gallery';
+  type: "table" | "video" | "gallery";
 }
 
 export const componentMap = {
@@ -25,33 +25,36 @@ const CarrouselWrapper = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
+  const [isManualOverride, setIsManualOverride] = React.useState(false);
   const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Build carousel components from CSV data
   const carrouselComponents = React.useMemo(() => {
     if (!data || data.length === 0) return [];
-    
+
     return data.map((row, index) => ({
       id: index + 1,
       currentComponent: componentMap[row.type],
       type: row.type,
-      data: row
+      data: row,
     }));
   }, [data]);
 
   // Get current item data
   const currentItem = carrouselComponents[currentIndex];
-  const currentDuration = currentItem?.data?.durationSeconds 
+  const currentDuration = currentItem?.data?.durationSeconds
     ? currentItem.data.durationSeconds * 100
     : 6000; // Default 6 seconds
 
   // Get all video items for video cycling
   const videoItems = React.useMemo(() => {
-    return data.filter(item => item.type === 'video' && item.youtubeLink);
+    return data.filter((item) => item.type === "video" && item.youtubeLink);
   }, [data]);
 
   // Track current time
-  const [currentMinute, setCurrentMinute] = React.useState(new Date().getMinutes());
+  const [currentMinute, setCurrentMinute] = React.useState(
+    new Date().getMinutes()
+  );
 
   React.useEffect(() => {
     const timer = setInterval(() => {
@@ -69,9 +72,11 @@ const CarrouselWrapper = () => {
   React.useEffect(() => {
     if (loading || carrouselComponents.length === 0) return;
 
-    // If frozen, force show table and stop cycling
-    if (isFrozen) {
-      const tableIndex = carrouselComponents.findIndex(c => c.type === 'table');
+    // If frozen and NO manual override, force show table and stop cycling
+    if (isFrozen && !isManualOverride) {
+      const tableIndex = carrouselComponents.findIndex(
+        (c) => c.type === "table"
+      );
       if (tableIndex !== -1 && currentIndex !== tableIndex) {
         setCurrentIndex(tableIndex);
         setCurrentVideoIndex(0);
@@ -79,29 +84,30 @@ const CarrouselWrapper = () => {
       }
       return;
     }
-    
+
     // Don't auto-advance if we're on a video type (videos handle their own timing)
-    if (currentItem?.type === 'video') return;
+    if (currentItem?.type === "video") return;
 
     // Determine duration based on type
-    const duration = (currentItem?.type === 'table' || currentItem?.type === 'gallery')
-      ? 60000 // 1 minute for table and gallery
-      : currentDuration;
+    const duration =
+      currentItem?.type === "table" || currentItem?.type === "gallery"
+        ? 60000 // 1 minute for table and gallery
+        : currentDuration;
 
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
         const nextIndex = (prevIndex + 1) % carrouselComponents.length;
-        
+
         // Increment gallery index when arriving at gallery
-        if (carrouselComponents[nextIndex]?.type === 'gallery') {
+        if (carrouselComponents[nextIndex]?.type === "gallery") {
           setCurrentGalleryIndex((prev) => prev + 1);
         }
-        
+
         // Reset video index when arriving at video section
-        if (carrouselComponents[nextIndex]?.type === 'video') {
+        if (carrouselComponents[nextIndex]?.type === "video") {
           setCurrentVideoIndex(0);
         }
-        
+
         return nextIndex;
       });
     }, duration);
@@ -109,10 +115,18 @@ const CarrouselWrapper = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [loading, carrouselComponents, currentIndex, currentDuration, currentItem?.type, isFrozen]);
+  }, [
+    loading,
+    carrouselComponents,
+    currentIndex,
+    currentDuration,
+    currentItem?.type,
+    isFrozen,
+    isManualOverride,
+  ]);
 
   const handleVideoEnd = () => {
-    if (isFrozen) return;
+    if (isFrozen && !isManualOverride) return;
     if (currentVideoIndex < videoItems.length - 1) {
       setCurrentVideoIndex((prev) => prev + 1);
     } else {
@@ -123,8 +137,28 @@ const CarrouselWrapper = () => {
   };
 
   const handleGalleryEnd = () => {
-    if (isFrozen) return;
+    if (isFrozen && !isManualOverride) return;
     setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
+    setCurrentGalleryIndex(0);
+  };
+
+  // Navigation Handlers
+  const handlePrev = () => {
+    setIsManualOverride(true);
+    setCurrentIndex((prev) => {
+      const newIndex = prev - 1;
+      return newIndex < 0 ? carrouselComponents.length - 1 : newIndex;
+    });
+    // Reset internal indices when switching manually
+    setCurrentVideoIndex(0);
+    setCurrentGalleryIndex(0);
+  };
+
+  const handleNext = () => {
+    setIsManualOverride(true);
+    setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
+    // Reset internal indices when switching manually
+    setCurrentVideoIndex(0);
     setCurrentGalleryIndex(0);
   };
 
@@ -147,14 +181,14 @@ const CarrouselWrapper = () => {
   const CurrentComponent = currentItem?.currentComponent;
 
   const componentProps =
-    currentItem?.type === 'video'
+    currentItem?.type === "video"
       ? {
           youtubeLink: videoItems[currentVideoIndex]?.youtubeLink,
           //title: videoItems[currentVideoIndex]?.,
           //videoDescription: videoItems[currentVideoIndex]?.description,
           onVideoEnd: handleVideoEnd,
         }
-      : currentItem?.type === 'gallery'
+      : currentItem?.type === "gallery"
       ? {
           externalIndex: currentGalleryIndex,
           onGalleryEnd: handleGalleryEnd,
@@ -162,14 +196,66 @@ const CarrouselWrapper = () => {
       : {};
 
   return (
-    <div className="relative">
-      <CurrentComponent {...componentProps as any} />
+    <div className="relative group">
+      <CurrentComponent {...(componentProps as any)} />
+
+      {/* Manual Navigation Controls - Visible on Hover or always? Let's keep them visible but subtle or hover group */}
+      <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <button
+          onClick={handlePrev}
+          className="bg-[#3a3a3a]/80 hover:bg-[#E8B44F] text-[#E8B44F] hover:text-[#1a1a1a] border-2 border-[#E8B44F] rounded-full p-4 transition-all"
+          title="Anterior"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M15 19L8 12L15 5"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div className="absolute top-1/2 -translate-y-1/2 right-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <button
+          onClick={handleNext}
+          className="bg-[#3a3a3a]/80 hover:bg-[#E8B44F] text-[#E8B44F] hover:text-[#1a1a1a] border-2 border-[#E8B44F] rounded-full p-4 transition-all"
+          title="Siguiente"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 5L16 12L9 19"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
 
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
         {carrouselComponents.map((component, index) => (
           <button
             key={component.id}
-            onClick={() => setCurrentIndex(index)}
+            onClick={() => {
+              setCurrentIndex(index);
+              setIsManualOverride(true);
+            }}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               index === currentIndex ? "bg-blue-400" : "bg-gray-500"
             }`}
