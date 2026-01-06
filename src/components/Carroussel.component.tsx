@@ -183,9 +183,7 @@ const CarrouselWrapper = () => {
   const componentProps =
     currentItem?.type === "video"
       ? {
-          youtubeLink: videoItems[currentVideoIndex]?.youtubeLink,
-          //title: videoItems[currentVideoIndex]?.,
-          //videoDescription: videoItems[currentVideoIndex]?.description,
+          youtubeLink: currentItem.data?.youtubeLink,
           onVideoEnd: handleVideoEnd,
         }
       : currentItem?.type === "gallery"
