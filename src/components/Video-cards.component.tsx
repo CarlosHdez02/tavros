@@ -11,13 +11,34 @@ interface SingleVideoProps {
 const SingleVideo: React.FC<SingleVideoProps> = ({ youtubeLink, title }) => {
   const getYoutubeEmbedUrl = (url?: string | null) => {
     if (!url) return "";
+    const cleanUrl = url.trim();
 
     try {
-      const parsedUrl = new URL(url);
-      const videoId = parsedUrl.searchParams.get("v");
+      const parsedUrl = new URL(cleanUrl);
+      let videoId = parsedUrl.searchParams.get("v");
 
-      if (!videoId)
-        return "https://www.youtube.com/watch?v=pT4l9uV98fM&autoplay=1";
+      // Handle YouTube Shorts or path-based IDs (e.g. /embed/, /v/, /shorts/)
+      if (!videoId) {
+        const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
+        if (
+          pathSegments.length > 0 &&
+          (pathSegments[0] === "shorts" ||
+            pathSegments[0] === "embed" ||
+            pathSegments[0] === "v" ||
+            parsedUrl.hostname.includes("youtu.be"))
+        ) {
+          // For youtu.be, the ID is the first segment. For shorts/embed/v, it's the second usually,
+          // but split logic: /shorts/ID -> ["shorts", "ID"].
+          // If hostname is youtu.be, path is /ID -> ["ID"].
+          if (parsedUrl.hostname.includes("youtu.be")) {
+            videoId = pathSegments[0];
+          } else {
+            videoId = pathSegments[1]; // e.g. shorts/ID
+          }
+        }
+      }
+
+      if (!videoId) return "";
 
       return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
     } catch {
@@ -26,7 +47,6 @@ const SingleVideo: React.FC<SingleVideoProps> = ({ youtubeLink, title }) => {
   };
 
   const embedUrl = getYoutubeEmbedUrl(youtubeLink);
-  console.log(youtubeLink);
 
   return (
     <div className="w-full h-screen bg-[#0f1419] flex flex-col items-center justify-center relative">
