@@ -157,8 +157,9 @@ const TVScheduleDisplay = () => {
       header: "Cliente",
       cell: (info) => (
         <div
+          className="font-bold"
           style={{
-            fontSize: "20px",
+            fontSize: "64px",
             color: "#F5F5F5",
             fontWeight: "600",
           }}
@@ -192,8 +193,9 @@ const TVScheduleDisplay = () => {
 
         return (
           <div
+            className="font-bold"
             style={{
-              fontSize: "20px",
+              fontSize: "64px",
               color: "#F5F5F5",
               fontWeight: "600",
               textAlign: "center",
@@ -327,7 +329,7 @@ const TVScheduleDisplay = () => {
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
             alt="Tavros Logo"
             style={{
-              height: "120px",
+              height: "240px",
               width: "auto",
               objectFit: "contain",
             }}

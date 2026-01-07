@@ -143,8 +143,9 @@ const TableDev = () => {
       header: "Cliente",
       cell: (info) => (
         <div
+          className="font-bold"
           style={{
-            fontSize: "20px",
+            fontSize: "64px",
             color: "#F5F5F5",
             fontWeight: "600",
           }}
@@ -173,8 +174,9 @@ const TableDev = () => {
 
         return (
           <div
+            className="font-bold"
             style={{
-              fontSize: "20px",
+              fontSize: "64px",
               color: "#F5F5F5",
               fontWeight: "600",
               textAlign: "center",
