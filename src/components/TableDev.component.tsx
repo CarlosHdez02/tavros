@@ -217,7 +217,8 @@ const TableDev = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
+            alignItems: "center",
+            textAlign: "center",
             marginBottom: "16px",
           }}
         >

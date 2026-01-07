@@ -309,7 +309,7 @@ const TVScheduleDisplay = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
-            alignItems: "flex-start",
+            alignItems: "center",
             marginBottom: "16px",
           }}
         >
