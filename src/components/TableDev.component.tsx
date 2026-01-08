@@ -176,7 +176,7 @@ const TableDev = () => {
           <div
             className="font-bold"
             style={{
-              fontSize: "64px",
+              fontSize: "40px",
               color: "#F5F5F5",
               fontWeight: "600",
               textAlign: "center",
