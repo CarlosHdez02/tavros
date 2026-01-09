@@ -1,0 +1,41 @@
+REPORTE DE FEATURES Y TIEMPO ESTIMADO
+======================================
+
+A continuación se detalla el desglose de las funcionalidades implementadas y mejoras realizadas en el proyecto
+
+1. SISTEMA DE CARRUSEL (CARROUSSEL)
+-----------------------------------
+Detalles:
+- Implementación de controles manuales de navegación (botones Anterior/Siguiente).
+- Desarrollo de lógica de visualización condicional ("Frozen mode"): La tabla se mantiene visible automáticamente entre los minutos 15 y 45 de cada hora.
+- Corrección de bug de navegación en videos: Al cambiar de slide manualmente, el video se actualiza correctamente aunque el anterior no haya terminado.
+- Integración dinámica de componentes (Tabla, Video, Galería).
+
+Tiempo estimado: ~5.0 horas
+
+2. INTERFAZ DE TABLA DE SESIONES (UI/UX)
+----------------------------------------
+Detalles:
+- Alineación vertical ("Grid-like") del encabezado "SESIONES" con el logo de Tavros.
+- Aumento significativo de legibilidad: Fuentes aumentadas a 64px/40px y negritas para nombres y planes.
+- Ajuste de dimensiones del Logo (240px) para mayor impacto visual.
+- Formateo de fechas y horas para mejor lectura (e.g., "18:00 - 19:00").
+- Manejo de estados vacíos ("Sin reservas") y estados de carga.
+
+Tiempo estimado: ~1.0 horas
+
+3. SCRAPER Y SINCRONIZACIÓN DE DATOS
+------------------------------------
+Detalles:
+- Ajustes para despliegue en producción Vercel
+- Corrección de problemas de zona horaria para evitar cortes de datos a las 18:00.
+- Lógica de fusión de datos (merge) para mantener historial de clases pasadas mientras se actualizan las nuevas.
+
+Tiempo estimado: ~2.0 horas
+
+4. ARQUITECTURA Y AUTENTICACIÓN
+-------------------------------
+
+--------------------------------------
+TOTAL ESTIMADO DE TIEMPO: ~8.0 Horas
+--------------------------------------

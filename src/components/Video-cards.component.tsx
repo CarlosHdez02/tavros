@@ -40,7 +40,7 @@ const SingleVideo: React.FC<SingleVideoProps> = ({ youtubeLink, title }) => {
 
       if (!videoId) return "";
 
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&vq=hd1080&playsinline=1&rel=0&modestbranding=1`;
     } catch {
       return "";
     }
