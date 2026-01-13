@@ -43,56 +43,16 @@ const CarrouselWrapper = () => {
   // Get current item data
   const currentItem = carrouselComponents[currentIndex];
   const currentDuration = currentItem?.data?.durationSeconds
-    ? currentItem.data.durationSeconds * 100
-    : 6000; // Default 6 seconds
+    ? currentItem.data.durationSeconds * 1000
+    : 10000; // Default 10 seconds
 
-  // Get all video items for video cycling
-  const videoItems = React.useMemo(() => {
-    return data.filter((item) => item.type === "video" && item.youtubeLink);
-  }, [data]);
-
-  // Track current time
-  const [currentMinute, setCurrentMinute] = React.useState(
-    new Date().getMinutes()
-  );
-
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentMinute(new Date().getMinutes());
-    }, 10000); // Check every 10 seconds
-    return () => clearInterval(timer);
-  }, []);
-
-  // Determine if we should be frozen on the table
-  const isFrozen = React.useMemo(() => {
-    return currentMinute < 15 || currentMinute >= 45;
-  }, [currentMinute]);
-
+  // Main carousel interval
   // Main carousel interval
   React.useEffect(() => {
     if (loading || carrouselComponents.length === 0) return;
 
-    // If frozen and NO manual override, force show table and stop cycling
-    if (isFrozen && !isManualOverride) {
-      const tableIndex = carrouselComponents.findIndex(
-        (c) => c.type === "table"
-      );
-      if (tableIndex !== -1 && currentIndex !== tableIndex) {
-        setCurrentIndex(tableIndex);
-        setCurrentVideoIndex(0);
-        setCurrentGalleryIndex(0);
-      }
-      return;
-    }
-
-    // Don't auto-advance if we're on a video type (videos handle their own timing)
-    if (currentItem?.type === "video") return;
-
-    // Determine duration based on type
-    const duration =
-      currentItem?.type === "table" || currentItem?.type === "gallery"
-        ? 60000 // 1 minute for table and gallery
-        : currentDuration;
+    // Use strict duration for everything
+    const duration = currentDuration;
 
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -103,7 +63,8 @@ const CarrouselWrapper = () => {
           setCurrentGalleryIndex((prev) => prev + 1);
         }
 
-        // Reset video index when arriving at video section
+        // Reset video index when arriving at video section (if locally needed)
+        // But mainly we just switch slides now.
         if (carrouselComponents[nextIndex]?.type === "video") {
           setCurrentVideoIndex(0);
         }
@@ -120,26 +81,21 @@ const CarrouselWrapper = () => {
     carrouselComponents,
     currentIndex,
     currentDuration,
-    currentItem?.type,
-    isFrozen,
-    isManualOverride,
+    // currentItem?.type, // No longer depending on type to switch behavior
+    // isFrozen, // Removed
+    // isManualOverride, // Removed logic that stops auto-advance on override,
+    // but user said "if i manually change... display next video even if duration not over".
+    // The manual override state might still be useful if we want to PAUSE the timer?
+    // User request: "once its done with all the stages it will loop again".
+    // Usually manual override just jumps, but timer should reset.
   ]);
 
   const handleVideoEnd = () => {
-    if (isFrozen && !isManualOverride) return;
-    if (currentVideoIndex < videoItems.length - 1) {
-      setCurrentVideoIndex((prev) => prev + 1);
-    } else {
-      // Move to next carousel section after all videos
-      setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
-      setCurrentVideoIndex(0);
-    }
+    // No-op: Duration controls navigation now
   };
 
   const handleGalleryEnd = () => {
-    if (isFrozen && !isManualOverride) return;
-    setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
-    setCurrentGalleryIndex(0);
+    // No-op: Duration controls navigation now
   };
 
   // Navigation Handlers

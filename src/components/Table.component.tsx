@@ -97,8 +97,9 @@ const TVScheduleDisplay = () => {
     const classes = checkinData.data.classes;
     const now = new Date();
     const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
 
-    // Find the class that matches the current hour
+    // Find the class that matches the current time
     // Class keys are like "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial"
     const classEntries = Object.entries(classes);
 
@@ -107,12 +108,19 @@ const TVScheduleDisplay = () => {
       const timeMatch = key.match(/(\d{1,2}):(\d{2})\s*a\s*(\d{1,2}):(\d{2})/);
       if (timeMatch) {
         const startHour = parseInt(timeMatch[1]);
-        // const startMinute = parseInt(timeMatch[2]);
+        const startMinute = parseInt(timeMatch[2]);
         const endHour = parseInt(timeMatch[3]);
-        // const endMinute = parseInt(timeMatch[4]);
+        const endMinute = parseInt(timeMatch[4]);
 
-        // Check if current hour is within the range (inclusive start, exclusive end)
-        return currentHour >= startHour && currentHour < endHour;
+        const currentTotalMinutes = currentHour * 60 + currentMinute;
+        const startTotalMinutes = startHour * 60 + startMinute;
+        const endTotalMinutes = endHour * 60 + endMinute;
+
+        // Check if current time is within the range (inclusive start, exclusive end)
+        return (
+          currentTotalMinutes >= startTotalMinutes &&
+          currentTotalMinutes < endTotalMinutes
+        );
       }
       return false;
     });
