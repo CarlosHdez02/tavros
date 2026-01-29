@@ -58,15 +58,20 @@ const CarrouselWrapper = () => {
       setCurrentIndex((prevIndex) => {
         const nextIndex = (prevIndex + 1) % carrouselComponents.length;
 
-        // Increment gallery index when arriving at gallery
-        if (carrouselComponents[nextIndex]?.type === "gallery") {
-          setCurrentGalleryIndex((prev) => prev + 1);
-        }
-
-        // Reset video index when arriving at video section (if locally needed)
-        // But mainly we just switch slides now.
-        if (carrouselComponents[nextIndex]?.type === "video") {
+        // Reset all internal indices when we loop back to the start
+        if (nextIndex === 0) {
+          setCurrentGalleryIndex(0);
           setCurrentVideoIndex(0);
+        } else {
+          // Increment gallery index when arriving at a gallery slide
+          // This allows the gallery to cycle through its images if we have multiple gallery slides in sequence
+          if (carrouselComponents[nextIndex]?.type === "gallery") {
+            setCurrentGalleryIndex((prev) => prev + 1);
+          }
+
+          if (carrouselComponents[nextIndex]?.type === "video") {
+            setCurrentVideoIndex(0);
+          }
         }
 
         return nextIndex;
@@ -143,15 +148,22 @@ const CarrouselWrapper = () => {
           onVideoEnd: handleVideoEnd,
         }
       : currentItem?.type === "gallery"
-      ? {
-          externalIndex: currentGalleryIndex,
-          onGalleryEnd: handleGalleryEnd,
-        }
-      : {};
+        ? {
+            externalIndex: currentGalleryIndex,
+            onGalleryEnd: handleGalleryEnd,
+          }
+        : {};
 
   return (
     <div className="relative group">
-      <CurrentComponent {...(componentProps as any)} />
+      {CurrentComponent ? (
+        <CurrentComponent {...(componentProps as any)} />
+      ) : (
+        // Fallback if component is missing to avoid white screen
+        <div className="w-full h-screen bg-[#0f1419] flex items-center justify-center text-white">
+          <p>Loading Component...</p>
+        </div>
+      )}
 
       {/* Manual Navigation Controls - Visible on Hover or always? Let's keep them visible but subtle or hover group */}
       <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
