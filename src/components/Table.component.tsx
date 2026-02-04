@@ -10,11 +10,11 @@ import {
 import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
 import {
   Reservation,
-  //ClassData,
   CheckinData,
   ProcessedSession,
   PLAN_MAPPING,
 } from "@/types/Table.type";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://tavros-scraper-1.onrender.com";
 
@@ -42,12 +42,11 @@ const TVScheduleDisplay = () => {
       const response = await fetch(`${API_BASE_URL}/api/checkin/${dateStr}`);
 
       if (!response.ok) {
-        // Check if it's the specific "No data available" error
         try {
           const errorJson = await response.json();
           if (errorJson.error === "No data available") {
             console.log("No data available for this date, showing empty table");
-            setCheckinData(null); // This will trigger the empty state fallback
+            setCheckinData(null);
             return;
           }
         } catch (e) {
@@ -70,22 +69,28 @@ const TVScheduleDisplay = () => {
   useEffect(() => {
     fetchCheckinData();
 
-    const dataRefreshInterval = setInterval(() => {
-      fetchCheckinData();
-    }, 5 * 60 * 1000);
+    const dataRefreshInterval = setInterval(
+      () => {
+        fetchCheckinData();
+      },
+      5 * 60 * 1000,
+    );
 
     return () => clearInterval(dataRefreshInterval);
   }, []);
 
   // Keep server awake
   useEffect(() => {
-    const keepAlive = setInterval(async () => {
-      try {
-        await fetch(`${API_BASE_URL}/health`);
-      } catch (e) {
-        console.log("Keep-alive ping failed");
-      }
-    }, 10 * 60 * 1000);
+    const keepAlive = setInterval(
+      async () => {
+        try {
+          await fetch(`${API_BASE_URL}/health`);
+        } catch (e) {
+          console.log("Keep-alive ping failed");
+        }
+      },
+      10 * 60 * 1000,
+    );
 
     return () => clearInterval(keepAlive);
   }, []);
@@ -99,12 +104,9 @@ const TVScheduleDisplay = () => {
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
 
-    // Find the class that matches the current time
-    // Class keys are like "Sesión grupal 7:00 pm - 19:00 a 20:00 - Presencial"
     const classEntries = Object.entries(classes);
 
     const currentClassEntry = classEntries.find(([key, _]) => {
-      // Extract time range from key, e.g., "19:00 a 20:00"
       const timeMatch = key.match(/(\d{1,2}):(\d{2})\s*a\s*(\d{1,2}):(\d{2})/);
       if (timeMatch) {
         const startHour = parseInt(timeMatch[1]);
@@ -116,7 +118,6 @@ const TVScheduleDisplay = () => {
         const startTotalMinutes = startHour * 60 + startMinute;
         const endTotalMinutes = endHour * 60 + endMinute;
 
-        // Check if current time is within the range (inclusive start, exclusive end)
         return (
           currentTotalMinutes >= startTotalMinutes &&
           currentTotalMinutes < endTotalMinutes
@@ -125,17 +126,12 @@ const TVScheduleDisplay = () => {
       return false;
     });
 
-    // If no class found for current time, maybe show the next upcoming class?
-    // For now, let's stick to the request: "show the class attendees that are in that specific time interval"
-    // If no class, we return null (which shows "No hay datos disponibles")
-
     if (!currentClassEntry) return null;
 
     const [classNameKey, classData] = currentClassEntry;
 
-    // Extract clean time string for display
     const timeDisplayMatch = classNameKey.match(
-      /(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/
+      /(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/,
     );
     const timeDisplay = timeDisplayMatch
       ? timeDisplayMatch[1]
@@ -158,6 +154,25 @@ const TVScheduleDisplay = () => {
     };
   }, [checkinData]);
 
+  // Truncate name helper with proper handling
+  const truncateName = (firstName: string, lastName: string) => {
+    const fullName = `${firstName} ${lastName}`.trim();
+    const maxLength = 28; // Adjust based on your needs
+
+    if (fullName.length <= maxLength) {
+      return fullName;
+    }
+
+    // Try to truncate last name first
+    if (firstName.length + 3 < maxLength) {
+      const lastNameMaxLength = maxLength - firstName.length - 1;
+      return `${firstName} ${lastName.substring(0, lastNameMaxLength)}...`;
+    }
+
+    // If first name is too long, truncate the whole thing
+    return `${fullName.substring(0, maxLength - 3)}...`;
+  };
+
   const columnHelper = createColumnHelper<Reservation>();
 
   const columns = [
@@ -167,12 +182,15 @@ const TVScheduleDisplay = () => {
         <div
           className="font-bold"
           style={{
-            fontSize: "40px",
+            fontSize: "clamp(20px, 3vw, 34px)",
             color: "#F5F5F5",
             fontWeight: "600",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
-          {info.row.original.name} {info.row.original.last_name}
+          {truncateName(info.row.original.name, info.row.original.last_name)}
         </div>
       ),
     }),
@@ -203,7 +221,7 @@ const TVScheduleDisplay = () => {
           <div
             className="font-bold"
             style={{
-              fontSize: "40px",
+              fontSize: "clamp(20px, 3vw, 34px)",
               color: "#F5F5F5",
               fontWeight: "600",
               textAlign: "center",
@@ -218,12 +236,10 @@ const TVScheduleDisplay = () => {
 
   const now = new Date();
 
-  // Start time (current time, rounded to minutes)
   const startTime = now.toLocaleTimeString("es-ES", {
     hour: "2-digit",
   });
 
-  // End time (+1 hour)
   const endDate = new Date(now);
   endDate.setHours(endDate.getHours() + 1);
 
@@ -231,7 +247,6 @@ const TVScheduleDisplay = () => {
     hour: "2-digit",
   });
 
-  // Ensure we always have a sessionData object to render, even if empty
   const displayData = sessionData || {
     id: "empty",
     time: `${startTime}:00 - ${endTime}:00`,
@@ -264,13 +279,13 @@ const TVScheduleDisplay = () => {
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: "#1a1a1a",
-          padding: "48px",
+          padding: "clamp(24px, 5vw, 48px)",
         }}
       >
         <div style={{ textAlign: "center" }}>
           <div
             style={{
-              fontSize: "42px",
+              fontSize: "clamp(28px, 4vw, 42px)",
               color: "#E8B44F",
               marginBottom: "32px",
               fontWeight: "700",
@@ -294,23 +309,25 @@ const TVScheduleDisplay = () => {
     );
   }
 
-  // Removed error and no-data early returns to show the table structure always
-
   return (
     <div
       style={{
         minHeight: "100vh",
+        height: "100vh",
         backgroundColor: "#1a1a1a",
-        padding: "32px",
+        padding: "clamp(16px, 2.5vw, 32px)",
         fontFamily: "system-ui, -apple-system, sans-serif",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
       }}
     >
-      {/* Header */}
+      {/* Header - Fixed height */}
       <div
         style={{
-          marginBottom: "32px",
-          paddingBottom: "24px",
+          paddingBottom: "clamp(12px, 2vw, 24px)",
           borderBottom: "4px solid #E8B44F",
+          flexShrink: 0,
         }}
       >
         <div
@@ -318,12 +335,12 @@ const TVScheduleDisplay = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "16px",
+            marginBottom: "clamp(8px, 1.5vw, 16px)",
           }}
         >
           <h1
             style={{
-              fontSize: "56px",
+              fontSize: "clamp(36px, 5.5vw, 56px)",
               fontWeight: "900",
               color: "#E8B44F",
               margin: 0,
@@ -337,7 +354,7 @@ const TVScheduleDisplay = () => {
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
             alt="Tavros Logo"
             style={{
-              height: "240px",
+              height: "clamp(120px, 18vw, 240px)",
               width: "auto",
               objectFit: "contain",
             }}
@@ -349,25 +366,25 @@ const TVScheduleDisplay = () => {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "flex-end",
-            marginTop: "8px",
+            marginTop: "clamp(4px, 1vw, 8px)",
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{
-                fontSize: "64px", // Increased size
-                color: "#F5F5F5", // Brighter color
-                fontWeight: "800", // Bold
+                fontSize: "clamp(40px, 6vw, 64px)",
+                color: "#F5F5F5",
+                fontWeight: "800",
                 lineHeight: "1",
-                marginBottom: "8px",
+                marginBottom: "clamp(4px, 1vw, 8px)",
               }}
             >
               {displayData.time}
             </div>
             <div
               style={{
-                fontSize: "24px", // Smaller size
-                color: "#888888", // Dimmer color
+                fontSize: "clamp(16px, 2.2vw, 24px)",
+                color: "#888888",
                 fontWeight: "500",
                 textTransform: "capitalize",
               }}
@@ -378,10 +395,10 @@ const TVScheduleDisplay = () => {
 
           <div
             style={{
-              fontSize: "28px",
+              fontSize: "clamp(18px, 2.5vw, 28px)",
               color: "#B8B8B8",
               fontWeight: "600",
-              marginBottom: "8px",
+              marginBottom: "clamp(4px, 1vw, 8px)",
             }}
           >
             {displayData.reservationsCount}/{displayData.capacity} reservas
@@ -389,17 +406,23 @@ const TVScheduleDisplay = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Table Container - Grows to fill available space */}
       <div
         style={{
+          flex: 1,
+          marginTop: "clamp(16px, 2.5vw, 32px)",
           backgroundColor: "#2a2a2a",
-          borderRadius: "24px",
+          borderRadius: "clamp(12px, 2vw, 24px)",
           boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
           border: "2px solid #E8B44F",
           overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table
+          style={{ width: "100%", borderCollapse: "collapse", height: "100%" }}
+        >
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr
@@ -413,13 +436,13 @@ const TVScheduleDisplay = () => {
                   <th
                     key={header.id}
                     style={{
-                      padding: "32px 24px",
+                      padding: "clamp(12px, 2vw, 24px) clamp(12px, 2vw, 24px)",
                       textAlign:
                         header.id === "asistencia_confirmada" ||
                         header.id === "nombre_plan"
                           ? "center"
                           : "left",
-                      fontSize: "28px",
+                      fontSize: "clamp(18px, 2.5vw, 26px)",
                       fontWeight: "900",
                       color: "#E8B44F",
                       textTransform: "uppercase",
@@ -428,7 +451,7 @@ const TVScheduleDisplay = () => {
                   >
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </th>
                 ))}
@@ -442,9 +465,9 @@ const TVScheduleDisplay = () => {
                 <td
                   colSpan={columns.length}
                   style={{
-                    padding: "64px",
+                    padding: "clamp(32px, 6vw, 64px)",
                     textAlign: "center",
-                    fontSize: "24px",
+                    fontSize: "clamp(18px, 2.5vw, 24px)",
                     color: "#B8B8B8",
                     fontStyle: "italic",
                   }}
@@ -462,20 +485,22 @@ const TVScheduleDisplay = () => {
                         ? "2px solid #3a3a3a"
                         : "none",
                     backgroundColor: "#2a2a2a",
+                    height: `${100 / table.getRowModel().rows.length}%`,
                   }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <td
                       key={cell.id}
                       style={{
-                        padding: "24px",
+                        padding:
+                          "clamp(8px, 1.5vw, 18px) clamp(12px, 2vw, 24px)",
                         color: "#F5F5F5",
                         verticalAlign: "middle",
                       }}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </td>
                   ))}
@@ -485,6 +510,14 @@ const TVScheduleDisplay = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Add spinning animation */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
