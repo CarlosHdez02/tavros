@@ -235,7 +235,7 @@ const CarrouselWrapper = () => {
       </div>
 
       {/* Pagination Dots */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+      {/*      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-50">
         {carrouselComponents.map((component, index) => (
           <button
             key={component.id}
@@ -249,7 +249,7 @@ const CarrouselWrapper = () => {
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
