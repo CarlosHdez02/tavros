@@ -95,7 +95,7 @@ const TVScheduleDisplay = () => {
     return () => clearInterval(keepAlive);
   }, []);
 
-  // Process session data
+  // Process session data - supports both old (time in key) and new (classId key, class in object) API formats
   const sessionData: ProcessedSession | null = useMemo(() => {
     if (!checkinData?.data?.classes) return null;
 
@@ -103,42 +103,76 @@ const TVScheduleDisplay = () => {
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
+    const currentTotalMinutes = currentHour * 60 + currentMinute;
 
     const classEntries = Object.entries(classes);
 
-    const currentClassEntry = classEntries.find(([key, _]) => {
-      const timeMatch = key.match(/(\d{1,2}):(\d{2})\s*a\s*(\d{1,2}):(\d{2})/);
-      if (timeMatch) {
-        const startHour = parseInt(timeMatch[1]);
-        const startMinute = parseInt(timeMatch[2]);
-        const endHour = parseInt(timeMatch[3]);
-        const endMinute = parseInt(timeMatch[4]);
+    const isTimeInRange = (
+      sh: number,
+      sm: number,
+      eh: number,
+      em: number,
+    ) => {
+      const start = sh * 60 + sm;
+      const end = eh * 60 + em;
+      return currentTotalMinutes >= start && currentTotalMinutes < end;
+    };
 
-        const currentTotalMinutes = currentHour * 60 + currentMinute;
-        const startTotalMinutes = startHour * 60 + startMinute;
-        const endTotalMinutes = endHour * 60 + endMinute;
-
-        return (
-          currentTotalMinutes >= startTotalMinutes &&
-          currentTotalMinutes < endTotalMinutes
+    // Old format: key contains "HH:MM a HH:MM"
+    let currentClassEntry = classEntries.find(([key]) => {
+      const m = key.match(/(\d{1,2}):(\d{2})\s*a\s*(\d{1,2}):(\d{2})/);
+      if (m) {
+        return isTimeInRange(
+          parseInt(m[1], 10),
+          parseInt(m[2], 10),
+          parseInt(m[3], 10),
+          parseInt(m[4], 10),
         );
       }
       return false;
     });
 
+    // New format: time in classData.class (e.g. "Sesión grupal 6:00 am")
+    if (!currentClassEntry) {
+      currentClassEntry = classEntries.find(([, data]) => {
+        const cn = data?.class ?? "";
+        const am = cn.match(/(\d{1,2}):(\d{2})\s*am/i);
+        const pm = cn.match(/(\d{1,2}):(\d{2})\s*pm/i);
+        if (am) {
+          const h = parseInt(am[1], 10);
+          const m = parseInt(am[2], 10);
+          return isTimeInRange(h, m, h + 1, m);
+        }
+        if (pm) {
+          const h = 12 + parseInt(pm[1], 10);
+          const m = parseInt(pm[2], 10);
+          return isTimeInRange(h, m, h + 1, m);
+        }
+        return false;
+      });
+    }
+
+    // Fallback: when API returns a single class, assume it's the current one
+    if (!currentClassEntry && classEntries.length === 1) {
+      currentClassEntry = classEntries[0];
+    }
+
     if (!currentClassEntry) return null;
 
-    const [classNameKey, classData] = currentClassEntry;
+    const [, classData] = currentClassEntry;
 
-    const timeDisplayMatch = classNameKey.match(
-      /(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/,
-    );
-    const timeDisplay = timeDisplayMatch
-      ? timeDisplayMatch[1]
-      : "Hora desconocida";
+    // Time display: from key (old format) or class property (new format)
+    const keyTime = currentClassEntry[0].match(/(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/);
+    const timeDisplay = keyTime
+      ? keyTime[1]
+      : (classData?.class ?? "Sesión activa");
+
+    const reservations = classData?.reservations ?? [];
+    const reservationsCount =
+      classData?.totalReservations ?? reservations.length;
 
     return {
-      id: classData.classId,
+      id: classData?.classId ?? "unknown",
       time: timeDisplay,
       date: new Intl.DateTimeFormat("es-ES", {
         weekday: "long",
@@ -146,10 +180,10 @@ const TVScheduleDisplay = () => {
         month: "long",
       }).format(now),
       sessionType: "Group",
-      className: classNameKey.split("-")[0].trim(),
-      capacity: classData.limite,
-      reservations: classData.reservations ?? [],
-      reservationsCount: classData.totalReservations ?? 0,
+      className: classData?.class ?? "Clase",
+      capacity: classData?.limite ?? 0,
+      reservations,
+      reservationsCount,
       color: "#10b981",
     };
   }, [checkinData]);

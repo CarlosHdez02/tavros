@@ -21,9 +21,13 @@ export interface Reservation {
 
 export interface ClassData {
   classId: string;
+  class?: string;
   limite: number;
-  totalReservations: number;
+  totalReservations?: number;
   reservations: Reservation[];
+  clase_coach_id?: string | null;
+  clase_online?: number;
+  extractedAt?: string;
 }
 
 export interface CheckinData {
@@ -70,6 +74,10 @@ export const PLAN_MAPPING: { [key: string]: string } = {
   "Paquete de sesiones Privadas": "Privada",
   "Paquete Trimestral": "Grupal",
   "Grupal (Paquete Full)": "Grupal",
+  "Plan trimestral en sesiones grupales + inscripción": "Grupal",
+  "Paquete Trimestral Grupal + Inscripción: Pago en dos exhibiciones ": "Grupal",
+  "Paquete Trimestral Grupal (Plan Actual)": "Grupal",
+  "Grupal (Mensual)": "Grupal",
 };
 
 // Types
