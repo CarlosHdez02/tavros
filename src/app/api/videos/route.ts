@@ -24,16 +24,17 @@ export async function GET(){
             transformHeader:(header)=> header.trim(),
             transform:(val)=> typeof val === 'string' ? val.trim() : val
         })
-        const tableRows = parsed.data.filter((row)=> row.type === 'table');
-        const videoRows = parsed.data.filter((row)=> row.type === 'video' && row.youtubeLink);
-        const galleryRows = parsed.data.filter((row)=> row.type === 'gallery')
+        const rows = Array.isArray(parsed?.data) ? parsed.data : [];
+        const tableRows = rows.filter((row)=> row.type === 'table');
+        const videoRows = rows.filter((row)=> row.type === 'video' && row.youtubeLink);
+        const galleryRows = rows.filter((row)=> row.type === 'gallery')
         return NextResponse.json({
             success:true,
             data:{
                 table:tableRows,
                 videos:videoRows,
                 gallery:galleryRows,
-                all:parsed.data
+                all:rows
             }
         })
     }catch(err:unknown){

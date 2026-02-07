@@ -148,15 +148,17 @@ const TVScheduleDisplay = () => {
       sessionType: "Group",
       className: classNameKey.split("-")[0].trim(),
       capacity: classData.limite,
-      reservations: classData.reservations,
-      reservationsCount: classData.totalReservations,
+      reservations: classData.reservations ?? [],
+      reservationsCount: classData.totalReservations ?? 0,
       color: "#10b981",
     };
   }, [checkinData]);
 
   // Truncate name helper with proper handling
-  const truncateName = (firstName: string, lastName: string) => {
-    const fullName = `${firstName} ${lastName}`.trim();
+  const truncateName = (firstName: string | null | undefined, lastName: string | null | undefined) => {
+    const first = firstName ?? "";
+    const last = lastName ?? "";
+    const fullName = `${first} ${last}`.trim();
     const maxLength = 28; // Adjust based on your needs
 
     if (fullName.length <= maxLength) {
@@ -164,9 +166,9 @@ const TVScheduleDisplay = () => {
     }
 
     // Try to truncate last name first
-    if (firstName.length + 3 < maxLength) {
-      const lastNameMaxLength = maxLength - firstName.length - 1;
-      return `${firstName} ${lastName.substring(0, lastNameMaxLength)}...`;
+    if (first.length + 3 < maxLength) {
+      const lastNameMaxLength = maxLength - first.length - 1;
+      return `${first} ${last.substring(0, lastNameMaxLength)}...`;
     }
 
     // If first name is too long, truncate the whole thing
@@ -265,7 +267,7 @@ const TVScheduleDisplay = () => {
 
   const table = useReactTable({
     columns,
-    data: displayData.reservations,
+    data: displayData.reservations ?? [],
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });

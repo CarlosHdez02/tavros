@@ -27,16 +27,18 @@ const CarrouselWrapper = () => {
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
   const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  // Build carousel components from CSV data
+  // Build carousel components from CSV data - filter out invalid types
   const carrouselComponents = React.useMemo(() => {
     if (!data || data.length === 0) return [];
 
-    return data.map((row, index) => ({
-      id: index + 1,
-      currentComponent: componentMap[row.type],
-      type: row.type,
-      data: row,
-    }));
+    return data
+      .map((row, index) => ({
+        id: index + 1,
+        currentComponent: componentMap[row.type],
+        type: row.type,
+        data: row,
+      }))
+      .filter((item) => item.currentComponent != null);
   }, [data]);
 
   // Get current item data - with safety check
@@ -48,8 +50,9 @@ const CarrouselWrapper = () => {
   }, [carrouselComponents, currentIndex]);
 
   const currentDuration = React.useMemo(() => {
-    if (!currentItem?.data?.durationSeconds) return 10000; // Default 10 seconds
-    return currentItem.data.durationSeconds * 1000;
+    const seconds = currentItem?.data?.durationSeconds;
+    const ms = typeof seconds === "number" && seconds > 0 ? seconds * 1000 : 10000;
+    return Math.max(1000, ms); // Minimum 1s to prevent rapid-fire interval
   }, [currentItem]);
 
   // Main carousel interval with proper looping
@@ -144,11 +147,16 @@ const CarrouselWrapper = () => {
     );
   }
 
-  // No data state
+  // No data from Excel - show message, refetch will retry
   if (carrouselComponents.length === 0) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0f1419]">
-        <div className="text-[#e4e9f1] text-xl">No carousel data available</div>
+      <div
+        className="flex items-center justify-center w-full min-h-screen bg-[#0f1419]"
+        style={{ minHeight: "100vh" }}
+      >
+        <div className="text-[#e4e9f1] text-xl text-center px-4">
+          No hay datos
+        </div>
       </div>
     );
   }
@@ -156,8 +164,11 @@ const CarrouselWrapper = () => {
   // Safety check for current component
   if (!currentItem || !currentItem.currentComponent) {
     return (
-      <div className="w-full h-screen bg-[#0f1419] flex items-center justify-center text-white">
-        <p>Loading Component...</p>
+      <div
+        className="w-full min-h-screen bg-[#0f1419] flex items-center justify-center text-[#e4e9f1]"
+        style={{ minHeight: "100vh" }}
+      >
+        <p>Cargando contenido...</p>
       </div>
     );
   }
@@ -179,7 +190,7 @@ const CarrouselWrapper = () => {
         : {};
 
   return (
-    <div className="relative group">
+    <div className="relative group min-h-screen bg-[#0f1419]" style={{ minHeight: "100vh" }}>
       <CurrentComponent {...(componentProps as any)} />
 
       {/* Manual Navigation Controls - Left Arrow */}

@@ -18,7 +18,7 @@ export function useCarouselData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchData = () => {
     fetch('/api/videos')
       .then(res => {
         if (!res.ok) {
@@ -28,7 +28,7 @@ export function useCarouselData() {
       })
       .then(json => {
         if (json.success) {
-          setData(json.data.all);
+          setData(Array.isArray(json.data?.all) ? json.data.all : []);
         } else {
           throw new Error('Invalid response format');
         }
@@ -39,6 +39,13 @@ export function useCarouselData() {
         setError(err.message);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchData();
+    // Refetch periodically to get updated Excel data
+    const interval = setInterval(fetchData, 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   return { data, loading, error };
