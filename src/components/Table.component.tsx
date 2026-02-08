@@ -268,6 +268,24 @@ const TVScheduleDisplay = () => {
         );
       },
     }),
+    columnHelper.accessor("fila",{
+      header: "Fila",
+      cell: (info) => {
+        return (
+          <div
+            className="font-bold"
+            style={{
+              fontSize: "clamp(20px, 3vw, 34px)",
+              color: "#F5F5F5",
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          > 
+            {info.row.original.fila ?? "Sin plataforma reservada"}
+          </div>
+        );
+      },
+    })
   ];
 
   const now = new Date();

@@ -17,6 +17,7 @@ export interface Reservation {
   mostrar_formulario: boolean;
   rating: string | null;
   imagen: string;
+  fila:string;
 }
 
 export interface ClassData {
