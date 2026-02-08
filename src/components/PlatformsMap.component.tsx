@@ -1,12 +1,19 @@
 "use client";
 
 import React from "react";
+import { Dumbbell } from "lucide-react";
 import type { Reservation } from "@/types/Table.type";
 import { PLAN_MAPPING } from "@/types/Table.type";
+import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
 
 const TOTAL_PLATFORMS = 10;
+const GOLD = "#E8B44F";
+const GREY_LIGHT = "#B8B8B8";
+const GREY_MID = "#4a4a4a";
+const GREY_BORDER = "#3a3a3a";
+const CARD_BG = "#252525";
 
-/** 45° diagonal hatching pattern for active platforms - croquis/blueprint style */
+/** 45° diagonal hatching pattern for active platforms - light on dark */
 const HatchPattern = ({ id }: { id: string }) => (
   <svg width="100%" height="100%" style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
     <defs>
@@ -17,77 +24,43 @@ const HatchPattern = ({ id }: { id: string }) => (
         patternUnits="userSpaceOnUse"
         patternTransform="rotate(45 6 6)"
       >
-        <line x1="0" y1="0" x2="0" y2="12" stroke="#000" strokeWidth="0.8" />
+        <line x1="0" y1="0" x2="0" y2="12" stroke={GREY_MID} strokeWidth="0.8" />
       </pattern>
     </defs>
     <rect width="100%" height="100%" fill={`url(#${id})`} />
   </svg>
 );
 
-/** Dumbbell rack sketch - croquis style */
+/** Dumbbell rack sketch - yellow stroke */
 const DumbbellRackSketch = () => (
   <svg width="100%" height="100%" viewBox="0 0 80 100" preserveAspectRatio="xMidYMid meet">
-    {/* Vertical posts */}
-    <line x1="15" y1="15" x2="15" y2="85" stroke="#000" strokeWidth="1.5" />
-    <line x1="65" y1="15" x2="65" y2="85" stroke="#000" strokeWidth="1.5" />
-    {/* Horizontal bars */}
-    <line x1="12" y1="25" x2="68" y2="25" stroke="#000" strokeWidth="1.2" />
-    <line x1="12" y1="50" x2="68" y2="50" stroke="#000" strokeWidth="1.2" />
-    <line x1="12" y1="75" x2="68" y2="75" stroke="#000" strokeWidth="1.2" />
-    {/* Dumbbells - circles for weights */}
-    <circle cx="25" cy="25" r="6" fill="none" stroke="#000" strokeWidth="1" />
-    <circle cx="55" cy="25" r="6" fill="none" stroke="#000" strokeWidth="1" />
-    <circle cx="25" cy="50" r="6" fill="none" stroke="#000" strokeWidth="1" />
-    <circle cx="55" cy="50" r="6" fill="none" stroke="#000" strokeWidth="1" />
-    <circle cx="25" cy="75" r="6" fill="none" stroke="#000" strokeWidth="1" />
-    <circle cx="55" cy="75" r="6" fill="none" stroke="#000" strokeWidth="1" />
+    <line x1="15" y1="15" x2="15" y2="85" stroke={GOLD} strokeWidth="1.5" />
+    <line x1="65" y1="15" x2="65" y2="85" stroke={GOLD} strokeWidth="1.5" />
+    <line x1="12" y1="25" x2="68" y2="25" stroke={GOLD} strokeWidth="1.2" />
+    <line x1="12" y1="50" x2="68" y2="50" stroke={GOLD} strokeWidth="1.2" />
+    <line x1="12" y1="75" x2="68" y2="75" stroke={GOLD} strokeWidth="1.2" />
+    <circle cx="25" cy="25" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
+    <circle cx="55" cy="25" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
+    <circle cx="25" cy="50" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
+    <circle cx="55" cy="50" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
+    <circle cx="25" cy="75" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
+    <circle cx="55" cy="75" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
   </svg>
 );
 
-/** Power rack sketch - matches reference: uprights, bases, barbell rests, safety spotters */
-const PowerRackSketch = () => (
-  <svg width="100%" height="100%" viewBox="0 0 60 90" preserveAspectRatio="xMidYMid meet">
-    {/* Base plates */}
-    <rect x="5" y="75" width="18" height="10" fill="none" stroke="#000" strokeWidth="1.2" />
-    <rect x="37" y="75" width="18" height="10" fill="none" stroke="#000" strokeWidth="1.2" />
-    {/* Vertical uprights */}
-    <line x1="14" y1="8" x2="14" y2="75" stroke="#000" strokeWidth="1.5" />
-    <line x1="46" y1="8" x2="46" y2="75" stroke="#000" strokeWidth="1.5" />
-    {/* Top crossbar */}
-    <line x1="12" y1="8" x2="48" y2="8" stroke="#000" strokeWidth="1.5" />
-    {/* Barbell rests (J-hooks) on top - cylindrical */}
-    <line x1="6" y1="12" x2="6" y2="18" stroke="#000" strokeWidth="1.2" />
-    <line x1="54" y1="12" x2="54" y2="18" stroke="#000" strokeWidth="1.2" />
-    <line x1="4" y1="15" x2="56" y2="15" stroke="#000" strokeWidth="1" />
-    {/* Lower crossbar / safety level */}
-    <line x1="12" y1="48" x2="48" y2="48" stroke="#000" strokeWidth="1.2" />
-    {/* Safety spotters (rectangular) */}
-    <rect x="8" y="50" width="10" height="6" fill="none" stroke="#000" strokeWidth="1" />
-    <rect x="42" y="50" width="10" height="6" fill="none" stroke="#000" strokeWidth="1" />
-    {/* Adjustment holes on left upright */}
-    {[22, 30, 38, 46, 54, 62].map((y) => (
-      <line key={y} x1="12" y1={y} x2="16" y2={y} stroke="#000" strokeWidth="0.8" />
-    ))}
-  </svg>
-);
-
-/** Lat pulldown machine sketch - croquis style */
+/** Lat pulldown machine sketch - yellow stroke */
 const LatPulldownSketch = () => (
   <svg width="100%" height="100%" viewBox="0 0 60 80" preserveAspectRatio="xMidYMid meet">
-    {/* Tower / upright frame */}
-    <line x1="15" y1="5" x2="15" y2="75" stroke="#000" strokeWidth="1.5" />
-    <line x1="45" y1="5" x2="45" y2="75" stroke="#000" strokeWidth="1.5" />
-    <line x1="12" y1="8" x2="48" y2="8" stroke="#000" strokeWidth="1.2" />
-    {/* Cable / pulley area */}
-    <line x1="30" y1="8" x2="30" y2="55" stroke="#000" strokeWidth="1" strokeDasharray="2 2" />
-    {/* Bar */}
-    <line x1="15" y1="55" x2="45" y2="55" stroke="#000" strokeWidth="1.5" />
-    {/* Seat */}
-    <rect x="20" y="65" width="20" height="8" fill="none" stroke="#000" strokeWidth="1" />
+    <line x1="15" y1="5" x2="15" y2="75" stroke={GOLD} strokeWidth="1.5" />
+    <line x1="45" y1="5" x2="45" y2="75" stroke={GOLD} strokeWidth="1.5" />
+    <line x1="12" y1="8" x2="48" y2="8" stroke={GOLD} strokeWidth="1.2" />
+    <line x1="30" y1="8" x2="30" y2="55" stroke={GOLD} strokeWidth="1" strokeDasharray="2 2" />
+    <line x1="15" y1="55" x2="45" y2="55" stroke={GOLD} strokeWidth="1.5" />
+    <rect x="20" y="65" width="20" height="8" fill="none" stroke={GOLD} strokeWidth="1" />
   </svg>
 );
 
-/** Entrance cell - door with arc, lower-left corner */
+/** Entrance cell - door with arc, yellow accents */
 const EntranceCell = () => (
   <div
     style={{
@@ -99,9 +72,9 @@ const EntranceCell = () => (
       alignItems: "center",
       justifyContent: "center",
       padding: "clamp(12px, 2vw, 24px)",
-      borderRight: "2px solid #000",
-      borderTop: "2px solid #000",
-      backgroundColor: "#fff",
+      borderRight: `2px solid ${GOLD}`,
+      borderTop: `2px solid ${GOLD}`,
+      backgroundColor: "#1e1c18",
     }}
   >
     <svg
@@ -111,14 +84,14 @@ const EntranceCell = () => (
       preserveAspectRatio="xMidYMax meet"
       style={{ flexShrink: 0 }}
     >
-      <path d="M 10 70 A 45 45 0 0 1 55 25" fill="none" stroke="#000" strokeWidth="2.5" />
-      <line x1="10" y1="70" x2="55" y2="25" stroke="#000" strokeWidth="1.2" strokeDasharray="3 2" />
+      <path d="M 10 70 A 45 45 0 0 1 55 25" fill="none" stroke={GOLD} strokeWidth="2.5" />
+      <line x1="10" y1="70" x2="55" y2="25" stroke={GOLD} strokeWidth="1.2" strokeDasharray="3 2" />
     </svg>
     <div
       style={{
         fontSize: "clamp(16px, 2.5vw, 28px)",
         fontWeight: "800",
-        color: "#000",
+        color: GOLD,
         textTransform: "uppercase",
         letterSpacing: "2px",
         marginTop: "clamp(8px, 1.5vw, 16px)",
@@ -131,6 +104,8 @@ const EntranceCell = () => (
 
 interface PlatformsMapProps {
   reservations: Reservation[];
+  /** Session time string e.g. "06:00 - 07:00" for class duration display */
+  sessionTime?: string;
   /** When true, fills available space with larger platforms (for standalone/full-screen view) */
   size?: "default" | "large";
 }
@@ -153,7 +128,7 @@ const truncateName = (firstName: string, lastName: string, maxLen = 18): string 
   return `${full.substring(0, maxLen - 3)}...`;
 };
 
-const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "default" }) => {
+const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime = "—", size = "default" }) => {
   const platformAssignments = React.useMemo(() => {
     const map = new Map<number, Reservation>();
     reservations.slice(0, TOTAL_PLATFORMS).forEach((r, i) => {
@@ -178,8 +153,8 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
         height: isLarge ? "100%" : "auto",
         marginTop: isLarge ? 0 : "clamp(12px, 2vw, 20px)",
         padding: isLarge ? "clamp(16px, 2.5vw, 32px)" : "clamp(8px, 1.5vw, 16px)",
-        backgroundColor: "#faf9f6",
-        border: "3px solid #000",
+        backgroundColor: "#2d2a24",
+        border: `3px solid ${GOLD}`,
         display: "flex",
         flexDirection: "column",
         position: "relative",
@@ -201,10 +176,10 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
         <path
           d="M 5 92 L 12 92 L 12 8"
           fill="none"
-          stroke="#000"
+          stroke={GOLD}
           strokeWidth="0.6"
           strokeDasharray="5 4"
-          opacity="0.45"
+          opacity="0.5"
         />
       </svg>
       <div
@@ -216,34 +191,33 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
           width: "100%",
           flex: isLarge ? 1 : undefined,
           minHeight: isLarge ? 0 : "clamp(320px, 50vh, 500px)",
-          borderTop: "2px solid #000",
-          borderRight: "2px solid #000",
+          borderTop: `2px solid ${GOLD}`,
+          borderRight: `2px solid ${GOLD}`,
         }}
       >
-        {/* Corridor above entrance - large window full height (architectural) */}
+        {/* Corridor above entrance - window with yellow borders */}
         <div
           style={{
             gridColumn: "1",
             gridRow: "1 / 3",
             position: "relative",
-            borderRight: "2px solid #000",
-            borderBottom: "2px solid #000",
-            backgroundColor: "#fff",
+            borderRight: `2px solid ${GOLD}`,
+            borderBottom: `2px solid ${GOLD}`,
+            backgroundColor: "#1e1c18",
             display: "flex",
             alignItems: "stretch",
             justifyContent: "stretch",
             padding: "clamp(6px, 1vw, 12px)",
           }}
         >
-          {/* Window - fills entire cell, frame with mullions */}
           <svg width="100%" height="100%" viewBox="0 0 60 100" preserveAspectRatio="none">
-            <rect x="2" y="2" width="56" height="96" fill="none" stroke="#000" strokeWidth="2" />
-            <line x1="30" y1="2" x2="30" y2="98" stroke="#000" strokeWidth="1.2" />
-            <line x1="2" y1="50" x2="58" y2="50" stroke="#000" strokeWidth="1.2" />
+            <rect x="2" y="2" width="56" height="96" fill="#252119" stroke={GOLD} strokeWidth="2" />
+            <line x1="30" y1="2" x2="30" y2="98" stroke={GOLD} strokeWidth="1.2" />
+            <line x1="2" y1="50" x2="58" y2="50" stroke={GOLD} strokeWidth="1.2" />
           </svg>
         </div>
         <EntranceCell />
-        {/* Dumbbell rack + lat pulldown - next to platform 10 (right side) */}
+        {/* Dumbbell rack + lat pulldown - next to platform 10 (right side), yellow borders */}
         <div
           style={{
             gridColumn: "6",
@@ -254,9 +228,9 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
             justifyContent: "center",
             gap: "clamp(8px, 1.5vw, 16px)",
             padding: "clamp(8px, 1.5vw, 16px)",
-            borderLeft: "2px solid #000",
-            borderTop: "2px solid #000",
-            backgroundColor: "#fff",
+            borderLeft: `2px solid ${GOLD}`,
+            borderTop: `2px solid ${GOLD}`,
+            backgroundColor: "#1e1c18",
             minHeight: isLarge ? "clamp(100px, 14vh, 200px)" : "clamp(90px, 12vw, 140px)",
           }}
         >
@@ -273,6 +247,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
           const isActive = !!client;
           const [col, row, colSpan] = platformLayout[i];
 
+          const logoSrc = typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src;
           return (
             <div
               key={platformNum}
@@ -281,8 +256,9 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
                 gridColumn: `${col} / span ${colSpan}`,
                 gridRow: row,
                 minHeight: isLarge ? "clamp(100px, 14vh, 200px)" : "clamp(90px, 12vw, 140px)",
-                backgroundColor: "#ffffff",
-                border: isActive ? "2px solid #000" : "1px dashed #000",
+                backgroundColor: CARD_BG,
+                border: isActive ? `2px solid ${GREY_BORDER}` : `1px dashed ${GREY_BORDER}`,
+                borderRadius: "clamp(6px, 1vw, 12px)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
@@ -306,7 +282,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
                 style={{
                   fontSize: isLarge ? "clamp(18px, 2.5vw, 32px)" : "clamp(11px, 1.8vw, 16px)",
                   fontWeight: "700",
-                  color: "#000",
+                  color: GREY_LIGHT,
                   textTransform: "uppercase",
                   letterSpacing: "1px",
                   marginBottom: isLarge ? "clamp(8px, 1.2vw, 16px)" : "clamp(4px, 0.8vw, 8px)",
@@ -316,81 +292,122 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
                 Plataforma {String(platformNum).padStart(2, "0")}
               </div>
               {isActive && client ? (
-                <>
+                <div
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    flex: 1,
+                    border: `1px solid ${GREY_BORDER}`,
+                    borderRadius: "clamp(4px, 0.6vw, 8px)",
+                    backgroundColor: "#1a1814",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: isLarge ? "clamp(10px, 1.5vw, 18px)" : "clamp(6px, 1vw, 10px)",
+                    minHeight: isLarge ? "clamp(80px, 12vh, 160px)" : "clamp(40px, 6vw, 64px)",
+                    overflow: "hidden",
+                    gap: isLarge ? "clamp(6px, 1vw, 12px)" : "clamp(4px, 0.8vw, 8px)",
+                  }}
+                >
+                  {/* Row 1: Client name (above logo) */}
+                  <div
+                    style={{
+                      fontSize: isLarge ? "clamp(20px, 2.8vw, 32px)" : "clamp(11px, 1.8vw, 18px)",
+                      fontWeight: "700",
+                      color: GOLD,
+                      textAlign: "center",
+                      width: "100%",
+                      lineHeight: 1.2,
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      wordBreak: "break-word",
+                      minHeight: "2.4em",
+                    }}
+                  >
+                    {truncateName(client.name, client.last_name, 36)}
+                  </div>
+                  {/* Row 2: Logo with dumbbell at center */}
                   <div
                     style={{
                       position: "relative",
-                      width: "100%",
-                      flex: 1,
-                      border: "1px solid #000",
                       display: "flex",
-                      flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: isLarge ? "clamp(10px, 1.5vw, 18px)" : "clamp(6px, 1vw, 10px)",
-                      minHeight: isLarge ? "clamp(80px, 12vh, 160px)" : "clamp(40px, 6vw, 64px)",
-                      overflow: "hidden",
-                      gap: isLarge ? "clamp(6px, 1vw, 12px)" : "clamp(4px, 0.8vw, 8px)",
+                      width: "clamp(60px, 12vw, 100px)",
+                      height: "clamp(60px, 12vw, 100px)",
                     }}
                   >
-                    <div style={{ flex: "0 0 auto", width: "45%", minHeight: "clamp(50px, 8vh, 100px)" }}>
-                      <PowerRackSketch />
-                    </div>
-                    <div
+                    <img
+                      src={logoSrc}
+                      alt=""
                       style={{
-                        fontSize: isLarge ? "clamp(22px, 3vw, 36px)" : "clamp(11px, 1.8vw, 18px)",
-                        fontWeight: "700",
-                        color: "#000",
-                        textAlign: "center",
+                        position: "absolute",
                         width: "100%",
-                        lineHeight: 1.2,
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                        wordBreak: "break-word",
-                        minHeight: "2.4em",
+                        height: "100%",
+                        objectFit: "contain",
+                        opacity: 0.35,
+                        filter: "brightness(0) saturate(100%) invert(79%) sepia(28%) saturate(2000%) hue-rotate(359deg)",
                       }}
-                    >
-                      {truncateName(client.name, client.last_name, 36)}
-                    </div>
+                    />
+                    <Dumbbell
+                      size={isLarge ? 36 : 24}
+                      color={GOLD}
+                      strokeWidth={2}
+                      style={{ position: "relative", zIndex: 1 }}
+                    />
                   </div>
+                  {/* Row 3: Time and class type (below logo) */}
                   <div
                     style={{
-                      marginTop: isLarge ? "clamp(8px, 1.2vw, 14px)" : "clamp(4px, 0.8vw, 6px)",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: "2px",
+                      gap: "clamp(4px, 0.6vw, 8px)",
                     }}
                   >
                     <div
                       style={{
-                        fontSize: isLarge ? "clamp(16px, 2.2vw, 24px)" : "clamp(9px, 1.4vw, 12px)",
-                        fontWeight: "700",
-                        color: "#000",
+                        fontSize: isLarge ? "clamp(14px, 2vw, 20px)" : "clamp(9px, 1.2vw, 12px)",
+                        fontWeight: "600",
+                        color: GREY_LIGHT,
                       }}
                     >
-                      En uso
+                      {sessionTime}
                     </div>
                     <div
                       style={{
-                        fontSize: isLarge ? "clamp(12px, 1.6vw, 18px)" : "clamp(7px, 1vw, 10px)",
-                        fontWeight: "600",
-                        color: "#000",
+                        padding: "clamp(4px, 0.6vw, 8px) clamp(12px, 1.5vw, 20px)",
+                        borderRadius: "clamp(4px, 0.6vw, 8px)",
+                        border: `2px solid ${GREY_BORDER}`,
+                        background: `repeating-linear-gradient(-45deg, ${CARD_BG}, ${CARD_BG} 2px, ${GREY_MID} 2px, ${GREY_MID} 4px)`,
                       }}
                     >
-                      {getSessionTypeDisplay(client.nombre_plan)}
+                      <span
+                        style={{
+                          fontSize: isLarge ? "clamp(12px, 1.6vw, 18px)" : "clamp(8px, 1.1vw, 11px)",
+                          fontWeight: "700",
+                          color: "#22c55e",
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        {getSessionTypeDisplay(client.nombre_plan)}
+                      </span>
                     </div>
                   </div>
-                </>
+                </div>
               ) : (
                 <>
                   <div
                     style={{
                       width: "100%",
                       flex: 1,
-                      border: "1px dashed #000",
+                      border: `1px dashed ${GREY_BORDER}`,
+                      borderRadius: "clamp(4px, 0.6vw, 8px)",
+                      backgroundColor: "#1a1814",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
@@ -402,7 +419,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
                     <span
                       style={{
                         fontSize: isLarge ? "clamp(36px, 5vw, 56px)" : "clamp(18px, 3vw, 28px)",
-                        color: "#000",
+                        color: GREY_LIGHT,
                         lineHeight: 1,
                       }}
                     >
@@ -412,7 +429,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, size = "defau
                       style={{
                         fontSize: isLarge ? "clamp(18px, 2.5vw, 28px)" : "clamp(10px, 1.5vw, 14px)",
                         fontWeight: "700",
-                        color: "#000",
+                        color: GREY_LIGHT,
                         textTransform: "uppercase",
                         letterSpacing: "1px",
                       }}

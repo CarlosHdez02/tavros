@@ -244,7 +244,11 @@ const TableDev = () => {
           minHeight: 0,
         }}
       >
-        <PlatformsMap reservations={MOCK_RESERVATIONS} size="large" />
+        <PlatformsMap
+          reservations={MOCK_RESERVATIONS}
+          sessionTime="06:00 - 07:00"
+          size="large"
+        />
       </div>
     </div>
   );

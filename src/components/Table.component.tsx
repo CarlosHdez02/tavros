@@ -354,6 +354,7 @@ const TVScheduleDisplay = () => {
       >
         <PlatformsMap
           reservations={displayData.reservations ?? []}
+          sessionTime={displayData.time}
           size="large"
         />
       </div>
