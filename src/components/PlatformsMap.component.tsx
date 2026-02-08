@@ -407,36 +407,6 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       gap: "clamp(4px, 0.8vw, 8px)",
                     }}
                   >
-                    {/* "+ Disponible" above logo */}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "clamp(2px, 0.4vw, 4px)",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: isLarge ? "clamp(36px, 5vw, 56px)" : "clamp(18px, 3vw, 28px)",
-                          color: GREY_LIGHT,
-                          lineHeight: 1,
-                        }}
-                      >
-                        +
-                      </span>
-                      <span
-                        style={{
-                          fontSize: isLarge ? "clamp(18px, 2.5vw, 28px)" : "clamp(10px, 1.5vw, 14px)",
-                          fontWeight: "700",
-                          color: GREY_LIGHT,
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
-                      >
-                        Disponible
-                      </span>
-                    </div>
                     {/* Tavros logo below */}
                     <div
                       style={{
