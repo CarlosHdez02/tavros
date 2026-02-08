@@ -1,12 +1,10 @@
-import CarrouselDev from "@/components/CarrouselDev.component";
+import TableDev from "@/components/TableDev.component";
 
 const DevPage = () => {
   return (
-    <>
-      <div className="my-2">
-        <CarrouselDev />
-      </div>
-    </>
+    <div className="min-h-screen bg-[#0f1419]">
+      <TableDev />
+    </div>
   );
 };
 export default DevPage;

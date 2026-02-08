@@ -3,7 +3,7 @@ import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-remov
 import type { Reservation } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 
-// Mock data for /dev preview - 7 clients (7 platforms filled, 3 empty)
+// Mock data for /dev preview - 5 clients (platforms 1-5 with power rack), 5 empty (platforms 6-10 with Disponible)
 const MOCK_RESERVATIONS: Reservation[] = [
   {
     id: 1,
@@ -152,7 +152,7 @@ const MOCK_RESERVATIONS: Reservation[] = [
     imagen: "default7.jpg",
     fila: "7",
   },
-];
+].slice(0, 5); // Use first 5 to show mix: platforms 1-5 = power rack + client, 6-10 = Disponible
 
 const TableDev = () => {
   return (
