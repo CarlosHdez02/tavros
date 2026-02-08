@@ -1,19 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import {
-  createColumnHelper,
-  getCoreRowModel,
-  useReactTable,
-  flexRender,
-  getSortedRowModel,
-} from "@tanstack/react-table";
 import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
-import {
-  Reservation,
-  CheckinData,
-  ProcessedSession,
-  PLAN_MAPPING,
-} from "@/types/Table.type";
+import { CheckinData, ProcessedSession } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 
 const API_BASE_URL =
@@ -189,106 +177,6 @@ const TVScheduleDisplay = () => {
     };
   }, [checkinData]);
 
-  // Truncate name helper with proper handling
-  const truncateName = (firstName: string | null | undefined, lastName: string | null | undefined) => {
-    const first = firstName ?? "";
-    const last = lastName ?? "";
-    const fullName = `${first} ${last}`.trim();
-    const maxLength = 28; // Adjust based on your needs
-
-    if (fullName.length <= maxLength) {
-      return fullName;
-    }
-
-    // Try to truncate last name first
-    if (first.length + 3 < maxLength) {
-      const lastNameMaxLength = maxLength - first.length - 1;
-      return `${first} ${last.substring(0, lastNameMaxLength)}...`;
-    }
-
-    // If first name is too long, truncate the whole thing
-    return `${fullName.substring(0, maxLength - 3)}...`;
-  };
-
-  const columnHelper = createColumnHelper<Reservation>();
-
-  const columns = [
-    columnHelper.accessor("name", {
-      header: "Cliente",
-      cell: (info) => (
-        <div
-          className="font-bold"
-          style={{
-            fontSize: "clamp(20px, 3vw, 34px)",
-            color: "#F5F5F5",
-            fontWeight: "600",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-        >
-          {truncateName(info.row.original.name, info.row.original.last_name)}
-        </div>
-      ),
-    }),
-    columnHelper.accessor("nombre_plan", {
-      header: "Tipo de Sesión",
-      cell: (info) => {
-        const rawValue = info.getValue() || "";
-        let displayValue = PLAN_MAPPING[rawValue];
-
-        if (!displayValue) {
-          const lowerValue = rawValue.toLowerCase();
-
-          if (lowerValue.includes("grupal")) {
-            displayValue = "Grupal";
-          } else if (lowerValue.includes("semiprivada")) {
-            displayValue = "Semiprivada";
-          } else if (
-            lowerValue.includes("privada") ||
-            lowerValue.includes("privado")
-          ) {
-            displayValue = "Privada";
-          } else {
-            displayValue = rawValue || "N/A";
-          }
-        }
-
-        return (
-          <div
-            className="font-bold"
-            style={{
-              fontSize: "clamp(20px, 3vw, 34px)",
-              color: "#F5F5F5",
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          >
-            {displayValue}
-          </div>
-        );
-      },
-    }),
-    columnHelper.accessor("fila",{
-      header: "Fila",
-      cell: (info) => {
-        return (
-          <div
-            className="font-bold"
-            style={{
-              fontSize: "clamp(20px, 3vw, 34px)",
-              color: "#F5F5F5",
-              fontWeight: "600",
-              textAlign: "center",
-            }}
-          > 
-            {info.row.original.fila ?? "Sin plataforma reservada"}
-          </div>
-        );
-      },
-    })
-  ];
-
   const now = new Date();
 
   const startTime = now.toLocaleTimeString("es-ES", {
@@ -317,13 +205,6 @@ const TVScheduleDisplay = () => {
     reservationsCount: 0,
     color: "#374151",
   };
-
-  const table = useReactTable({
-    columns,
-    data: displayData.reservations ?? [],
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  });
 
   if (loading && !checkinData) {
     return (
@@ -403,7 +284,7 @@ const TVScheduleDisplay = () => {
               letterSpacing: "2px",
             }}
           >
-            Sesiones
+            {displayData.className}
           </h1>
           <img
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
@@ -461,7 +342,7 @@ const TVScheduleDisplay = () => {
         </div>
       </div>
 
-      {/* Table and Platforms - flexible layout for vertical TV */}
+      {/* Platforms Map - full layout driven by API data */}
       <div
         style={{
           flex: 1,
@@ -471,113 +352,10 @@ const TVScheduleDisplay = () => {
           minHeight: 0,
         }}
       >
-      {/* Table Container */}
-      <div
-        style={{
-          flex: 1,
-          minHeight: 0,
-          backgroundColor: "#2a2a2a",
-          borderRadius: "clamp(12px, 2vw, 24px)",
-          boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
-          border: "2px solid #E8B44F",
-          overflow: "hidden",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <table
-          style={{ width: "100%", borderCollapse: "collapse", height: "100%" }}
-        >
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr
-                key={headerGroup.id}
-                style={{
-                  borderBottom: "4px solid #E8B44F",
-                  backgroundColor: "#1a1a1a",
-                }}
-              >
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    style={{
-                      padding: "clamp(12px, 2vw, 24px) clamp(12px, 2vw, 24px)",
-                      textAlign:
-                        header.id === "asistencia_confirmada" ||
-                        header.id === "nombre_plan"
-                          ? "center"
-                          : "left",
-                      fontSize: "clamp(18px, 2.5vw, 26px)",
-                      fontWeight: "900",
-                      color: "#E8B44F",
-                      textTransform: "uppercase",
-                      letterSpacing: "2px",
-                    }}
-                  >
-                    {flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
-                    )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-
-          <tbody>
-            {table.getRowModel().rows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  style={{
-                    padding: "clamp(32px, 6vw, 64px)",
-                    textAlign: "center",
-                    fontSize: "clamp(18px, 2.5vw, 24px)",
-                    color: "#B8B8B8",
-                    fontStyle: "italic",
-                  }}
-                >
-                  Sin reservas
-                </td>
-              </tr>
-            ) : (
-              table.getRowModel().rows.map((row, index) => (
-                <tr
-                  key={row.id}
-                  style={{
-                    borderBottom:
-                      index < table.getRowModel().rows.length - 1
-                        ? "2px solid #3a3a3a"
-                        : "none",
-                    backgroundColor: "#2a2a2a",
-                    height: `${100 / table.getRowModel().rows.length}%`,
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <td
-                      key={cell.id}
-                      style={{
-                        padding:
-                          "clamp(8px, 1.5vw, 18px) clamp(12px, 2vw, 24px)",
-                        color: "#F5F5F5",
-                        verticalAlign: "middle",
-                      }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Platforms Map - below table */}
-      <PlatformsMap reservations={displayData.reservations ?? []} />
+        <PlatformsMap
+          reservations={displayData.reservations ?? []}
+          size="large"
+        />
       </div>
 
       {/* Add spinning animation */}

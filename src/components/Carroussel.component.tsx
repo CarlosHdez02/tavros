@@ -5,8 +5,21 @@ import React from "react";
 import { useCarouselData } from "@/hooks/useCarouselData";
 import SingleVideo from "./Video-cards.component";
 
-const GalleryComponent = dynamic(() => import("./Gallery.component"));
-const TableComponent = dynamic(() => import("./Table.component"));
+const CarouselLoadingPlaceholder = () => (
+  <div
+    className="flex items-center justify-center min-h-screen bg-[#0f1419]"
+    style={{ minHeight: "100vh" }}
+  >
+    <div className="text-[#60a5fa] text-xl">Cargando...</div>
+  </div>
+);
+
+const GalleryComponent = dynamic(() => import("./Gallery.component"), {
+  loading: () => <CarouselLoadingPlaceholder />,
+});
+const TableComponent = dynamic(() => import("./Table.component"), {
+  loading: () => <CarouselLoadingPlaceholder />,
+});
 
 export interface CarrouselInterface {
   id: number;
