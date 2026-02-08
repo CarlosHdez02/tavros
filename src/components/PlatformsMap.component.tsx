@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Dumbbell } from "lucide-react";
 import type { Reservation } from "@/types/Table.type";
 import { PLAN_MAPPING } from "@/types/Table.type";
 import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
@@ -329,34 +328,25 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   >
                     {truncateName(client.name, client.last_name, 36)}
                   </div>
-                  {/* Row 2: Logo with dumbbell at center */}
+                  {/* Row 2: Tavros logo at center */}
                   <div
                     style={{
-                      position: "relative",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "clamp(60px, 12vw, 100px)",
-                      height: "clamp(60px, 12vw, 100px)",
+                      width: "100%",
+                      minHeight: "clamp(80px, 14vw, 140px)",
                     }}
                   >
                     <img
                       src={logoSrc}
-                      alt=""
+                      alt="Tavros"
                       style={{
-                        position: "absolute",
-                        width: "100%",
-                        height: "100%",
+                        width: "70%",
+                        maxWidth: "clamp(80px, 16vw, 140px)",
+                        height: "auto",
                         objectFit: "contain",
-                        opacity: 0.35,
-                        filter: "brightness(0) saturate(100%) invert(79%) sepia(28%) saturate(2000%) hue-rotate(359deg)",
                       }}
-                    />
-                    <Dumbbell
-                      size={isLarge ? 36 : 24}
-                      color={GOLD}
-                      strokeWidth={2}
-                      style={{ position: "relative", zIndex: 1 }}
                     />
                   </div>
                   {/* Row 3: Time and class type (below logo) */}
@@ -370,7 +360,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   >
                     <div
                       style={{
-                        fontSize: isLarge ? "clamp(14px, 2vw, 20px)" : "clamp(9px, 1.2vw, 12px)",
+                        fontSize: isLarge ? "clamp(20px, 3vw, 32px)" : "clamp(14px, 2vw, 20px)",
                         fontWeight: "600",
                         color: GREY_LIGHT,
                       }}
@@ -387,7 +377,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                     >
                       <span
                         style={{
-                          fontSize: isLarge ? "clamp(12px, 1.6vw, 18px)" : "clamp(8px, 1.1vw, 11px)",
+                          fontSize: isLarge ? "clamp(18px, 2.6vw, 28px)" : "clamp(12px, 1.8vw, 18px)",
                           fontWeight: "700",
                           color: "#22c55e",
                           textTransform: "uppercase",
@@ -416,26 +406,38 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       gap: "clamp(4px, 0.8vw, 8px)",
                     }}
                   >
-                    <span
+                    {/* "+ Disponible" above logo */}
+                    <div
                       style={{
-                        fontSize: isLarge ? "clamp(36px, 5vw, 56px)" : "clamp(18px, 3vw, 28px)",
-                        color: GREY_LIGHT,
-                        lineHeight: 1,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "clamp(2px, 0.4vw, 4px)",
                       }}
                     >
-                      +
-                    </span>
-                    <span
+                     
+                    </div>
+                    {/* Tavros logo below */}
+                    <div
                       style={{
-                        fontSize: isLarge ? "clamp(18px, 2.5vw, 28px)" : "clamp(10px, 1.5vw, 14px)",
-                        fontWeight: "700",
-                        color: GREY_LIGHT,
-                        textTransform: "uppercase",
-                        letterSpacing: "1px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        flex: 1,
+                        width: "100%",
                       }}
                     >
-                      Disponible
-                    </span>
+                      <img
+                        src={logoSrc}
+                        alt="Tavros"
+                        style={{
+                          width: "70%",
+                          maxWidth: "clamp(80px, 16vw, 140px)",
+                          height: "auto",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </div>
                   </div>
                 </>
               )}

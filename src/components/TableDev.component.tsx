@@ -199,7 +199,7 @@ const TableDev = () => {
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
             alt="Tavros Logo"
             style={{
-              height: "clamp(80px, 12vw, 160px)",
+              height: "clamp(100px, 16vw, 200px)",
               width: "auto",
               objectFit: "contain",
             }}

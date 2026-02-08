@@ -290,7 +290,7 @@ const TVScheduleDisplay = () => {
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
             alt="Tavros Logo"
             style={{
-              height: "clamp(120px, 18vw, 240px)",
+              height: "clamp(140px, 20vw, 280px)",
               width: "auto",
               objectFit: "contain",
             }}
