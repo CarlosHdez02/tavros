@@ -14,6 +14,7 @@ import {
   ProcessedSession,
   PLAN_MAPPING,
 } from "@/types/Table.type";
+import PlatformsMap from "./PlatformsMap.component";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://tavros-scraper-1.onrender.com";
@@ -460,11 +461,21 @@ const TVScheduleDisplay = () => {
         </div>
       </div>
 
-      {/* Table Container - Grows to fill available space */}
+      {/* Table and Platforms - flexible layout for vertical TV */}
       <div
         style={{
           flex: 1,
           marginTop: "clamp(16px, 2.5vw, 32px)",
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+        }}
+      >
+      {/* Table Container */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
           backgroundColor: "#2a2a2a",
           borderRadius: "clamp(12px, 2vw, 24px)",
           boxShadow: "0 20px 60px rgba(0, 0, 0, 0.5)",
@@ -563,6 +574,10 @@ const TVScheduleDisplay = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Platforms Map - below table */}
+      <PlatformsMap reservations={displayData.reservations ?? []} />
       </div>
 
       {/* Add spinning animation */}
