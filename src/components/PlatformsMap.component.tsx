@@ -64,21 +64,21 @@ const EntranceCell = () => (
   <div
     style={{
       gridColumn: "1",
-      gridRow: "3",
+      gridRow: "2 / 4",
       position: "relative",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      padding: "clamp(12px, 2vw, 24px)",
+      padding: "clamp(6px, 1vw, 12px)",
       borderRight: `2px solid ${GOLD}`,
       borderTop: `2px solid ${GOLD}`,
       backgroundColor: "#1e1c18",
     }}
   >
     <svg
-      width="90%"
-      height="clamp(70px, 14vh, 140px)"
+      width="85%"
+      height="clamp(50px, 10vh, 90px)"
       viewBox="0 0 60 70"
       preserveAspectRatio="xMidYMax meet"
       style={{ flexShrink: 0 }}
@@ -88,12 +88,12 @@ const EntranceCell = () => (
     </svg>
     <div
       style={{
-        fontSize: "clamp(16px, 2.5vw, 28px)",
+        fontSize: "clamp(10px, 1.4vw, 16px)",
         fontWeight: "800",
         color: GOLD,
         textTransform: "uppercase",
         letterSpacing: "2px",
-        marginTop: "clamp(8px, 1.5vw, 16px)",
+        marginTop: "clamp(4px, 0.8vw, 8px)",
       }}
     >
       Entrada
@@ -184,7 +184,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(90px, 16%) 1fr 1fr 1fr 1fr minmax(55px, 8%)",
+          gridTemplateColumns: "minmax(50px, 7%) 1fr 1fr 1fr 1fr minmax(40px, 6%)",
           gridTemplateRows: isLarge ? "1fr 1fr 1fr" : "auto auto auto",
           gap: 0,
           width: "100%",
@@ -198,7 +198,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
         <div
           style={{
             gridColumn: "1",
-            gridRow: "1 / 3",
+            gridRow: "1",
             position: "relative",
             borderRight: `2px solid ${GOLD}`,
             borderBottom: `2px solid ${GOLD}`,
@@ -206,7 +206,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
             display: "flex",
             alignItems: "stretch",
             justifyContent: "stretch",
-            padding: "clamp(6px, 1vw, 12px)",
+            padding: "clamp(2px, 0.4vw, 5px)",
           }}
         >
           <svg width="100%" height="100%" viewBox="0 0 60 100" preserveAspectRatio="none">
@@ -225,12 +225,12 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: "clamp(8px, 1.5vw, 16px)",
-            padding: "clamp(8px, 1.5vw, 16px)",
+            gap: "clamp(4px, 0.8vw, 8px)",
+            padding: "clamp(4px, 0.8vw, 10px)",
             borderLeft: `2px solid ${GOLD}`,
             borderTop: `2px solid ${GOLD}`,
             backgroundColor: "#1e1c18",
-            minHeight: isLarge ? "clamp(100px, 14vh, 200px)" : "clamp(90px, 12vw, 140px)",
+            minHeight: isLarge ? "clamp(70px, 10vh, 140px)" : "clamp(60px, 8vw, 100px)",
           }}
         >
           <div style={{ flex: 1, width: "100%", minHeight: "45%", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -288,7 +288,8 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   alignSelf: "flex-start",
                 }}
               >
-                Plataforma {String(platformNum).padStart(2, "0")}
+                πλατφόρμα
+                {String(platformNum).padStart(2, "0")}
               </div>
               {isActive && client ? (
                 <div
@@ -379,7 +380,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                         style={{
                           fontSize: isLarge ? "clamp(18px, 2.6vw, 28px)" : "clamp(12px, 1.8vw, 18px)",
                           fontWeight: "700",
-                          color: "#22c55e",
+                          color: GOLD,
                           textTransform: "uppercase",
                           letterSpacing: "1px",
                         }}
@@ -415,7 +416,26 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                         gap: "clamp(2px, 0.4vw, 4px)",
                       }}
                     >
-                     
+                      <span
+                        style={{
+                          fontSize: isLarge ? "clamp(36px, 5vw, 56px)" : "clamp(18px, 3vw, 28px)",
+                          color: GREY_LIGHT,
+                          lineHeight: 1,
+                        }}
+                      >
+                        +
+                      </span>
+                      <span
+                        style={{
+                          fontSize: isLarge ? "clamp(18px, 2.5vw, 28px)" : "clamp(10px, 1.5vw, 14px)",
+                          fontWeight: "700",
+                          color: GREY_LIGHT,
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        Disponible
+                      </span>
                     </div>
                     {/* Tavros logo below */}
                     <div
