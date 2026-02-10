@@ -308,17 +308,6 @@ const TVScheduleDisplay = () => {
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{
-                fontSize: "clamp(40px, 6vw, 64px)",
-                color: "#F5F5F5",
-                fontWeight: "800",
-                lineHeight: "1",
-                marginBottom: "clamp(4px, 1vw, 8px)",
-              }}
-            >
-              {displayData.time}
-            </div>
-            <div
-              style={{
                 fontSize: "clamp(16px, 2.2vw, 24px)",
                 color: "#888888",
                 fontWeight: "500",

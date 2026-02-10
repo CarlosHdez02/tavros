@@ -59,20 +59,21 @@ const LatPulldownSketch = () => (
   </svg>
 );
 
-/** Entrance cell - door with arc, yellow accents */
+/** Entrance cell - door with arc, yellow accents (top right) */
 const EntranceCell = () => (
   <div
     style={{
-      gridColumn: "1",
-      gridRow: "2 / 4",
+      gridColumn: "6",
+      gridRow: "1",
       position: "relative",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
       padding: "clamp(6px, 1vw, 12px)",
-      borderRight: `2px solid ${GOLD}`,
+      borderLeft: `2px solid ${GOLD}`,
       borderTop: `2px solid ${GOLD}`,
+      borderBottom: `2px solid ${GOLD}`,
       backgroundColor: "#1e1c18",
     }}
   >
@@ -138,11 +139,11 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
 
   const isLarge = size === "large";
 
-  // Platform positions in the floor plan: [col, row, colSpan]
+  // Platform positions: 9-10 at top, 1-8 below. [col, row, colSpan]
   const platformLayout: [number, number, number][] = [
-    [2, 1, 1], [3, 1, 1], [4, 1, 1], [5, 1, 1], // 1-4
-    [2, 2, 1], [3, 2, 1], [4, 2, 1], [5, 2, 1], // 5-8
-    [2, 3, 2], [4, 3, 2], // 9-10 (centered in bottom row)
+    [2, 2, 1], [3, 2, 1], [4, 2, 1], [5, 2, 1], // 1-4 (row 2)
+    [2, 3, 1], [3, 3, 1], [4, 3, 1], [5, 3, 1], // 5-8 (row 3)
+    [2, 1, 2], [4, 1, 2], // 9-10 (row 1, top)
   ];
 
   return (
@@ -159,28 +160,6 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
         position: "relative",
       }}
     >
-      {/* Corridor path from entrance - dotted line (architectural convention) */}
-      <svg
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        {/* Path from entrance into main platform area */}
-        <path
-          d="M 5 92 L 12 92 L 12 8"
-          fill="none"
-          stroke={GOLD}
-          strokeWidth="0.6"
-          strokeDasharray="5 4"
-          opacity="0.5"
-        />
-      </svg>
       <div
         style={{
           display: "grid",
@@ -194,7 +173,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
           borderRight: `2px solid ${GOLD}`,
         }}
       >
-        {/* Corridor above entrance - window with yellow borders */}
+        {/* Window - top left (original position) */}
         <div
           style={{
             gridColumn: "1",
@@ -215,19 +194,18 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
             <line x1="2" y1="50" x2="58" y2="50" stroke={GOLD} strokeWidth="1.2" />
           </svg>
         </div>
-        <EntranceCell />
-        {/* Dumbbell rack + lat pulldown - next to platform 10 (right side), yellow borders */}
+        {/* Dumbbell rack + lat pulldown - left side, below window */}
         <div
           style={{
-            gridColumn: "6",
-            gridRow: "3",
+            gridColumn: "1",
+            gridRow: "2 / 4",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: "clamp(4px, 0.8vw, 8px)",
+            gap: "clamp(0px, 0.2vw, 2px)",
             padding: "clamp(4px, 0.8vw, 10px)",
-            borderLeft: `2px solid ${GOLD}`,
+            borderRight: `2px solid ${GOLD}`,
             borderTop: `2px solid ${GOLD}`,
             backgroundColor: "#1e1c18",
             minHeight: isLarge ? "clamp(70px, 10vh, 140px)" : "clamp(60px, 8vw, 100px)",
@@ -240,6 +218,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
             <LatPulldownSketch />
           </div>
         </div>
+        <EntranceCell />
         {Array.from({ length: TOTAL_PLATFORMS }, (_, i) => {
           const platformNum = i + 1;
           const client = platformAssignments.get(platformNum);
@@ -288,7 +267,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   alignSelf: "flex-start",
                 }}
               >
-                πλατφόρμα
+              
                 {String(platformNum).padStart(2, "0")}
               </div>
               {isActive && client ? (
@@ -407,6 +386,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       gap: "clamp(4px, 0.8vw, 8px)",
                     }}
                   >
+
                     {/* Tavros logo below */}
                     <div
                       style={{
