@@ -97,8 +97,30 @@ const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 8
   return base.length > maxLen ? base.substring(0, maxLen - 1) + "." : base;
 };
 
-const truncateName = (firstName: string, lastName: string, maxLen = 16): string => {
-  const full = `${firstName ?? ""} ${lastName ?? ""}`.trim();
+/** Extract first surname, including composed forms (e.g. "de la Rosa", "del Castillo") */
+const getFirstLastName = (lastName: string): string => {
+  const parts = (lastName ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return parts[0];
+  const p0 = parts[0].toLowerCase();
+  const p1 = parts[1]?.toLowerCase();
+  // "de la X", "de las X", "de los X" → 3 words
+  if (p0 === "de" && (p1 === "la" || p1 === "las" || p1 === "los") && parts[2])
+    return parts.slice(0, 3).join(" ");
+  // "van de X" → 3 words
+  if (p0 === "van" && p1 === "de" && parts[2])
+    return parts.slice(0, 3).join(" ");
+  // "del X", "de X", "van X", "von X" → 2 words
+  if ((p0 === "del" || p0 === "de" || p0 === "van" || p0 === "von") && parts[1])
+    return parts.slice(0, 2).join(" ");
+  return parts[0];
+};
+
+/** Show only first first name + first last name (e.g. "Evelyn Romero", "Jose Gonzalez") */
+const truncateName = (firstName: string, lastName: string, maxLen = 20): string => {
+  const firstFirstName = (firstName ?? "").trim().split(/\s+/)[0] ?? "";
+  const firstLast = getFirstLastName(lastName ?? "");
+  const full = `${firstFirstName} ${firstLast}`.trim();
   if (full.length <= maxLen) return full;
   return `${full.substring(0, maxLen - 3)}...`;
 };
@@ -268,28 +290,14 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       }}
                     />
                   </div>
-                  {/* Row 3: Time and class type (below logo) */}
+                  {/* Row 3: Class type (below logo) */}
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: "clamp(4px, 0.6vw, 8px)",
                     }}
                   >
-                    <div
-                      style={{
-                        fontSize: isLarge ? "clamp(14px, 2vw, 24px)" : "clamp(10px, 1.4vw, 16px)",
-                        fontWeight: "600",
-                        color: GREY_LIGHT,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: "100%",
-                      }}
-                    >
-                      {sessionTime}
-                    </div>
                     <div
                       style={{
                         padding: "clamp(2px, 0.4vw, 6px) clamp(6px, 1vw, 12px)",
