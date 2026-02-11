@@ -14,9 +14,6 @@
     --border-light: #334155;
   }
 
-  * {
-    @apply border-[--border];
-  }
 
   html {
     @apply bg-[--background] text-[--foreground];

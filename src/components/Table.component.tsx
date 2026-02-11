@@ -256,6 +256,7 @@ const TVScheduleDisplay = () => {
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       {/* Header - Fixed height */}
@@ -272,6 +273,7 @@ const TVScheduleDisplay = () => {
             justifyContent: "space-between",
             alignItems: "center",
             marginBottom: "clamp(8px, 1.5vw, 16px)",
+            minWidth: 0,
           }}
         >
           <h1
@@ -282,6 +284,10 @@ const TVScheduleDisplay = () => {
               margin: 0,
               textTransform: "uppercase",
               letterSpacing: "2px",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
             }}
           >
             {displayData.className}
@@ -339,6 +345,8 @@ const TVScheduleDisplay = () => {
           display: "flex",
           flexDirection: "column",
           minHeight: 0,
+          minWidth: 0,
+          overflow: "hidden",
         }}
       >
         <PlatformsMap

@@ -46,6 +46,8 @@ const EntranceCell = () => (
       borderTop: `2px solid ${GOLD}`,
       borderBottom: `2px solid ${GOLD}`,
       backgroundColor: "#1e1c18",
+      overflow: "hidden",
+      minWidth: 0,
     }}
   >
     <svg
@@ -81,7 +83,7 @@ interface PlatformsMapProps {
   size?: "default" | "large";
 }
 
-const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 10): string => {
+const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 8): string => {
   if (!nombrePlan) return "Sesión";
   const mapped = PLAN_MAPPING[nombrePlan];
   const base = mapped ? mapped.toUpperCase() : (() => {
@@ -95,7 +97,7 @@ const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 1
   return base.length > maxLen ? base.substring(0, maxLen - 1) + "." : base;
 };
 
-const truncateName = (firstName: string, lastName: string, maxLen = 18): string => {
+const truncateName = (firstName: string, lastName: string, maxLen = 16): string => {
   const full = `${firstName ?? ""} ${lastName ?? ""}`.trim();
   if (full.length <= maxLen) return full;
   return `${full.substring(0, maxLen - 3)}...`;
@@ -127,10 +129,12 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
         marginTop: isLarge ? 0 : "clamp(12px, 2vw, 20px)",
         padding: isLarge ? "clamp(16px, 2.5vw, 32px)" : "clamp(8px, 1.5vw, 16px)",
         backgroundColor: "#2d2a24",
-        border: `3px solid ${GOLD}`,
+        border: "none",
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        overflow: "hidden",
+        boxSizing: "border-box",
       }}
     >
       <div
@@ -140,10 +144,12 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
           gridTemplateRows: isLarge ? "1fr 1fr 1fr" : "auto auto auto",
           gap: 0,
           width: "100%",
+          minWidth: 0,
           flex: isLarge ? 1 : undefined,
           minHeight: isLarge ? 0 : "clamp(320px, 50vh, 500px)",
           borderTop: `2px solid ${GOLD}`,
           borderRight: `2px solid ${GOLD}`,
+          overflow: "hidden",
         }}
       >
         <EntranceCell />
@@ -162,8 +168,9 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                 gridColumn: `${col} / span ${colSpan}`,
                 gridRow: row,
                 minHeight: isLarge ? "clamp(100px, 14vh, 200px)" : "clamp(90px, 12vw, 140px)",
+                minWidth: 0,
                 backgroundColor: CARD_BG,
-                border: isActive ? `2px solid ${GREY_BORDER}` : `1px dashed ${GREY_BORDER}`,
+                border: "none",
                 borderRadius: "clamp(6px, 1vw, 12px)",
                 display: "flex",
                 flexDirection: "column",
@@ -171,6 +178,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                 alignItems: "center",
                 padding: isLarge ? "clamp(12px, 2vw, 24px)" : "clamp(8px, 1.5vw, 14px)",
                 overflow: "hidden",
+                boxSizing: "border-box",
               }}
             >
               {isActive && <HatchPattern id={`hatch-platform-${platformNum}`} />}
@@ -179,9 +187,11 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   position: "relative",
                   zIndex: 1,
                   width: "100%",
+                  minWidth: 0,
                   display: "flex",
                   flexDirection: "column",
                   flex: 1,
+                  overflow: "hidden",
                 }}
               >
               <div
@@ -203,8 +213,9 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   style={{
                     position: "relative",
                     width: "100%",
+                    minWidth: 0,
                     flex: 1,
-                    border: `1px solid ${GREY_BORDER}`,
+                    border: "none",
                     borderRadius: "clamp(4px, 0.6vw, 8px)",
                     backgroundColor: "#1a1814",
                     display: "flex",
@@ -234,7 +245,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       minHeight: "2.4em",
                     }}
                   >
-                    {truncateName(client.name, client.last_name, 36)}
+                    {truncateName(client.name, client.last_name, 20)}
                   </div>
                   {/* Row 2: Tavros logo at center */}
                   <div
@@ -268,9 +279,13 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   >
                     <div
                       style={{
-                        fontSize: isLarge ? "clamp(20px, 3vw, 32px)" : "clamp(14px, 2vw, 20px)",
+                        fontSize: isLarge ? "clamp(14px, 2vw, 24px)" : "clamp(10px, 1.4vw, 16px)",
                         fontWeight: "600",
                         color: GREY_LIGHT,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        maxWidth: "100%",
                       }}
                     >
                       {sessionTime}
@@ -279,7 +294,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       style={{
                         padding: "clamp(2px, 0.4vw, 6px) clamp(6px, 1vw, 12px)",
                         borderRadius: "clamp(4px, 0.6vw, 8px)",
-                        border: `2px solid ${GREY_BORDER}`,
+                        border: "none",
                         background: `repeating-linear-gradient(-45deg, ${CARD_BG}, ${CARD_BG} 2px, ${GREY_MID} 2px, ${GREY_MID} 4px)`,
                         maxWidth: "100%",
                         overflow: "hidden",
@@ -310,7 +325,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                     style={{
                       width: "100%",
                       flex: 1,
-                      border: `1px dashed ${GREY_BORDER}`,
+                      border: "none",
                       borderRadius: "clamp(4px, 0.6vw, 8px)",
                       backgroundColor: "#1a1814",
                       display: "flex",
