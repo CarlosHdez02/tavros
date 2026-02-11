@@ -30,40 +30,11 @@ const HatchPattern = ({ id }: { id: string }) => (
   </svg>
 );
 
-/** Dumbbell rack sketch - yellow stroke */
-const DumbbellRackSketch = () => (
-  <svg width="100%" height="100%" viewBox="0 0 80 100" preserveAspectRatio="xMidYMid meet">
-    <line x1="15" y1="15" x2="15" y2="85" stroke={GOLD} strokeWidth="1.5" />
-    <line x1="65" y1="15" x2="65" y2="85" stroke={GOLD} strokeWidth="1.5" />
-    <line x1="12" y1="25" x2="68" y2="25" stroke={GOLD} strokeWidth="1.2" />
-    <line x1="12" y1="50" x2="68" y2="50" stroke={GOLD} strokeWidth="1.2" />
-    <line x1="12" y1="75" x2="68" y2="75" stroke={GOLD} strokeWidth="1.2" />
-    <circle cx="25" cy="25" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
-    <circle cx="55" cy="25" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
-    <circle cx="25" cy="50" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
-    <circle cx="55" cy="50" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
-    <circle cx="25" cy="75" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
-    <circle cx="55" cy="75" r="6" fill="none" stroke={GOLD} strokeWidth="1" />
-  </svg>
-);
-
-/** Lat pulldown machine sketch - yellow stroke */
-const LatPulldownSketch = () => (
-  <svg width="100%" height="100%" viewBox="0 0 60 80" preserveAspectRatio="xMidYMid meet">
-    <line x1="15" y1="5" x2="15" y2="75" stroke={GOLD} strokeWidth="1.5" />
-    <line x1="45" y1="5" x2="45" y2="75" stroke={GOLD} strokeWidth="1.5" />
-    <line x1="12" y1="8" x2="48" y2="8" stroke={GOLD} strokeWidth="1.2" />
-    <line x1="30" y1="8" x2="30" y2="55" stroke={GOLD} strokeWidth="1" strokeDasharray="2 2" />
-    <line x1="15" y1="55" x2="45" y2="55" stroke={GOLD} strokeWidth="1.5" />
-    <rect x="20" y="65" width="20" height="8" fill="none" stroke={GOLD} strokeWidth="1" />
-  </svg>
-);
-
 /** Entrance cell - door with arc, yellow accents (top right) */
 const EntranceCell = () => (
   <div
     style={{
-      gridColumn: "6",
+      gridColumn: "5",
       gridRow: "1",
       position: "relative",
       display: "flex",
@@ -110,16 +81,18 @@ interface PlatformsMapProps {
   size?: "default" | "large";
 }
 
-const getSessionTypeDisplay = (nombrePlan: string | null | undefined): string => {
+const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 10): string => {
   if (!nombrePlan) return "Sesión";
   const mapped = PLAN_MAPPING[nombrePlan];
-  if (mapped) return mapped.toUpperCase();
-  const lower = nombrePlan.toLowerCase();
-  if (lower.includes("grupal")) return "GRUPAL";
-  if (lower.includes("semiprivad")) return "SEMIPRIVADA";
-  if (lower.includes("privad")) return "PRIVADA";
-  if (lower.includes("open gym")) return "OPEN GYM";
-  return nombrePlan.substring(0, 20).toUpperCase();
+  const base = mapped ? mapped.toUpperCase() : (() => {
+    const lower = nombrePlan.toLowerCase();
+    if (lower.includes("grupal")) return "GRUPAL";
+    if (lower.includes("semiprivad")) return "SEMIPRIVADA";
+    if (lower.includes("privad")) return "PRIVADA";
+    if (lower.includes("open gym")) return "OPEN GYM";
+    return nombrePlan.substring(0, 12).toUpperCase();
+  })();
+  return base.length > maxLen ? base.substring(0, maxLen - 1) + "." : base;
 };
 
 const truncateName = (firstName: string, lastName: string, maxLen = 18): string => {
@@ -139,11 +112,11 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
 
   const isLarge = size === "large";
 
-  // Platform positions: 9-10 at top, 1-8 below. [col, row, colSpan]
+  // Platform positions per layout: 9-10 at top; row 2: 8,6,4,2; row 3: 7,5,3,1. [col, row, colSpan]
   const platformLayout: [number, number, number][] = [
-    [2, 2, 1], [3, 2, 1], [4, 2, 1], [5, 2, 1], // 1-4 (row 2)
-    [2, 3, 1], [3, 3, 1], [4, 3, 1], [5, 3, 1], // 5-8 (row 3)
-    [2, 1, 2], [4, 1, 2], // 9-10 (row 1, top)
+    [4, 3, 1], [4, 2, 1], [3, 3, 1], [3, 2, 1], // 1-4
+    [2, 3, 1], [2, 2, 1], [1, 3, 1], [1, 2, 1], // 5-8
+    [1, 1, 2], [3, 1, 2], // 9-10 (top)
   ];
 
   return (
@@ -163,7 +136,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(50px, 7%) 1fr 1fr 1fr 1fr minmax(40px, 6%)",
+          gridTemplateColumns: "1fr 1fr 1fr 1fr minmax(40px, 6%)",
           gridTemplateRows: isLarge ? "1fr 1fr 1fr" : "auto auto auto",
           gap: 0,
           width: "100%",
@@ -173,51 +146,6 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
           borderRight: `2px solid ${GOLD}`,
         }}
       >
-        {/* Window - top left (original position) */}
-        <div
-          style={{
-            gridColumn: "1",
-            gridRow: "1",
-            position: "relative",
-            borderRight: `2px solid ${GOLD}`,
-            borderBottom: `2px solid ${GOLD}`,
-            backgroundColor: "#1e1c18",
-            display: "flex",
-            alignItems: "stretch",
-            justifyContent: "stretch",
-            padding: "clamp(2px, 0.4vw, 5px)",
-          }}
-        >
-          <svg width="100%" height="100%" viewBox="0 0 60 100" preserveAspectRatio="none">
-            <rect x="2" y="2" width="56" height="96" fill="#252119" stroke={GOLD} strokeWidth="2" />
-            <line x1="30" y1="2" x2="30" y2="98" stroke={GOLD} strokeWidth="1.2" />
-            <line x1="2" y1="50" x2="58" y2="50" stroke={GOLD} strokeWidth="1.2" />
-          </svg>
-        </div>
-        {/* Dumbbell rack + lat pulldown - left side, below window */}
-        <div
-          style={{
-            gridColumn: "1",
-            gridRow: "2 / 4",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "clamp(0px, 0.2vw, 2px)",
-            padding: "clamp(4px, 0.8vw, 10px)",
-            borderRight: `2px solid ${GOLD}`,
-            borderTop: `2px solid ${GOLD}`,
-            backgroundColor: "#1e1c18",
-            minHeight: isLarge ? "clamp(70px, 10vh, 140px)" : "clamp(60px, 8vw, 100px)",
-          }}
-        >
-          <div style={{ flex: 1, width: "100%", minHeight: "45%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <DumbbellRackSketch />
-          </div>
-          <div style={{ flex: 1, width: "100%", minHeight: "45%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <LatPulldownSketch />
-          </div>
-        </div>
         <EntranceCell />
         {Array.from({ length: TOTAL_PLATFORMS }, (_, i) => {
           const platformNum = i + 1;
@@ -349,19 +277,26 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                     </div>
                     <div
                       style={{
-                        padding: "clamp(4px, 0.6vw, 8px) clamp(12px, 1.5vw, 20px)",
+                        padding: "clamp(2px, 0.4vw, 6px) clamp(6px, 1vw, 12px)",
                         borderRadius: "clamp(4px, 0.6vw, 8px)",
                         border: `2px solid ${GREY_BORDER}`,
                         background: `repeating-linear-gradient(-45deg, ${CARD_BG}, ${CARD_BG} 2px, ${GREY_MID} 2px, ${GREY_MID} 4px)`,
+                        maxWidth: "100%",
+                        overflow: "hidden",
                       }}
                     >
                       <span
                         style={{
-                          fontSize: isLarge ? "clamp(18px, 2.6vw, 28px)" : "clamp(12px, 1.8vw, 18px)",
+                          fontSize: isLarge ? "clamp(10px, 1.4vw, 18px)" : "clamp(8px, 1.1vw, 14px)",
                           fontWeight: "700",
                           color: GOLD,
                           textTransform: "uppercase",
-                          letterSpacing: "1px",
+                          letterSpacing: "0.5px",
+                          display: "block",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          maxWidth: "100%",
                         }}
                       >
                         {getSessionTypeDisplay(client.nombre_plan)}
@@ -386,7 +321,36 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       gap: "clamp(4px, 0.8vw, 8px)",
                     }}
                   >
-
+                    {/* "+ Disponible" above logo */}
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "clamp(2px, 0.4vw, 4px)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: isLarge ? "clamp(36px, 5vw, 56px)" : "clamp(18px, 3vw, 28px)",
+                          color: GREY_LIGHT,
+                          lineHeight: 1,
+                        }}
+                      >
+                        +
+                      </span>
+                      <span
+                        style={{
+                          fontSize: isLarge ? "clamp(18px, 2.5vw, 28px)" : "clamp(10px, 1.5vw, 14px)",
+                          fontWeight: "700",
+                          color: GREY_LIGHT,
+                          textTransform: "uppercase",
+                          letterSpacing: "1px",
+                        }}
+                      >
+                        Disponible
+                      </span>
+                    </div>
                     {/* Tavros logo below */}
                     <div
                       style={{
