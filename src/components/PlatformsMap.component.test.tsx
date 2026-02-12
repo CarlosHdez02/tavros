@@ -48,22 +48,24 @@ describe("PlatformsMap", () => {
     expect(screen.getByText(/Ana/)).toBeInTheDocument();
   });
 
-  it("shows session time on occupied platforms when provided", () => {
-    const reservations = [createMockReservation({ name: "Test", last_name: "User" })];
+  it("renders occupied platform with client name and class type", () => {
+    const reservations = [createMockReservation({ name: "Test", last_name: "User", nombre_plan: "Grupal" })];
     render(<PlatformsMap reservations={reservations} sessionTime="06:00 - 07:00" />);
-    expect(screen.getByText("06:00 - 07:00")).toBeInTheDocument();
+    expect(screen.getByText(/Test/)).toBeInTheDocument();
+    expect(screen.getByText("GRUPAL")).toBeInTheDocument();
   });
 
-  it("shows default session time placeholder on occupied platforms when not provided", () => {
+  it("renders occupied platform without session time when not provided", () => {
     const reservations = [createMockReservation({ name: "Test", last_name: "User" })];
-    render(<PlatformsMap reservations={reservations} />);
-    expect(screen.getByText("—")).toBeInTheDocument();
+    const { container } = render(<PlatformsMap reservations={reservations} />);
+    expect(container).toBeInTheDocument();
+    expect(screen.getByText(/Test/)).toBeInTheDocument();
   });
 
-  it("shows Disponible on empty platforms", () => {
-    render(<PlatformsMap reservations={[]} />);
-    const disponibles = screen.getAllByText("Disponible");
-    expect(disponibles.length).toBe(10);
+  it("renders empty platforms without Disponible text", () => {
+    const { container } = render(<PlatformsMap reservations={[]} />);
+    expect(container).toBeInTheDocument();
+    expect(screen.queryByText("Disponible")).not.toBeInTheDocument();
   });
 
   it("shows Entrada label", () => {

@@ -62,15 +62,34 @@ const EntranceCell = () => (
     </svg>
     <div
       style={{
-        fontSize: "clamp(10px, 1.4vw, 16px)",
-        fontWeight: "800",
-        color: GOLD,
-        textTransform: "uppercase",
-        letterSpacing: "2px",
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: 0,
         marginTop: "clamp(4px, 0.8vw, 8px)",
+        width: "100%",
       }}
     >
-      Entrada
+      <span
+        style={{
+          fontSize: "clamp(14px, 5vh, 32px)",
+          fontWeight: "800",
+          color: GOLD,
+          textTransform: "uppercase",
+          letterSpacing: "0.50em",
+          writingMode: "vertical-rl",
+          textOrientation: "mixed",
+          transform: "rotate(180deg)",
+          lineHeight: 1.2,
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        Entrada
+      </span>
     </div>
   </div>
 );
@@ -83,7 +102,7 @@ interface PlatformsMapProps {
   size?: "default" | "large";
 }
 
-const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 8): string => {
+const getSessionTypeDisplay = (nombrePlan: string | null | undefined): string => {
   if (!nombrePlan) return "Sesión";
   const mapped = PLAN_MAPPING[nombrePlan];
   const base = mapped ? mapped.toUpperCase() : (() => {
@@ -94,7 +113,7 @@ const getSessionTypeDisplay = (nombrePlan: string | null | undefined, maxLen = 8
     if (lower.includes("open gym")) return "OPEN GYM";
     return nombrePlan.substring(0, 12).toUpperCase();
   })();
-  return base.length > maxLen ? base.substring(0, maxLen - 1) + "." : base;
+  return base;
 };
 
 /** Extract first surname, including composed forms (e.g. "de la Rosa", "del Castillo") */
@@ -310,15 +329,16 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                     >
                       <span
                         style={{
-                          fontSize: isLarge ? "clamp(10px, 1.4vw, 18px)" : "clamp(8px, 1.1vw, 14px)",
+                          fontSize: isLarge ? "clamp(9px, 1.2vw, 16px)" : "clamp(7px, 1vw, 12px)",
                           fontWeight: "700",
                           color: GOLD,
                           textTransform: "uppercase",
                           letterSpacing: "0.5px",
                           display: "block",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
+                          textAlign: "center",
+                          wordBreak: "break-word",
+                          whiteSpace: "normal",
+                          lineHeight: 1.2,
                           maxWidth: "100%",
                         }}
                       >
@@ -344,37 +364,6 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       gap: "clamp(4px, 0.8vw, 8px)",
                     }}
                   >
-                    {/* "+ Disponible" above logo */}
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "clamp(2px, 0.4vw, 4px)",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: isLarge ? "clamp(36px, 5vw, 56px)" : "clamp(18px, 3vw, 28px)",
-                          color: GREY_LIGHT,
-                          lineHeight: 1,
-                        }}
-                      >
-                        +
-                      </span>
-                      <span
-                        style={{
-                          fontSize: isLarge ? "clamp(18px, 2.5vw, 28px)" : "clamp(10px, 1.5vw, 14px)",
-                          fontWeight: "700",
-                          color: GREY_LIGHT,
-                          textTransform: "uppercase",
-                          letterSpacing: "1px",
-                        }}
-                      >
-                        Disponible
-                      </span>
-                    </div>
-                    {/* Tavros logo below */}
                     <div
                       style={{
                         display: "flex",
