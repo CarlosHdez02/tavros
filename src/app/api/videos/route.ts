@@ -24,10 +24,17 @@ export async function GET(){
             transformHeader:(header)=> header.trim(),
             transform:(val)=> typeof val === 'string' ? val.trim() : val
         })
-        const rows = Array.isArray(parsed?.data) ? parsed.data : [];
-        const tableRows = rows.filter((row)=> row.type === 'table');
-        const videoRows = rows.filter((row)=> row.type === 'video' && row.youtubeLink);
-        const galleryRows = rows.filter((row)=> row.type === 'gallery')
+        const rawRows = Array.isArray(parsed?.data) ? parsed.data : [];
+        // Normalize durationSeconds to number (CSV may return string)
+        const rows = rawRows.map((row: Record<string, unknown>) => {
+          const raw = row.durationSeconds;
+          const durationSeconds =
+            typeof raw === "number" ? raw : typeof raw === "string" ? parseInt(raw, 10) : undefined;
+          return { ...row, durationSeconds: Number.isNaN(durationSeconds) ? undefined : durationSeconds };
+        });
+        const tableRows = rows.filter((row: CarouselRow) => row.type === 'table');
+        const videoRows = rows.filter((row: CarouselRow) => row.type === 'video' && row.youtubeLink);
+        const galleryRows = rows.filter((row: CarouselRow) => row.type === 'gallery')
         return NextResponse.json({
             success:true,
             data:{
@@ -38,7 +45,7 @@ export async function GET(){
             }
         })
     }catch(err:unknown){
-        console.error;
+        console.error("API /api/videos:", err);
         return NextResponse.json({error:"failed to fetch google sheet"},{status:500})
     }
 }

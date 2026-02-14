@@ -62,82 +62,72 @@ const CarrouselWrapper = () => {
     return carrouselComponents[safeIndex];
   }, [carrouselComponents, currentIndex]);
 
+  // durationSeconds from Excel - fallback 10s if missing/invalid
   const currentDuration = React.useMemo(() => {
-    const seconds = currentItem?.data?.durationSeconds;
-    const ms = typeof seconds === "number" && seconds > 0 ? seconds * 1000 : 10000;
-    return Math.max(1000, ms); // Minimum 1s to prevent rapid-fire interval
+    const raw = currentItem?.data?.durationSeconds;
+    const seconds =
+      typeof raw === "number"
+        ? raw
+        : typeof raw === "string"
+          ? parseInt(raw, 10)
+          : 0;
+    const ms = seconds > 0 ? seconds * 1000 : 10000;
+    return Math.max(1000, ms); // Minimum 1s to prevent rapid-fire
   }, [currentItem]);
 
-  // Main carousel interval with proper looping
+  // Advance to next slide - only the timer uses this for automatic advance (durationSeconds)
+  const advanceToNext = React.useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    setCurrentIndex((prevIndex) => {
+      const nextIndex = (prevIndex + 1) % carrouselComponents.length;
+      if (nextIndex === 0) {
+        setCurrentGalleryIndex(0);
+        setCurrentVideoIndex(0);
+      } else {
+        if (carrouselComponents[nextIndex]?.type === "gallery") {
+          setCurrentGalleryIndex((prev) => prev + 1);
+        }
+        if (carrouselComponents[nextIndex]?.type === "video") {
+          setCurrentVideoIndex(0);
+        }
+      }
+      return nextIndex;
+    });
+  }, [carrouselComponents]);
+
+  // Main carousel interval - advances only when durationSeconds from Excel elapses
   React.useEffect(() => {
     if (loading || carrouselComponents.length === 0) return;
 
-    // Clear any existing interval
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
 
-    const duration = currentDuration;
-
-    intervalRef.current = setInterval(() => {
-      setCurrentIndex((prevIndex) => {
-        const nextIndex = (prevIndex + 1) % carrouselComponents.length;
-
-        // Reset all internal indices when we loop back to the start
-        if (nextIndex === 0) {
-          setCurrentGalleryIndex(0);
-          setCurrentVideoIndex(0);
-        } else {
-          // Increment gallery index when arriving at a gallery slide
-          if (carrouselComponents[nextIndex]?.type === "gallery") {
-            setCurrentGalleryIndex((prev) => prev + 1);
-          }
-
-          // Reset video index when arriving at a video slide
-          if (carrouselComponents[nextIndex]?.type === "video") {
-            setCurrentVideoIndex(0);
-          }
-        }
-
-        return nextIndex;
-      });
-    }, duration);
+    intervalRef.current = setInterval(advanceToNext, currentDuration);
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [loading, carrouselComponents, currentDuration]);
+  }, [loading, carrouselComponents, currentDuration, advanceToNext]);
 
-  // Navigation Handlers
   const handlePrev = () => {
-    // Clear interval and restart it
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-
     setCurrentIndex((prev) => {
       const newIndex = prev - 1;
       return newIndex < 0 ? carrouselComponents.length - 1 : newIndex;
     });
-
-    // Reset internal indices when switching manually
     setCurrentVideoIndex(0);
     setCurrentGalleryIndex(0);
   };
 
   const handleNext = () => {
-    // Clear interval and restart it
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    setCurrentIndex((prev) => (prev + 1) % carrouselComponents.length);
-
-    // Reset internal indices when switching manually
-    setCurrentVideoIndex(0);
-    setCurrentGalleryIndex(0);
+    advanceToNext();
   };
 
   const handleDotClick = (index: number) => {
@@ -188,17 +178,15 @@ const CarrouselWrapper = () => {
 
   const CurrentComponent = currentItem.currentComponent;
 
-  // Build component props based on type
+  // Build component props based on type - advance only via durationSeconds (timer)
   const componentProps =
     currentItem.type === "video"
       ? {
           youtubeLink: currentItem.data?.youtubeLink,
-          onVideoEnd: () => {}, // Duration controls navigation
         }
       : currentItem.type === "gallery"
         ? {
             externalIndex: currentGalleryIndex,
-            onGalleryEnd: () => {}, // Duration controls navigation
           }
         : {};
 

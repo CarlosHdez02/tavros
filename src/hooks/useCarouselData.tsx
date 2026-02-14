@@ -18,25 +18,38 @@ export function useCarouselData() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = () => {
+  const fetchData = (retryCount = 0) => {
+    const maxRetries = 2;
+
     fetch('/api/videos')
-      .then(res => {
+      .then(async (res) => {
+        const json = await res.json().catch(() => ({}));
         if (!res.ok) {
-          throw new Error('Failed to fetch carousel data');
+          if (retryCount < maxRetries && res.status >= 500) {
+            setTimeout(() => fetchData(retryCount + 1), 1000 * (retryCount + 1));
+            return;
+          }
+          setError('Failed to fetch carousel data');
+          setLoading(false);
+          return;
         }
-        return res.json();
-      })
-      .then(json => {
-        if (json.success) {
-          setData(Array.isArray(json.data?.all) ? json.data.all : []);
+        if (json.success && Array.isArray(json.data?.all)) {
+          setData(json.data.all);
+          setError(null);
+        } else if (retryCount < maxRetries) {
+          setTimeout(() => fetchData(retryCount + 1), 1000 * (retryCount + 1));
+          return;
         } else {
-          throw new Error('Invalid response format');
+          setError('Invalid response format');
         }
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Error fetching carousel data:', err);
-        setError(err.message);
+      .catch(() => {
+        if (retryCount < maxRetries) {
+          setTimeout(() => fetchData(retryCount + 1), 1000 * (retryCount + 1));
+          return;
+        }
+        setError('Failed to fetch carousel data');
         setLoading(false);
       });
   };

@@ -125,6 +125,32 @@ describe("CarrouselWrapper", () => {
     vi.useRealTimers();
   });
 
+  it("advances only via durationSeconds timer (no onVideoEnd/onGalleryEnd)", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 3 },
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 5 },
+      { id: 3, type: "gallery", title: "G1", description: "", durationSeconds: 4 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // Advance 3s (table durationSeconds) -> video
+    await act(async () => vi.advanceTimersByTime(3000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    // Advance 5s (video durationSeconds) -> gallery
+    await act(async () => vi.advanceTimersByTime(5000));
+    expect(screen.getByTestId("gallery-slide")).toBeInTheDocument();
+
+    // Advance 4s (gallery durationSeconds) -> loop to table
+    await act(async () => vi.advanceTimersByTime(4000));
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
   it("no data shows fallback message instead of white screen", () => {
     mockCarouselState.data = [];
     mockCarouselState.loading = false;
