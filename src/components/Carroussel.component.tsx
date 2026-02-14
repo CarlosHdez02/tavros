@@ -38,7 +38,8 @@ const CarrouselWrapper = () => {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
-  const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const slideStartRef = React.useRef<number>(0);
 
   // Build carousel components from CSV data - filter out invalid types
   const carrouselComponents = React.useMemo(() => {
@@ -77,8 +78,9 @@ const CarrouselWrapper = () => {
 
   // Advance to next slide - only the timer uses this for automatic advance (durationSeconds)
   const advanceToNext = React.useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
     setCurrentIndex((prevIndex) => {
       const nextIndex = (prevIndex + 1) % carrouselComponents.length;
@@ -100,29 +102,46 @@ const CarrouselWrapper = () => {
   const advanceToNextRef = React.useRef(advanceToNext);
   advanceToNextRef.current = advanceToNext;
 
-  // Main carousel interval - advances only when durationSeconds from Excel elapses
+  // Precise timer: setTimeout + performance.now() to avoid 2-5s early advancement
   // Dependencies intentionally exclude carrouselComponents/advanceToNext so the 60s
-  // refetch in useCarouselData does NOT reset the timer (it was causing resets every 60s)
+  // refetch in useCarouselData does NOT reset the timer
   React.useEffect(() => {
     if (loading || carrouselComponents.length === 0) return;
 
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
 
-    const tick = () => advanceToNextRef.current();
-    intervalRef.current = setInterval(tick, currentDuration);
+    slideStartRef.current = performance.now();
+
+    const scheduleTick = (remainingMs: number) => {
+      timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+        const elapsed = performance.now() - slideStartRef.current;
+        // Only advance when full duration elapsed (50ms tolerance for timer jitter)
+        if (elapsed >= currentDuration - 50) {
+          advanceToNextRef.current();
+        } else {
+          scheduleTick(currentDuration - elapsed);
+        }
+      }, remainingMs);
+    };
+
+    scheduleTick(currentDuration);
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
     };
   }, [loading, currentIndex, currentDuration]);
 
   const handlePrev = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
     setCurrentIndex((prev) => {
       const newIndex = prev - 1;
@@ -137,9 +156,9 @@ const CarrouselWrapper = () => {
   };
 
   const handleDotClick = (index: number) => {
-    // Clear interval and restart it
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
     }
 
     setCurrentIndex(index);
