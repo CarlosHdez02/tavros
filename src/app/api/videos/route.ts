@@ -24,13 +24,13 @@ export async function GET(){
             transformHeader:(header)=> header.trim(),
             transform:(val)=> typeof val === 'string' ? val.trim() : val
         })
-        const rawRows = Array.isArray(parsed?.data) ? parsed.data : [];
+        const rawRows = Array.isArray(parsed?.data) ? parsed.data : [] as CarouselRow[];
         // Normalize durationSeconds to number (CSV may return string)
-        const rows = rawRows.map((row: Record<string, unknown>) => {
-          const raw = row.durationSeconds;
+        const rows = rawRows.map((row): CarouselRow => {
+          const raw = (row as { durationSeconds?: number | string }).durationSeconds;
           const durationSeconds =
             typeof raw === "number" ? raw : typeof raw === "string" ? parseInt(raw, 10) : undefined;
-          return { ...row, durationSeconds: Number.isNaN(durationSeconds) ? undefined : durationSeconds };
+          return { ...row, durationSeconds: Number.isNaN(durationSeconds) ? undefined : durationSeconds } as CarouselRow;
         });
         const tableRows = rows.filter((row: CarouselRow) => row.type === 'table');
         const videoRows = rows.filter((row: CarouselRow) => row.type === 'video' && row.youtubeLink);
