@@ -12,7 +12,7 @@ Este documento describe el trabajo realizado para el módulo de plataformas de T
 
 - Mostrar el layout de plataformas con datos provenientes de la API de check-in
 - Integrar el módulo en el carrusel principal de la app, con duración y orden definidos por Excel
-- Asignar clientes a plataformas según el orden de las reservas
+- Asignar clientes a plataformas según `fecha_creacion` ascendente (reserva más antigua → plataforma 1, segunda más antigua → 2, etc.; no se usa `fila`)
 - Mostrar información reducida por plataforma: nombre (primer nombre + primer apellido) y tipo de clase
 - Gestionar plataformas vacías con logo Tavros
 
@@ -60,13 +60,19 @@ Este documento describe el trabajo realizado para el módulo de plataformas de T
    - Eliminación de bordes grises/blancos en plataformas
    - Eliminación de bordes/márgenes que generaban marco blanco alrededor de la app
 
-### 2.3 Información por Plataforma
+### 2.3 Asignación de Plataformas
+
+- Se ordenan todas las reservas de la clase por `fecha_creacion` de menor a mayor (ascendente)
+- La reserva más antigua se asigna a plataforma 1, la siguiente a plataforma 2, y así sucesivamente hasta la más reciente
+- La propiedad `fila` no se utiliza para la asignación
+
+### 2.4 Información por Plataforma
 
 - **Ocupadas:** nombre del cliente + tipo de clase
 - **Vacías:** logo Tavros
 - **Nombre:** primer nombre + primer apellido (incluyendo apellidos compuestos)
 
-### 2.4 Manejo de Nombres
+### 2.5 Manejo de Nombres
 
 - **Primer nombre:** solo la primera palabra (ej. "Evelyn" en "Evelyn Vianey")
 - **Primer apellido:** primer apellido completo, incluyendo compuestos:
@@ -76,13 +82,13 @@ Este documento describe el trabajo realizado para el módulo de plataformas de T
   - "Jose Eduardo Gonzalez" → "Jose Gonzalez"
   - "Angel de la Rosa Martinez" → "Angel de la Rosa"
 
-### 2.5 Tipo de Clase
+### 2.6 Tipo de Clase
 
 - Mostrado en etiqueta dorada
 - Truncado a 8 caracteres si es largo (ej. "SEMIPRIVADA" → "SEMIPRIV.")
 - Evita desbordamiento con `overflow: hidden` y `text-overflow: ellipsis`
 
-### 2.6 Responsividad y Contenedores
+### 2.7 Responsividad y Contenedores
 
 - Uso de `minWidth: 0`, `overflow: hidden` y `box-sizing: border-box` en contenedores flex/grid
 - Truncamiento de nombres con ellipsis
@@ -102,13 +108,14 @@ Este documento describe el trabajo realizado para el módulo de plataformas de T
   - Duración según Excel
   - Mensaje cuando no hay datos
 
-- **PlatformsMap.component.test.tsx** (11 tests)
+- **PlatformsMap.component.test.tsx** (12 tests)
   - Renderizado con reservas vacías
   - Renderizado con reservas
   - Nombres de clientes
   - Etiqueta "Entrada"
   - Tipos de sesión (nombre vacío/desconocido)
   - Más de 10 reservas
+  - Asignación por `fecha_creacion` ascendente (ignora `fila`)
   - Variantes de tamaño (default/large)
 
 - **Table.component.test.tsx** (5 tests)
@@ -124,7 +131,7 @@ Este documento describe el trabajo realizado para el módulo de plataformas de T
 npm run test
 ```
 
-Todos los tests pasan (22 tests en total).
+Todos los tests pasan (29 tests en total).
 
 ---
 

@@ -97,7 +97,12 @@ const CarrouselWrapper = () => {
     });
   }, [carrouselComponents]);
 
+  const advanceToNextRef = React.useRef(advanceToNext);
+  advanceToNextRef.current = advanceToNext;
+
   // Main carousel interval - advances only when durationSeconds from Excel elapses
+  // Dependencies intentionally exclude carrouselComponents/advanceToNext so the 60s
+  // refetch in useCarouselData does NOT reset the timer (it was causing resets every 60s)
   React.useEffect(() => {
     if (loading || carrouselComponents.length === 0) return;
 
@@ -105,14 +110,15 @@ const CarrouselWrapper = () => {
       clearInterval(intervalRef.current);
     }
 
-    intervalRef.current = setInterval(advanceToNext, currentDuration);
+    const tick = () => advanceToNextRef.current();
+    intervalRef.current = setInterval(tick, currentDuration);
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [loading, carrouselComponents, currentDuration, advanceToNext]);
+  }, [loading, currentIndex, currentDuration]);
 
   const handlePrev = () => {
     if (intervalRef.current) {

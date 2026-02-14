@@ -3,156 +3,94 @@ import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-remov
 import type { Reservation } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 
-// Mock data for /dev preview - 5 clients (platforms 1-5 with power rack), 5 empty (platforms 6-10 with Disponible)
+// Mock data for /dev — class tomorrow 8am (alumnos API format transformed to Reservation)
+// Platforms assigned by fecha_creacion ascending: Mariam (10/02) → 1, Paty (12/02) → 2, Vinicio (13/02 13:08) → 3, Roxana (13/02 15:28) → 4
 const MOCK_RESERVATIONS: Reservation[] = [
   {
-    id: 1,
-    reserva_id: 101,
-    hash_reserva_id: "hash1",
-    name: "Maria",
-    last_name: "Gonzalez",
-    full_name: "Maria Gonzalez",
-    email: "maria@example.com",
-    telefono: "1234567890",
+    id: 884513,
+    reserva_id: 29355891,
+    hash_reserva_id: "x0Jr1xrA0v",
+    name: "Mariam",
+    last_name: "Heded de Alba",
+    full_name: "Mariam Heded de Alba",
+    email: "mariam.heded@gmail.com",
+    telefono: "33 3956 5866",
     status: "activo",
-    nombre_plan: "Grupal (Paquete Full)",
-    canal: "web",
-    fecha_creacion: "2025-11-24",
-    asistencia_confirmada: 1,
+    nombre_plan: "Paquete Semestral Semiprivadas + Inscripción",
+    canal: "members",
+    fecha_creacion: "10/02 06:04:29",
+    asistencia_confirmada: 0,
     pago_pendiente: false,
     form_asistencia_url: false,
-    mostrar_formulario: false,
+    mostrar_formulario: true,
+    rating: null,
+    imagen: "default10.jpg",
+    fila: "2",
+  },
+  {
+    id: 1024566,
+    reserva_id: 29408419,
+    hash_reserva_id: "p4QNk9xN0a",
+    name: "Paty",
+    last_name: "Aquino",
+    full_name: "Paty Aquino",
+    email: "pherrang@gmail.com",
+    telefono: "33 3667 1034",
+    status: "activo",
+    nombre_plan: "Paquete de sesiones Semiprivadas",
+    canal: "members",
+    fecha_creacion: "12/02 01:39:05",
+    asistencia_confirmada: 0,
+    pago_pendiente: false,
+    form_asistencia_url: false,
+    mostrar_formulario: true,
     rating: null,
     imagen: "default1.jpg",
     fila: "1",
   },
   {
-    id: 2,
-    reserva_id: 102,
-    hash_reserva_id: "hash2",
-    name: "Juan",
-    last_name: "Perez",
-    full_name: "Juan Perez",
-    email: "juan@example.com",
-    telefono: "0987654321",
-    status: "activo",
-    nombre_plan: "Paquete de sesiones Privadas",
-    canal: "app",
-    fecha_creacion: "2025-11-24",
-    asistencia_confirmada: 1,
-    pago_pendiente: false,
-    form_asistencia_url: false,
-    mostrar_formulario: false,
-    rating: null,
-    imagen: "default2.jpg",
-    fila: "2",
-  },
-  {
-    id: 3,
-    reserva_id: 103,
-    hash_reserva_id: "hash3",
-    name: "Ana",
-    last_name: "Martinez",
-    full_name: "Ana Martinez",
-    email: "ana@example.com",
-    telefono: "1122334455",
+    id: 884552,
+    reserva_id: 29438719,
+    hash_reserva_id: "p4QNkgnG0a",
+    name: "Vinicio",
+    last_name: "Estrada",
+    full_name: "Vinicio Estrada",
+    email: "vinicio.estrada@gmail.com",
+    telefono: "33 3100 5555",
     status: "activo",
     nombre_plan: "Paquete de sesiones Semiprivadas",
-    canal: "web",
-    fecha_creacion: "2025-11-24",
+    canal: "members",
+    fecha_creacion: "13/02 13:08:36",
     asistencia_confirmada: 0,
     pago_pendiente: false,
     form_asistencia_url: false,
-    mostrar_formulario: false,
+    mostrar_formulario: true,
     rating: null,
-    imagen: "default3.jpg",
+    imagen: "default10.jpg",
     fila: "3",
   },
   {
-    id: 4,
-    reserva_id: 104,
-    hash_reserva_id: "hash4",
-    name: "Carlos",
-    last_name: "Lopez",
-    full_name: "Carlos Lopez",
-    email: "carlos@example.com",
-    telefono: "5566778899",
+    id: 941539,
+    reserva_id: 29441395,
+    hash_reserva_id: "vLX5xd9d4E",
+    name: "Roxana",
+    last_name: "Cuadra",
+    full_name: "Roxana Cuadra",
+    email: "roxannacuadra.avida@gmail.com",
+    telefono: "673 107 2333",
     status: "activo",
-    nombre_plan: "Paquete Trimestral",
-    canal: "web",
-    fecha_creacion: "2025-11-24",
-    asistencia_confirmada: 1,
-    pago_pendiente: false,
-    form_asistencia_url: false,
-    mostrar_formulario: false,
-    rating: null,
-    imagen: "default4.jpg",
-    fila: "4",
-  },
-  {
-    id: 5,
-    reserva_id: 105,
-    hash_reserva_id: "hash5",
-    name: "Francisco",
-    last_name: "Fernandez Jimenez",
-    full_name: "Francisco Fernandez Jimenez",
-    email: "fran@example.com",
-    telefono: "3322114455",
-    status: "activo",
-    nombre_plan: "Plan trimestral en sesiones grupales + inscripción",
+    nombre_plan: "Paquete de sesiones Semiprivadas",
     canal: "members",
-    fecha_creacion: "2025-11-24",
+    fecha_creacion: "13/02 15:28:08",
     asistencia_confirmada: 0,
     pago_pendiente: false,
     form_asistencia_url: false,
     mostrar_formulario: true,
     rating: null,
-    imagen: "default5.jpg",
+    imagen: "default10.jpg",
     fila: "5",
   },
-  {
-    id: 6,
-    reserva_id: 106,
-    hash_reserva_id: "hash6",
-    name: "Valeria",
-    last_name: "Ojeda",
-    full_name: "Valeria Ojeda",
-    email: "valeria@example.com",
-    telefono: "3344556677",
-    status: "activo",
-    nombre_plan: "Grupal (2 sesiones/semanales)",
-    canal: "members",
-    fecha_creacion: "2025-11-24",
-    asistencia_confirmada: 0,
-    pago_pendiente: false,
-    form_asistencia_url: false,
-    mostrar_formulario: true,
-    rating: null,
-    imagen: "default6.jpg",
-    fila: "6",
-  },
-  {
-    id: 7,
-    reserva_id: 107,
-    hash_reserva_id: "hash7",
-    name: "Roberto",
-    last_name: "Jurado",
-    full_name: "Roberto Jurado",
-    email: "roberto@example.com",
-    telefono: "3311471361",
-    status: "activo",
-    nombre_plan: "Grupal (Paquete Full)",
-    canal: "members",
-    fecha_creacion: "2025-11-24",
-    asistencia_confirmada: 0,
-    pago_pendiente: false,
-    form_asistencia_url: false,
-    mostrar_formulario: true,
-    rating: null,
-    imagen: "default7.jpg",
-    fila: "7",
-  },
-].slice(0, 5); // Use first 5 to show mix: platforms 1-5 = power rack + client, 6-10 = Disponible
+];
 
 const TableDev = () => {
   return (
@@ -193,7 +131,7 @@ const TableDev = () => {
               letterSpacing: "2px",
             }}
           >
-            Sesión grupal 6:00 am
+            Sesión semiprivada 8:00 am
           </h1>
           <img
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
@@ -222,7 +160,7 @@ const TableDev = () => {
               textTransform: "capitalize",
             }}
           >
-            Lunes, 6 de febrero — 06:00 a 07:00
+            Viernes, 7 de febrero — 08:00 a 09:00
           </div>
           <div
             style={{
@@ -231,7 +169,7 @@ const TableDev = () => {
               fontWeight: "600",
             }}
           >
-            {MOCK_RESERVATIONS.length}/10 en uso
+            {MOCK_RESERVATIONS.length}/5 reservas
           </div>
         </div>
       </div>
@@ -246,7 +184,7 @@ const TableDev = () => {
       >
         <PlatformsMap
           reservations={MOCK_RESERVATIONS}
-          sessionTime="06:00 - 07:00"
+          sessionTime="08:00 - 09:00"
           size="large"
         />
       </div>

@@ -7,10 +7,17 @@ import type { CarouselRow } from "@/hooks/useCarouselData";
 const mockCarouselState = {
   data: [] as CarouselRow[],
   loading: false,
+  /** Set true to simulate 60s refetch: return new array reference (same content) */
+  simulateRefetch: false,
 };
 
 vi.mock("@/hooks/useCarouselData", () => ({
-  useCarouselData: () => mockCarouselState,
+  useCarouselData: () => {
+    const data = mockCarouselState.simulateRefetch
+      ? [...mockCarouselState.data]
+      : mockCarouselState.data;
+    return { data, loading: mockCarouselState.loading };
+  },
 }));
 
 // Mock next/dynamic to return components synchronously (no loading state in tests)
@@ -29,7 +36,7 @@ vi.mock("./Video-cards.component", () => ({
 // Import after mocks
 import CarrouselWrapper from "./Carroussel.component";
 
-const createMockData = (overrides: Partial<CarouselRow>[] = []): CarouselRow[] => [
+const createMockData = (overrides: CarouselRow[] = []): CarouselRow[] => [
   { id: 1, type: "table", title: "Table", description: "", durationSeconds: 5 },
   { id: 2, type: "video", title: "Video", description: "", youtubeLink: "https://youtube.com/watch?v=x", durationSeconds: 8 },
   { id: 3, type: "gallery", title: "Gallery", description: "", durationSeconds: 12 },
@@ -40,6 +47,7 @@ describe("CarrouselWrapper", () => {
   beforeEach(() => {
     mockCarouselState.data = createMockData();
     mockCarouselState.loading = false;
+    mockCarouselState.simulateRefetch = false;
   });
 
   it("does not show white screen - loading state has dark background", () => {
@@ -157,5 +165,159 @@ describe("CarrouselWrapper", () => {
 
     render(<CarrouselWrapper />);
     expect(screen.getByText("No hay datos")).toBeInTheDocument();
+  });
+
+  it("refetch (new data reference) does NOT reset timer - durationSeconds still obeyed", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 5 },
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 3 },
+    ];
+    const { rerender } = render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // 2s into 5s slide
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // Simulate 60s refetch - new array ref, same content (does not reset timer)
+    mockCarouselState.simulateRefetch = true;
+    rerender(<CarrouselWrapper />);
+
+    // Advance remaining 3s -> should advance to video (total 5s elapsed)
+    await act(async () => vi.advanceTimersByTime(3000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("uses 10s fallback when durationSeconds is missing or invalid", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "" /* no durationSeconds */ },
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 2 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // 8s - still on table (fallback 10s)
+    await act(async () => vi.advanceTimersByTime(8000));
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // +2s (total 10s) -> advance to video
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("parses durationSeconds when provided as string (from API)", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: "4" } as unknown as CarouselRow,
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 2 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(4000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("consecutive slides with same durationSeconds each advance correctly", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 3 },
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 3 },
+      { id: 3, type: "gallery", title: "G1", description: "", durationSeconds: 3 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(3000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(3000));
+    expect(screen.getByTestId("gallery-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(3000));
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument(); // loop back
+
+    vi.useRealTimers();
+  });
+
+  it("obeys real-world durations from Excel (300s, 120s, 601s)", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "Horario", description: "", durationSeconds: 300 },
+      { id: 2, type: "table", title: "Horario 2", description: "", durationSeconds: 120 },
+      { id: 3, type: "video", title: "Video", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 601 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(300000)); // 300s
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument(); // second table
+
+    await act(async () => vi.advanceTimersByTime(120000)); // 120s
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(601000)); // 601s
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument(); // loop back
+
+    vi.useRealTimers();
+  });
+
+  it("manual next restarts timer with new slide duration", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 10 },
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 3 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // Click next before 10s elapsed
+    await act(async () => {
+      screen.getByTitle("Siguiente").click();
+    });
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    // Timer restarted with video duration (3s) -> after 3s should loop to table
+    await act(async () => vi.advanceTimersByTime(3000));
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("manual prev restarts timer with new slide duration", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 5 },
+      { id: 2, type: "video", title: "V1", description: "", youtubeLink: "https://youtu.be/x", durationSeconds: 4 },
+    ];
+    render(<CarrouselWrapper />);
+
+    await act(async () => vi.advanceTimersByTime(5000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    await act(async () => {
+      screen.getByTitle("Anterior").click();
+    });
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    // Timer restarted with table duration (5s)
+    await act(async () => vi.advanceTimersByTime(5000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
   });
 });

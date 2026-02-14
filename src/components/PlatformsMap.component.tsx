@@ -116,6 +116,21 @@ const getSessionTypeDisplay = (nombrePlan: string | null | undefined): string =>
   return base;
 };
 
+/** Parse fecha_creacion to timestamp for sorting. Handles "YYYY-MM-DD" and "DD/MM HH:mm:ss". */
+const parseFechaCreacion = (fc: string | undefined): number => {
+  if (!fc || typeof fc !== "string") return 0;
+  const t = fc.trim();
+  const iso = Date.parse(t);
+  if (!Number.isNaN(iso)) return iso;
+  const m = t.match(/^(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
+  if (m) {
+    const [, dd, mm, hh, min, sec] = m;
+    const d = new Date(new Date().getFullYear(), parseInt(mm, 10) - 1, parseInt(dd, 10), parseInt(hh, 10), parseInt(min, 10), parseInt(sec, 10));
+    return d.getTime();
+  }
+  return 0;
+};
+
 /** Extract first surname, including composed forms (e.g. "de la Rosa", "del Castillo") */
 const getFirstLastName = (lastName: string): string => {
   const parts = (lastName ?? "").trim().split(/\s+/).filter(Boolean);
@@ -145,9 +160,13 @@ const truncateName = (firstName: string, lastName: string, maxLen = 20): string 
 };
 
 const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime = "—", size = "default" }) => {
+  // Assign platforms by fecha_creacion ascending: oldest → platform 1, second oldest → 2, etc. (fila ignored)
   const platformAssignments = React.useMemo(() => {
+    const sorted = [...reservations].sort(
+      (a, b) => parseFechaCreacion(a.fecha_creacion) - parseFechaCreacion(b.fecha_creacion)
+    );
     const map = new Map<number, Reservation>();
-    reservations.slice(0, TOTAL_PLATFORMS).forEach((r, i) => {
+    sorted.slice(0, TOTAL_PLATFORMS).forEach((r, i) => {
       map.set(i + 1, r);
     });
     return map;
@@ -164,6 +183,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
 
   return (
     <div
+      data-testid="platforms-map"
       style={{
         width: "100%",
         height: isLarge ? "100%" : "auto",

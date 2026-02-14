@@ -124,6 +124,30 @@ describe("Table.component (TVScheduleDisplay)", () => {
     expect(screen.getByTestId("reservation-count").textContent).toBe("1");
   });
 
+  it("passes all class reservations to PlatformsMap with fecha_creacion (PlatformsMap sorts by it)", async () => {
+    const reservations = [
+      { id: 1, reserva_id: 1, hash_reserva_id: "a", name: "A", last_name: "A", full_name: "A A", email: "", telefono: "", status: "activo", nombre_plan: "Grupal", canal: "app", fecha_creacion: "10/02 06:00:00", pago_pendiente: false, form_asistencia_url: false, mostrar_formulario: false, rating: null, imagen: "", fila: "2" },
+      { id: 2, reserva_id: 2, hash_reserva_id: "b", name: "B", last_name: "B", full_name: "B B", email: "", telefono: "", status: "activo", nombre_plan: "Grupal", canal: "app", fecha_creacion: "12/02 01:00:00", pago_pendiente: false, form_asistencia_url: false, mostrar_formulario: false, rating: null, imagen: "", fila: "1" },
+    ];
+    const checkinResponse = createCheckinResponse({
+      "06:00 a 07:00": {
+        classId: "1",
+        class: "Sesión grupal 6:00 am",
+        limite: 10,
+        reservations,
+        totalReservations: 2,
+      },
+    });
+    fetchMock.mockImplementation((url: string) => {
+      if (typeof url === "string" && url.includes("/health")) return Promise.resolve({ ok: true } as Response);
+      return Promise.resolve({ ok: true, json: () => Promise.resolve(checkinResponse) } as Response);
+    });
+    render(<TableComponent />);
+    await act(async () => { vi.runAllTimersAsync(); });
+    await act(async () => { await Promise.resolve(); await Promise.resolve(); });
+    expect(screen.getByTestId("reservation-count").textContent).toBe("2");
+  });
+
   it("handles API error without crashing", async () => {
     fetchMock.mockRejectedValueOnce(new Error("Network error"));
 

@@ -25,12 +25,37 @@ export async function GET(){
             transform:(val)=> typeof val === 'string' ? val.trim() : val
         })
         const rawRows = Array.isArray(parsed?.data) ? parsed.data : [] as CarouselRow[];
-        // Normalize durationSeconds to number (CSV may return string)
+        // Normalize durationSeconds - try multiple column names (Google Sheet headers vary)
+        const DURATION_KEYS = [
+          "durationSeconds",
+          "duration_seconds",
+          "Duration Seconds",
+          "Duration (seconds)",
+          "duration",
+          "Duration",
+          "DurationSeconds",
+        ];
+        const getDurationFromRow = (row: Record<string, unknown>): number | undefined => {
+          for (const key of DURATION_KEYS) {
+            const val = row[key];
+            if (val === undefined || val === null || val === "") continue;
+            const num = typeof val === "number" ? val : parseInt(String(val), 10);
+            if (!Number.isNaN(num) && num > 0) return num;
+          }
+          // Fallback: any key containing "duration" (case-insensitive)
+          for (const key of Object.keys(row)) {
+            if (key.toLowerCase().includes("duration")) {
+              const val = row[key];
+              if (val === undefined || val === null || val === "") continue;
+              const num = typeof val === "number" ? val : parseInt(String(val), 10);
+              if (!Number.isNaN(num) && num > 0) return num;
+            }
+          }
+          return undefined;
+        };
         const rows = rawRows.map((row): CarouselRow => {
-          const raw = (row as { durationSeconds?: number | string }).durationSeconds;
-          const durationSeconds =
-            typeof raw === "number" ? raw : typeof raw === "string" ? parseInt(raw, 10) : undefined;
-          return { ...row, durationSeconds: Number.isNaN(durationSeconds) ? undefined : durationSeconds } as CarouselRow;
+          const durationSeconds = getDurationFromRow(row as unknown as Record<string, unknown>);
+          return { ...row, durationSeconds } as CarouselRow;
         });
         const tableRows = rows.filter((row: CarouselRow) => row.type === 'table');
         const videoRows = rows.filter((row: CarouselRow) => row.type === 'video' && row.youtubeLink);
