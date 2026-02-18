@@ -7,22 +7,27 @@ export interface GalleryProps{
  externalIndex?: number;
   onGalleryEnd?: () => void;
 }
-const Gallery:React.FC<GalleryProps> = ({externalIndex=0, onGalleryEnd}) => {
-  const [currentPicture, setCurrentPicture] = React.useState(externalIndex);
+const LEN = ImageGallery?.length ?? 0;
 
- 
+const Gallery: React.FC<GalleryProps> = ({ externalIndex = 0, onGalleryEnd }) => {
+  const safeExt = Number.isNaN(Number(externalIndex)) ? 0 : Math.max(0, externalIndex ?? 0);
+  const [currentPicture, setCurrentPicture] = React.useState(LEN > 0 ? safeExt % LEN : 0);
+
   React.useEffect(() => {
-    if (externalIndex !== undefined) {
-      setCurrentPicture(externalIndex % ImageGallery.length);
+    if (LEN > 0 && externalIndex !== undefined) {
+      const ext = Number.isNaN(Number(externalIndex)) ? 0 : Math.max(0, externalIndex);
+      setCurrentPicture(ext % LEN);
     }
   }, [externalIndex]);
 
- React.useEffect(() => {
+  React.useEffect(() => {
+    if (LEN === 0) return () => {};
     const intervalId = setInterval(() => {
       setCurrentPicture((prev) => {
-        const nextPicture = (prev + 1) % ImageGallery.length;
+        const p = Number.isNaN(Number(prev)) ? 0 : Math.max(0, prev);
+        const nextPicture = (p + 1) % LEN;
         // If we've cycled back to 0, we've reached the end
-        if (nextPicture === 0 && prev !== 0) {
+        if (nextPicture === 0 && p !== 0) {
           onGalleryEnd?.();
         }
         return nextPicture;
@@ -32,12 +37,23 @@ const Gallery:React.FC<GalleryProps> = ({externalIndex=0, onGalleryEnd}) => {
   }, [onGalleryEnd]);
 
 
-  const goToPrevious = () =>
-    setCurrentPicture((prev) => (prev - 1 + ImageGallery.length) % ImageGallery.length);
-  const goToNext = () =>
-    setCurrentPicture((prev) => (prev + 1) % ImageGallery.length);
+  const goToPrevious = () => {
+    if (LEN === 0) return;
+    setCurrentPicture((prev) => {
+      const p = Number.isNaN(Number(prev)) ? 0 : Math.max(0, prev);
+      return (p - 1 + LEN) % LEN;
+    });
+  };
+  const goToNext = () => {
+    if (LEN === 0) return;
+    setCurrentPicture((prev) => {
+      const p = Number.isNaN(Number(prev)) ? 0 : Math.max(0, prev);
+      return (p + 1) % LEN;
+    });
+  };
 
-  const currentImage = ImageGallery[currentPicture];
+  const safeIdx = LEN > 0 ? (Number.isNaN(Number(currentPicture)) ? 0 : Math.max(0, Math.min(currentPicture, LEN - 1))) : 0;
+  const currentImage = ImageGallery[safeIdx];
 
   return (
     <div className="my-10 flex justify-center mx-2">

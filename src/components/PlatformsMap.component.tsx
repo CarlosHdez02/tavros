@@ -218,7 +218,8 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
           const platformNum = i + 1;
           const client = platformAssignments.get(platformNum);
           const isActive = !!client;
-          const [col, row, colSpan] = platformLayout[i];
+          const layout = platformLayout[i] ?? [1, 1, 1];
+          const [col, row, colSpan] = [layout[0] ?? 1, layout[1] ?? 1, layout[2] ?? 1];
 
           const logoSrc = typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src;
           return (
