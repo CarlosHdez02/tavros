@@ -13,10 +13,11 @@ const mockCarouselState = {
 
 vi.mock("@/hooks/useCarouselData", () => ({
   useCarouselData: () => {
-    const data = mockCarouselState.simulateRefetch
+    const all = mockCarouselState.simulateRefetch
       ? [...mockCarouselState.data]
       : mockCarouselState.data;
-    return { data, loading: mockCarouselState.loading };
+    const data = { all, table: [], videos: [], gallery: [] };
+    return { data, isLoading: mockCarouselState.loading };
   },
 }));
 

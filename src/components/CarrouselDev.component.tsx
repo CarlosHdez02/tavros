@@ -21,7 +21,8 @@ export const componentMapDev = {
 };
 
 const CarrouselDev = () => {
-  const { data, loading } = useCarouselData();
+  const { data, isLoading } = useCarouselData();
+  const rows = data?.all ?? [];
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
@@ -29,10 +30,10 @@ const CarrouselDev = () => {
 
   // Build carousel components from API
   const carouselComponents = React.useMemo(() => {
-    if (!data || data.length === 0) return [];
+    if (!rows.length) return [];
 
     return (
-      data
+      rows
         // 1️⃣ Remove rows with no valid component
         .filter((row) => componentMapDev[row.type])
 
@@ -44,34 +45,41 @@ const CarrouselDev = () => {
 
         // 3️⃣ Map into the usable structure
         .map((row, index) => ({
-          id: row.id ?? index + 1,
+          id: (row?.id != null && !Number.isNaN(Number(row.id)) ? Number(row.id) : index + 1),
           currentComponent: componentMapDev[row.type],
           type: row.type,
           data: row,
         }))
     );
-  }, [data]);
+  }, [rows]);
 
-  // Current item being displayed
-  const currentItem = carouselComponents[currentIndex];
+  // Current item - safe index (undefined/null/out-of-bounds → 0)
+  const currentItem = React.useMemo(() => {
+    const len = carouselComponents.length;
+    if (len === 0) return null;
+    const idx = Number(currentIndex);
+    const safeIndex = (Number.isNaN(idx) ? 0 : Math.max(0, idx)) % len;
+    return carouselComponents[safeIndex] ?? null;
+  }, [carouselComponents, currentIndex]);
 
-  // FIXED: correct duration conversion
-  const currentDuration = currentItem?.data?.durationSeconds
-    ? currentItem.data.durationSeconds * 100
-    : 6000; // default 6s
+  const rawDuration = currentItem?.data?.durationSeconds;
+  const currentDuration =
+    typeof rawDuration === "number" && !Number.isNaN(rawDuration) && rawDuration > 0
+      ? rawDuration * 1000
+      : 6000; // default 6s (ms)
 
   // Auto-rotation logic
   React.useEffect(() => {
-    if (loading || carouselComponents.length === 0) return;
+    const len = carouselComponents.length;
+    if (isLoading || len === 0) return;
 
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
-        const next = (prevIndex + 1) % carouselComponents.length;
-
+        const prev = Number.isNaN(Number(prevIndex)) ? 0 : Math.max(0, prevIndex);
+        const next = (prev + 1) % len;
         if (carouselComponents[next]?.type === "gallery") {
-          setCurrentGalleryIndex((prev) => prev + 1);
+          setCurrentGalleryIndex((p) => (Number.isNaN(Number(p)) ? 0 : p) + 1);
         }
-
         return next;
       });
     }, currentDuration);
@@ -79,15 +87,20 @@ const CarrouselDev = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [loading, carouselComponents, currentIndex, currentDuration]);
+  }, [isLoading, carouselComponents, currentIndex, currentDuration]);
 
   const handleGalleryEnd = () => {
-    setCurrentIndex((prev) => (prev + 1) % carouselComponents.length);
+    const len = carouselComponents.length;
+    if (len === 0) return;
+    setCurrentIndex((prev) => {
+      const p = Number.isNaN(Number(prev)) ? 0 : Math.max(0, prev);
+      return (p + 1) % len;
+    });
     setCurrentGalleryIndex(0);
   };
 
   // Loading UI
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#0f1419]">
         <div className="text-[#60a5fa] text-xl">Loading carousel...</div>
@@ -106,12 +119,20 @@ const CarrouselDev = () => {
     );
   }
 
+  if (!currentItem || !currentItem.currentComponent) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#0f1419]">
+        <div className="text-[#e4e9f1] text-xl">Cargando contenido...</div>
+      </div>
+    );
+  }
+
   const CurrentComponent = currentItem.currentComponent;
 
   const componentProps =
-    currentItem.type === "gallery"
-      ? {
-          externalIndex: currentGalleryIndex,
+      currentItem.type === "gallery"
+        ? {
+            externalIndex: Number.isNaN(Number(currentGalleryIndex)) ? 0 : Math.max(0, currentGalleryIndex ?? 0),
           onGalleryEnd: handleGalleryEnd,
         }
       : currentItem.data;

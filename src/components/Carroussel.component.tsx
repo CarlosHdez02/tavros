@@ -34,44 +34,46 @@ export const componentMap = {
 };
 
 const CarrouselWrapper = () => {
-  const { data, loading } = useCarouselData();
+  const { data, isLoading } = useCarouselData();
+  const rows = data?.all ?? [];
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const slideStartRef = React.useRef<number>(0);
 
-  // Build carousel components from CSV data - filter out invalid types
+  // Build carousel components from API data - filter out invalid types
   const carrouselComponents = React.useMemo(() => {
-    if (!data || data.length === 0) return [];
+    if (!rows.length) return [];
 
-    return data
+    return rows
       .map((row, index) => ({
-        id: index + 1,
+        id: (row?.id != null && !Number.isNaN(Number(row.id)) ? Number(row.id) : index + 1),
         currentComponent: componentMap[row.type],
         type: row.type,
         data: row,
       }))
       .filter((item) => item.currentComponent != null);
-  }, [data]);
+  }, [rows]);
 
-  // Get current item data - with safety check
+  // Get current item data - with safety check (undefined/null indices → 0)
   const currentItem = React.useMemo(() => {
-    if (carrouselComponents.length === 0) return null;
-    // Ensure index is always valid
-    const safeIndex = currentIndex % carrouselComponents.length;
-    return carrouselComponents[safeIndex];
+    const len = carrouselComponents.length;
+    if (len === 0) return null;
+    const idx = Number(currentIndex);
+    const safeIndex = (Number.isNaN(idx) ? 0 : Math.max(0, idx)) % len;
+    return carrouselComponents[safeIndex] ?? null;
   }, [carrouselComponents, currentIndex]);
 
-  // durationSeconds from Excel - fallback 10s if missing/invalid
+  // durationSeconds from Excel - fallback 10s if missing/invalid (null/undefined/NaN → 0)
   const currentDuration = React.useMemo(() => {
     const raw = currentItem?.data?.durationSeconds;
-    const seconds =
-      typeof raw === "number"
-        ? raw
-        : typeof raw === "string"
-          ? parseInt(raw, 10)
-          : 0;
+    let seconds = 0;
+    if (typeof raw === "number" && !Number.isNaN(raw)) seconds = raw;
+    else if (typeof raw === "string") {
+      const parsed = parseInt(raw, 10);
+      seconds = Number.isNaN(parsed) ? 0 : parsed;
+    }
     const ms = seconds > 0 ? seconds * 1000 : 10000;
     return Math.max(1000, ms); // Minimum 1s to prevent rapid-fire
   }, [currentItem]);
@@ -82,8 +84,11 @@ const CarrouselWrapper = () => {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    const len = carrouselComponents.length;
+    if (len === 0) return;
     setCurrentIndex((prevIndex) => {
-      const nextIndex = (prevIndex + 1) % carrouselComponents.length;
+      const prev = Number.isNaN(Number(prevIndex)) ? 0 : Math.max(0, prevIndex);
+      const nextIndex = (prev + 1) % len;
       if (nextIndex === 0) {
         setCurrentGalleryIndex(0);
         setCurrentVideoIndex(0);
@@ -106,7 +111,7 @@ const CarrouselWrapper = () => {
   // Dependencies intentionally exclude carrouselComponents/advanceToNext so the 60s
   // refetch in useCarouselData does NOT reset the timer
   React.useEffect(() => {
-    if (loading || carrouselComponents.length === 0) return;
+    if (isLoading || carrouselComponents.length === 0) return;
 
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -136,16 +141,19 @@ const CarrouselWrapper = () => {
         timerRef.current = null;
       }
     };
-  }, [loading, currentIndex, currentDuration]);
+  }, [isLoading, currentIndex, currentDuration]);
 
   const handlePrev = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    const len = carrouselComponents.length;
+    if (len === 0) return;
     setCurrentIndex((prev) => {
-      const newIndex = prev - 1;
-      return newIndex < 0 ? carrouselComponents.length - 1 : newIndex;
+      const p = Number.isNaN(Number(prev)) ? 0 : Math.max(0, prev);
+      const newIndex = p - 1;
+      return newIndex < 0 ? len - 1 : newIndex;
     });
     setCurrentVideoIndex(0);
     setCurrentGalleryIndex(0);
@@ -160,14 +168,16 @@ const CarrouselWrapper = () => {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-
-    setCurrentIndex(index);
+    const len = carrouselComponents.length;
+    if (len === 0) return;
+    const safeIdx = Math.max(0, Math.min(Number(index) || 0, len - 1));
+    setCurrentIndex(safeIdx);
     setCurrentVideoIndex(0);
     setCurrentGalleryIndex(0);
   };
 
   // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#0f1419]">
         <div className="text-[#60a5fa] text-xl">Loading carousel...</div>
@@ -209,9 +219,9 @@ const CarrouselWrapper = () => {
       ? {
           youtubeLink: currentItem.data?.youtubeLink,
         }
-      : currentItem.type === "gallery"
+      :       currentItem.type === "gallery"
         ? {
-            externalIndex: currentGalleryIndex,
+            externalIndex: Number.isNaN(Number(currentGalleryIndex)) ? 0 : Math.max(0, currentGalleryIndex ?? 0),
           }
         : {};
 
