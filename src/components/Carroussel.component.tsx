@@ -34,18 +34,19 @@ export const componentMap = {
 };
 
 const CarrouselWrapper = () => {
-  const { data, loading } = useCarouselData();
+  const { data, isLoading } = useCarouselData();
+  const rows = data?.all ?? [];
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const slideStartRef = React.useRef<number>(0);
 
-  // Build carousel components from CSV data - filter out invalid types
+  // Build carousel components from API data - filter out invalid types
   const carrouselComponents = React.useMemo(() => {
-    if (!data || data.length === 0) return [];
+    if (!rows.length) return [];
 
-    return data
+    return rows
       .map((row, index) => ({
         id: index + 1,
         currentComponent: componentMap[row.type],
@@ -53,7 +54,7 @@ const CarrouselWrapper = () => {
         data: row,
       }))
       .filter((item) => item.currentComponent != null);
-  }, [data]);
+  }, [rows]);
 
   // Get current item data - with safety check
   const currentItem = React.useMemo(() => {
@@ -106,7 +107,7 @@ const CarrouselWrapper = () => {
   // Dependencies intentionally exclude carrouselComponents/advanceToNext so the 60s
   // refetch in useCarouselData does NOT reset the timer
   React.useEffect(() => {
-    if (loading || carrouselComponents.length === 0) return;
+    if (isLoading || carrouselComponents.length === 0) return;
 
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -136,7 +137,7 @@ const CarrouselWrapper = () => {
         timerRef.current = null;
       }
     };
-  }, [loading, currentIndex, currentDuration]);
+  }, [isLoading, currentIndex, currentDuration]);
 
   const handlePrev = () => {
     if (timerRef.current) {
@@ -167,7 +168,7 @@ const CarrouselWrapper = () => {
   };
 
   // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#0f1419]">
         <div className="text-[#60a5fa] text-xl">Loading carousel...</div>

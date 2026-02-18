@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import Papa from 'papaparse';
+import { DURATION_KEYS } from "@/constants/carrousel.constant";
  export type rowType = 'table' | 'video' | 'gallery'
 export interface CarouselRow{
     id:number;
@@ -26,15 +27,7 @@ export async function GET(){
         })
         const rawRows = Array.isArray(parsed?.data) ? parsed.data : [] as CarouselRow[];
         // Normalize durationSeconds - try multiple column names (Google Sheet headers vary)
-        const DURATION_KEYS = [
-          "durationSeconds",
-          "duration_seconds",
-          "Duration Seconds",
-          "Duration (seconds)",
-          "duration",
-          "Duration",
-          "DurationSeconds",
-        ];
+     
         const getDurationFromRow = (row: Record<string, unknown>): number | undefined => {
           for (const key of DURATION_KEYS) {
             const val = row[key];

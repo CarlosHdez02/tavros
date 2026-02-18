@@ -21,7 +21,8 @@ export const componentMapDev = {
 };
 
 const CarrouselDev = () => {
-  const { data, loading } = useCarouselData();
+  const { data, isLoading } = useCarouselData();
+  const rows = data?.all ?? [];
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
@@ -29,10 +30,10 @@ const CarrouselDev = () => {
 
   // Build carousel components from API
   const carouselComponents = React.useMemo(() => {
-    if (!data || data.length === 0) return [];
+    if (!rows.length) return [];
 
     return (
-      data
+      rows
         // 1️⃣ Remove rows with no valid component
         .filter((row) => componentMapDev[row.type])
 
@@ -50,19 +51,18 @@ const CarrouselDev = () => {
           data: row,
         }))
     );
-  }, [data]);
+  }, [rows]);
 
   // Current item being displayed
   const currentItem = carouselComponents[currentIndex];
 
-  // FIXED: correct duration conversion
   const currentDuration = currentItem?.data?.durationSeconds
-    ? currentItem.data.durationSeconds * 100
-    : 6000; // default 6s
+    ? currentItem.data.durationSeconds * 1000
+    : 6000; // default 6s (ms)
 
   // Auto-rotation logic
   React.useEffect(() => {
-    if (loading || carouselComponents.length === 0) return;
+    if (isLoading || carouselComponents.length === 0) return;
 
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
@@ -79,7 +79,7 @@ const CarrouselDev = () => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [loading, carouselComponents, currentIndex, currentDuration]);
+  }, [isLoading, carouselComponents, currentIndex, currentDuration]);
 
   const handleGalleryEnd = () => {
     setCurrentIndex((prev) => (prev + 1) % carouselComponents.length);
@@ -87,7 +87,7 @@ const CarrouselDev = () => {
   };
 
   // Loading UI
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen bg-[#0f1419]">
         <div className="text-[#60a5fa] text-xl">Loading carousel...</div>

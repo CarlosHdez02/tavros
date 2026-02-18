@@ -5,10 +5,10 @@ import VideoCards from "./Video-cards.component";
 import { useCarouselData } from "@/hooks/useCarouselData";
 
 const VideoContainer = () => {
-  const { data, loading, error } = useCarouselData();
+  const { data, isLoading, error } = useCarouselData();
+  const videos = data?.videos ?? [];
 
-  // Loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="p-6 text-center text-gray-400">
         Loading videos...
@@ -16,7 +16,6 @@ const VideoContainer = () => {
     );
   }
 
-  // Error state
   if (error || !data) {
     return (
       <div className="p-6 text-center text-red-500">
@@ -25,13 +24,9 @@ const VideoContainer = () => {
     );
   }
 
-  // Filter only valid videos
-  const videoData = data.filter(
-    (item) => item.type === "video" && item.youtubeLink
+  const videoData = videos.filter(
+    (item) => item.type === "video" && item.youtubeLink,
   );
-
-  console.log(videoData)
-  debugger
   return (
     <div className="hover:ease-in-ut p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {videoData.map((video) => (
