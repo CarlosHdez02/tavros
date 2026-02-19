@@ -120,6 +120,16 @@ describe("PlatformsMap", () => {
     expect(screen.getByText("04").parentElement?.parentElement?.textContent).toContain("Roxana");
   });
 
+  it("assigns platforms by fecha_creacion when fila is undefined or missing", () => {
+    const reservations = [
+      createMockReservation({ name: "First", last_name: "A", fecha_creacion: "01/02 08:00:00" }),
+      createMockReservation({ name: "Second", last_name: "B", fecha_creacion: "02/02 09:00:00", fila: undefined }),
+    ];
+    render(<PlatformsMap reservations={reservations} />);
+    expect(screen.getByText("01").parentElement?.parentElement?.textContent).toContain("First");
+    expect(screen.getByText("02").parentElement?.parentElement?.textContent).toContain("Second");
+  });
+
   it("ignores fila property — platform assignment is solely by fecha_creacion", () => {
     // fila says Paty=1, Mariam=2 but fecha_creacion says Mariam is older → Mariam gets platform 1
     const reservations = [

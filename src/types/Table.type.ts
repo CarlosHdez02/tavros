@@ -17,7 +17,8 @@ export interface Reservation {
   mostrar_formulario: boolean;
   rating: string | null;
   imagen: string;
-  fila:string;
+  /** @deprecated Use fecha_creacion for platform assignment. May be undefined in future API. */
+  fila?: string;
 }
 
 export interface ClassData {

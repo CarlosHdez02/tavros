@@ -11,6 +11,14 @@ const TVScheduleDisplay = () => {
   const [checkinData, setCheckinData] = useState<CheckinData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [, forceRender] = useState(0);
+
+  // Re-render every minute so sessionData recalculates when the hour changes
+  // (prevents blank screen when last class ends at hour boundary)
+  useEffect(() => {
+    const t = setInterval(() => forceRender((r) => r + 1), 60_000);
+    return () => clearInterval(t);
+  }, []);
 
   // Helper to get current date in DD-MM-YYYY format
   const getCurrentDateString = () => {
@@ -34,8 +42,8 @@ const TVScheduleDisplay = () => {
         try {
           const errorJson = await response.json();
           if (errorJson.error === "No data available") {
-            console.log("No data available for this date, showing empty table");
             setCheckinData(null);
+            setLoading(false);
             return;
           }
         } catch (e) {
@@ -85,10 +93,12 @@ const TVScheduleDisplay = () => {
   }, []);
 
   // Process session data - supports both old (time in key) and new (classId key, class in object) API formats
+  // Wrapped in try-catch to prevent crash/white screen on parse errors
   const sessionData: ProcessedSession | null = useMemo(() => {
-    if (!checkinData?.data?.classes) return null;
+    try {
+      if (!checkinData?.data?.classes) return null;
 
-    const classes = checkinData.data.classes;
+      const classes = checkinData.data.classes;
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
@@ -141,11 +151,8 @@ const TVScheduleDisplay = () => {
       });
     }
 
-    // Fallback: when API returns a single class, assume it's the current one
-    if (!currentClassEntry && classEntries.length === 1) {
-      currentClassEntry = classEntries[0];
-    }
-
+    // No fallback: if no class matches current time, show "Sin sesión activa"
+    // (prevents showing wrong class when last class ended at hour boundary)
     if (!currentClassEntry) return null;
 
     const [, classData] = currentClassEntry;
@@ -160,21 +167,24 @@ const TVScheduleDisplay = () => {
     const reservationsCount =
       classData?.totalReservations ?? reservations.length;
 
-    return {
-      id: classData?.classId ?? "unknown",
-      time: timeDisplay,
-      date: new Intl.DateTimeFormat("es-ES", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      }).format(now),
-      sessionType: "Group",
-      className: classData?.class ?? "Clase",
-      capacity: classData?.limite ?? 0,
-      reservations,
-      reservationsCount,
-      color: "#10b981",
-    };
+      return {
+        id: classData?.classId ?? "unknown",
+        time: timeDisplay,
+        date: new Intl.DateTimeFormat("es-ES", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+        }).format(now),
+        sessionType: "Group",
+        className: classData?.class ?? "Clase",
+        capacity: classData?.limite ?? 0,
+        reservations,
+        reservationsCount,
+        color: "#10b981",
+      };
+    } catch {
+      return null;
+    }
   }, [checkinData]);
 
   const now = new Date();

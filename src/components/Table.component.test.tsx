@@ -66,6 +66,8 @@ describe("Table.component (TVScheduleDisplay)", () => {
   });
 
   it("renders PlatformsMap after fetch completes and passes reservations", async () => {
+    vi.setSystemTime(new Date("2025-02-06T06:30:00")); // 6:30 AM — matches 06:00–07:00 class
+
     const reservations = [
       {
         id: 1,
@@ -125,6 +127,8 @@ describe("Table.component (TVScheduleDisplay)", () => {
   });
 
   it("passes all class reservations to PlatformsMap with fecha_creacion (PlatformsMap sorts by it)", async () => {
+    vi.setSystemTime(new Date("2025-02-06T06:30:00")); // 6:30 AM — matches 06:00–07:00 class
+
     const reservations = [
       { id: 1, reserva_id: 1, hash_reserva_id: "a", name: "A", last_name: "A", full_name: "A A", email: "", telefono: "", status: "activo", nombre_plan: "Grupal", canal: "app", fecha_creacion: "10/02 06:00:00", pago_pendiente: false, form_asistencia_url: false, mostrar_formulario: false, rating: null, imagen: "", fila: "2" },
       { id: 2, reserva_id: 2, hash_reserva_id: "b", name: "B", last_name: "B", full_name: "B B", email: "", telefono: "", status: "activo", nombre_plan: "Grupal", canal: "app", fecha_creacion: "12/02 01:00:00", pago_pendiente: false, form_asistencia_url: false, mostrar_formulario: false, rating: null, imagen: "", fila: "1" },
@@ -181,6 +185,43 @@ describe("Table.component (TVScheduleDisplay)", () => {
     });
 
     expect(container).toBeInTheDocument();
+  });
+
+  it("shows fallback UI (Sin sesión activa) when no class at current hour — no blank screen", async () => {
+    vi.setSystemTime(new Date("2025-02-06T14:30:00")); // 2:30 PM — no 6–7am class matches
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve(
+          createCheckinResponse({
+            "06:00 a 07:00": {
+              classId: "1",
+              class: "Sesión grupal 6:00 am",
+              limite: 10,
+              reservations: [],
+              totalReservations: 0,
+            },
+          }),
+        ),
+    } as Response);
+
+    render(<TableComponent />);
+
+    await act(async () => {
+      vi.runAllTimersAsync();
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText("Sin sesión activa")).toBeInTheDocument();
+    const map = screen.queryByTestId("platforms-map");
+    expect(map).toBeInTheDocument();
+    expect(screen.getByTestId("reservation-count").textContent).toBe("0");
+
+    vi.useRealTimers();
   });
 
   it("eventually renders PlatformsMap with fallback displayData when no session matches", async () => {

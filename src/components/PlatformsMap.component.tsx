@@ -369,44 +369,20 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                   </div>
                 </div>
               ) : (
-                <>
-                  <div
-                    style={{
-                      width: "100%",
-                      flex: 1,
-                      border: "none",
-                      borderRadius: "clamp(4px, 0.6vw, 8px)",
-                      backgroundColor: "#1a1814",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      minHeight: isLarge ? "clamp(80px, 12vh, 160px)" : "clamp(40px, 6vw, 64px)",
-                      gap: "clamp(4px, 0.8vw, 8px)",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flex: 1,
-                        width: "100%",
-                      }}
-                    >
-                      <img
-                        src={logoSrc}
-                        alt="Tavros"
-                        style={{
-                          width: "70%",
-                          maxWidth: "clamp(80px, 16vw, 140px)",
-                          height: "auto",
-                          objectFit: "contain",
-                        }}
-                      />
-                    </div>
-                  </div>
-                </>
+                <div
+                  style={{
+                    width: "100%",
+                    flex: 1,
+                    border: "none",
+                    borderRadius: "clamp(4px, 0.6vw, 8px)",
+                    backgroundColor: "#1a1814",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    minHeight: isLarge ? "clamp(80px, 12vh, 160px)" : "clamp(40px, 6vw, 64px)",
+                  }}
+                />
               )}
               </div>
             </div>
