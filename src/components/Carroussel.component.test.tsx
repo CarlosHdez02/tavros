@@ -31,7 +31,11 @@ vi.mock("next/dynamic", () => ({
   },
 }));
 vi.mock("./Video-cards.component", () => ({
-  default: () => <div data-testid="video-slide">Video</div>,
+  default: (props: { youtubeLink?: string | null }) => (
+    <div data-testid="video-slide" data-youtube-link={props.youtubeLink ?? ""}>
+      Video
+    </div>
+  ),
 }));
 
 // Import after mocks
@@ -299,6 +303,57 @@ describe("CarrouselWrapper", () => {
     vi.useRealTimers();
   });
 
+  it("skips video rows without youtubeLink (e.g. draft row) without crashing", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 2 },
+      {
+        id: 25,
+        type: "video",
+        title: "No URL",
+        description: "",
+        youtubeLink: null,
+        durationSeconds: 99,
+      },
+      {
+        id: 2,
+        type: "video",
+        title: "V1",
+        description: "",
+        youtubeLink: "https://youtu.be/x",
+        durationSeconds: 2,
+      },
+    ];
+    render(<CarrouselWrapper />);
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("skips invalid sheet row types without crashing (carousel length matches valid rows only)", () => {
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 5 },
+      {
+        id: 99,
+        type: "not-a-real-type" as CarouselRow["type"],
+        title: "Bad",
+        description: "",
+        durationSeconds: 1,
+      },
+      {
+        id: 2,
+        type: "video",
+        title: "V1",
+        description: "",
+        youtubeLink: "https://youtu.be/x",
+        durationSeconds: 3,
+      },
+    ];
+    render(<CarrouselWrapper />);
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+  });
+
   it("manual prev restarts timer with new slide duration", async () => {
     vi.useFakeTimers();
     mockCarouselState.data = [
@@ -318,6 +373,116 @@ describe("CarrouselWrapper", () => {
     // Timer restarted with table duration (5s)
     await act(async () => vi.advanceTimersByTime(5000));
     expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it("loops through all sheet-only video rows in order then restarts at the first row without crashing", async () => {
+    vi.useFakeTimers();
+    const firstLink = "https://www.youtube.com/watch?v=sheetVideoA";
+    const secondLink = "https://www.youtube.com/watch?v=sheetVideoB";
+    const thirdLink = "https://www.youtube.com/watch?v=sheetVideoC";
+
+    mockCarouselState.data = [
+      {
+        id: 1,
+        type: "video",
+        title: "First",
+        description: "",
+        youtubeLink: firstLink,
+        durationSeconds: 2,
+      },
+      {
+        id: 2,
+        type: "video",
+        title: "Second",
+        description: "",
+        youtubeLink: secondLink,
+        durationSeconds: 2,
+      },
+      {
+        id: 3,
+        type: "video",
+        title: "Third",
+        description: "",
+        youtubeLink: thirdLink,
+        durationSeconds: 2,
+      },
+    ];
+
+    render(<CarrouselWrapper />);
+
+    const videoEl = () => screen.getByTestId("video-slide");
+
+    expect(videoEl()).toHaveAttribute("data-youtube-link", firstLink);
+
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(videoEl()).toHaveAttribute("data-youtube-link", secondLink);
+
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(videoEl()).toHaveAttribute("data-youtube-link", thirdLink);
+
+    // Full cycle: back to first row of the sheet (same as initial mount)
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(videoEl()).toHaveAttribute("data-youtube-link", firstLink);
+    expect(screen.queryByText("No hay datos")).not.toBeInTheDocument();
+    expect(screen.queryByText("Loading carousel...")).not.toBeInTheDocument();
+
+    // Second full loop — still stable
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(videoEl()).toHaveAttribute("data-youtube-link", secondLink);
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(videoEl()).toHaveAttribute("data-youtube-link", thirdLink);
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(videoEl()).toHaveAttribute("data-youtube-link", firstLink);
+
+    vi.useRealTimers();
+  });
+
+  it("after full sheet cycle (table + multiple videos + gallery), shows first row again", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T", description: "", durationSeconds: 2 },
+      {
+        id: 2,
+        type: "video",
+        title: "V1",
+        description: "",
+        youtubeLink: "https://youtube.com/watch?v=loop1",
+        durationSeconds: 2,
+      },
+      {
+        id: 3,
+        type: "video",
+        title: "V2",
+        description: "",
+        youtubeLink: "https://youtube.com/watch?v=loop2",
+        durationSeconds: 2,
+      },
+      { id: 4, type: "gallery", title: "G", description: "", durationSeconds: 2 },
+    ];
+    render(<CarrouselWrapper />);
+
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("video-slide")).toHaveAttribute(
+      "data-youtube-link",
+      "https://youtube.com/watch?v=loop1",
+    );
+
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("video-slide")).toHaveAttribute(
+      "data-youtube-link",
+      "https://youtube.com/watch?v=loop2",
+    );
+
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("gallery-slide")).toBeInTheDocument();
+
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+    expect(screen.queryByText("No hay datos")).not.toBeInTheDocument();
 
     vi.useRealTimers();
   });

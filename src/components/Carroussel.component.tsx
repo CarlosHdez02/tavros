@@ -3,6 +3,12 @@
 import dynamic from "next/dynamic";
 import React from "react";
 import { useCarouselData } from "@/hooks/useCarouselData";
+import {
+  hasUsableVideoLink,
+  normalizeSlideId,
+  parseRowType,
+} from "@/utils/carousel.utils";
+import { CarouselSlideErrorBoundary } from "./CarouselSlideErrorBoundary";
 import SingleVideo from "./Video-cards.component";
 
 const CarouselLoadingPlaceholder = () => (
@@ -34,26 +40,51 @@ export const componentMap = {
 };
 
 const CarrouselWrapper = () => {
-  const { data, isLoading } = useCarouselData();
+  const { data, isLoading, isError } = useCarouselData();
   const rows = data?.all ?? [];
   const [currentIndex, setCurrentIndex] = React.useState(0);
-  const [currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
+  const [_currentVideoIndex, setCurrentVideoIndex] = React.useState(0);
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const slideStartRef = React.useRef<number>(0);
+  /** Prevents spam-click races: react-youtube/youtube-player can call APIs with a null container if destroy/create overlap. */
+  const lastManualNavAtRef = React.useRef<number | null>(null);
+  const MANUAL_NAV_COOLDOWN_MS = 450;
+
+  const tryBeginManualNavigation = React.useCallback(() => {
+    const now = performance.now();
+    if (
+      lastManualNavAtRef.current !== null &&
+      now - lastManualNavAtRef.current < MANUAL_NAV_COOLDOWN_MS
+    ) {
+      return false;
+    }
+    lastManualNavAtRef.current = now;
+    return true;
+  }, []);
 
   // Build carousel components from API data - filter out invalid types
   const carrouselComponents = React.useMemo(() => {
     if (!rows.length) return [];
 
     return rows
-      .map((row, index) => ({
-        id: (row?.id != null && !Number.isNaN(Number(row.id)) ? Number(row.id) : index + 1),
-        currentComponent: componentMap[row.type],
-        type: row.type,
-        data: row,
-      }))
-      .filter((item) => item.currentComponent != null);
+      .map((row, index) => {
+        const parsedType = parseRowType(row?.type);
+        if (!parsedType) return null;
+        if (parsedType === "video" && !hasUsableVideoLink(row?.youtubeLink)) {
+          return null;
+        }
+        return {
+          id: normalizeSlideId(row?.id, index),
+          currentComponent: componentMap[parsedType],
+          type: parsedType,
+          data: row,
+        };
+      })
+      .filter(
+        (item): item is NonNullable<typeof item> =>
+          item != null && item.currentComponent != null,
+      );
   }, [rows]);
 
   // Get current item data - with safety check (undefined/null indices → 0)
@@ -104,6 +135,18 @@ const CarrouselWrapper = () => {
     });
   }, [carrouselComponents]);
 
+  // If the sheet shrinks (row removed), keep index in range so modulo never points at a stale conceptual slot
+  React.useEffect(() => {
+    const len = carrouselComponents.length;
+    if (len === 0) return;
+    setCurrentIndex((i) => {
+      const n = Number.isNaN(Number(i))
+        ? 0
+        : Math.max(0, Math.floor(Number(i)));
+      return Math.min(n, len - 1);
+    });
+  }, [carrouselComponents.length]);
+
   const advanceToNextRef = React.useRef(advanceToNext);
   advanceToNextRef.current = advanceToNext;
 
@@ -144,6 +187,7 @@ const CarrouselWrapper = () => {
   }, [isLoading, currentIndex, currentDuration]);
 
   const handlePrev = () => {
+    if (!tryBeginManualNavigation()) return;
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -160,10 +204,11 @@ const CarrouselWrapper = () => {
   };
 
   const handleNext = () => {
+    if (!tryBeginManualNavigation()) return;
     advanceToNext();
   };
 
-  const handleDotClick = (index: number) => {
+  const _handleDotClick = (index: number) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -185,12 +230,31 @@ const CarrouselWrapper = () => {
     );
   }
 
+  // Fetch failed (no cached data): same dark shell as empty data — never a white screen
+  if (isError && !data) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center w-full min-h-screen bg-[#0f1419] gap-3 px-4"
+        style={{ minHeight: "100vh" }}
+        data-testid="carousel-error"
+      >
+        <div className="text-[#e4e9f1] text-xl text-center">
+          No se pudo cargar el carrusel
+        </div>
+        <div className="text-[#64748b] text-sm text-center">
+          Revisa la conexión o vuelve a intentar
+        </div>
+      </div>
+    );
+  }
+
   // No data from Excel - show message, refetch will retry
   if (carrouselComponents.length === 0) {
     return (
       <div
         className="flex items-center justify-center w-full min-h-screen bg-[#0f1419]"
         style={{ minHeight: "100vh" }}
+        data-testid="carousel-empty"
       >
         <div className="text-[#e4e9f1] text-xl text-center px-4">
           No hay datos
@@ -219,15 +283,27 @@ const CarrouselWrapper = () => {
       ? {
           youtubeLink: currentItem.data?.youtubeLink,
         }
-      :       currentItem.type === "gallery"
+      : currentItem.type === "gallery"
         ? {
-            externalIndex: Number.isNaN(Number(currentGalleryIndex)) ? 0 : Math.max(0, currentGalleryIndex ?? 0),
+            externalIndex: Number.isNaN(Number(currentGalleryIndex))
+              ? 0
+              : Math.max(0, currentGalleryIndex ?? 0),
           }
         : {};
 
   return (
-    <div className="relative group min-h-screen bg-[#0f1419]" style={{ minHeight: "100vh" }}>
-      <CurrentComponent {...(componentProps as any)} />
+    <div
+      className="relative group min-h-screen bg-[#0f1419]"
+      style={{ minHeight: "100vh" }}
+      data-testid="carousel-root"
+      data-carousel-index={String(currentIndex)}
+      data-carousel-length={String(carrouselComponents.length)}
+    >
+      <CarouselSlideErrorBoundary
+        key={`slide-${currentIndex}-${currentItem.id}`}
+      >
+        <CurrentComponent {...(componentProps as any)} />
+      </CarouselSlideErrorBoundary>
 
       {/* Manual Navigation Controls - Left Arrow */}
       <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
