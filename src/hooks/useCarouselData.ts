@@ -12,8 +12,8 @@ export const useCarouselData = () => {
   return useQuery({
     queryKey: ["carousel-data"],
     queryFn: ({ signal }) => tavrosService.getCarouselData(signal),
-    staleTime: 1000 * 60 * 2, // 5 minutes
-    gcTime: 1000 * 60  * 3, // kiosk / TV: keep cache 3 minutes if tab stays open
+    staleTime: 1000 * 60 * 60 * 24, // 24 hours
+    gcTime: 1000 * 60  * 60 * 24, // kiosk / TV: keep cache 24 hours if tab stays open
     refetchOnWindowFocus: false,
     refetchOnReconnect: true,
     retry: process.env.NODE_ENV === "test" ? 0 : 2,
