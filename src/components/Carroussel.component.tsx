@@ -227,7 +227,10 @@ const CarrouselWrapper = () => {
 
   return (
     <div className="relative group min-h-screen bg-[#0f1419]" style={{ minHeight: "100vh" }}>
-      <CurrentComponent {...(componentProps as any)} />
+      <CurrentComponent
+        key={`slide-${currentIndex}-${currentItem.id}`}
+        {...(componentProps as any)}
+      />
 
       {/* Manual Navigation Controls - Left Arrow */}
       <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

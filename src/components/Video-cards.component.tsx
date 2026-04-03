@@ -8,6 +8,49 @@ interface SingleVideoProps {
   onVideoEnd?: () => void;
 }
 
+/** Parse link synchronously so the first paint already has a video id (avoids blank frame before useEffect). */
+function parseYoutubeLink(youtubeLink: string | null | undefined): {
+  videoId: string | null;
+  isShort: boolean;
+} {
+  if (!youtubeLink?.trim()) {
+    return { videoId: null, isShort: false };
+  }
+  const cleanUrl = youtubeLink.trim();
+  let urlString = cleanUrl;
+  if (!/^https?:\/\//i.test(cleanUrl)) {
+    urlString = `https://${cleanUrl}`;
+  }
+  try {
+    const parsedUrl = new URL(urlString);
+    let id = parsedUrl.searchParams.get("v");
+    let detectedShort = false;
+
+    if (!id) {
+      const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
+
+      if (pathSegments.length > 0) {
+        if (parsedUrl.hostname.includes("youtu.be")) {
+          id = pathSegments[0];
+        } else if (pathSegments[0] === "shorts") {
+          id = pathSegments[1];
+          detectedShort = true;
+        } else if (pathSegments[0] === "embed" || pathSegments[0] === "v") {
+          id = pathSegments[1];
+        }
+      }
+    }
+
+    if (parsedUrl.pathname.includes("/shorts/")) {
+      detectedShort = true;
+    }
+
+    return { videoId: id || null, isShort: detectedShort };
+  } catch {
+    return { videoId: null, isShort: false };
+  }
+}
+
 /**
  * SingleVideo Component - Optimized for Samsung TV Frame
  *
@@ -29,56 +72,11 @@ const SingleVideo: React.FC<SingleVideoProps> = ({
   title,
   onVideoEnd,
 }) => {
-  const [videoId, setVideoId] = React.useState<string | null>(null);
-  const [isShort, setIsShort] = React.useState(false);
+  const { videoId, isShort } = React.useMemo(
+    () => parseYoutubeLink(youtubeLink),
+    [youtubeLink],
+  );
   const playerRef = React.useRef<any>(null);
-
-  React.useEffect(() => {
-    if (!youtubeLink) {
-      setVideoId(null);
-      setIsShort(false);
-      return;
-    }
-
-    const cleanUrl = youtubeLink.trim();
-
-    try {
-      const parsedUrl = new URL(cleanUrl);
-      let id = parsedUrl.searchParams.get("v");
-      let detectedShort = false;
-
-      // Extract video ID based on URL format
-      if (!id) {
-        const pathSegments = parsedUrl.pathname.split("/").filter(Boolean);
-
-        if (pathSegments.length > 0) {
-          if (parsedUrl.hostname.includes("youtu.be")) {
-            // Format: youtu.be/xxxxx
-            id = pathSegments[0];
-          } else if (pathSegments[0] === "shorts") {
-            // Format: youtube.com/shorts/xxxxx
-            id = pathSegments[1];
-            detectedShort = true;
-          } else if (pathSegments[0] === "embed" || pathSegments[0] === "v") {
-            // Format: youtube.com/embed/xxxxx or youtube.com/v/xxxxx
-            id = pathSegments[1];
-          }
-        }
-      }
-
-      // Additional Short detection from URL path (even if id was found in params)
-      if (parsedUrl.pathname.includes("/shorts/")) {
-        detectedShort = true;
-      }
-
-      setVideoId(id || null);
-      setIsShort(detectedShort);
-    } catch (error) {
-      console.error("Error parsing YouTube URL:", error);
-      setVideoId(null);
-      setIsShort(false);
-    }
-  }, [youtubeLink]);
 
   const onPlayerReady: YouTubeProps["onReady"] = (event) => {
     playerRef.current = event.target;
@@ -171,6 +169,7 @@ const SingleVideo: React.FC<SingleVideoProps> = ({
           >
             <div className={isShort ? "w-auto h-full" : "w-full h-full"}>
               <YouTube
+                key={videoId}
                 videoId={videoId}
                 opts={opts}
                 onReady={onPlayerReady}
