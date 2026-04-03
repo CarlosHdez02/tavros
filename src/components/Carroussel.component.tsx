@@ -47,6 +47,21 @@ const CarrouselWrapper = () => {
   const [currentGalleryIndex, setCurrentGalleryIndex] = React.useState(0);
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const slideStartRef = React.useRef<number>(0);
+  /** Prevents spam-click races: react-youtube/youtube-player can call APIs with a null container if destroy/create overlap. */
+  const lastManualNavAtRef = React.useRef<number | null>(null);
+  const MANUAL_NAV_COOLDOWN_MS = 450;
+
+  const tryBeginManualNavigation = React.useCallback(() => {
+    const now = performance.now();
+    if (
+      lastManualNavAtRef.current !== null &&
+      now - lastManualNavAtRef.current < MANUAL_NAV_COOLDOWN_MS
+    ) {
+      return false;
+    }
+    lastManualNavAtRef.current = now;
+    return true;
+  }, []);
 
   // Build carousel components from API data - filter out invalid types
   const carrouselComponents = React.useMemo(() => {
@@ -172,6 +187,7 @@ const CarrouselWrapper = () => {
   }, [isLoading, currentIndex, currentDuration]);
 
   const handlePrev = () => {
+    if (!tryBeginManualNavigation()) return;
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -188,6 +204,7 @@ const CarrouselWrapper = () => {
   };
 
   const handleNext = () => {
+    if (!tryBeginManualNavigation()) return;
     advanceToNext();
   };
 

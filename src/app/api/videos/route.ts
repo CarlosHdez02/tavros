@@ -15,7 +15,8 @@ export async function GET(){
             next:{revalidate:60} // cache 60s
         });
         if(!response.ok){
-            throw new Error('Failed to fetch google sheet')
+            console.error("API /api/videos: Google Sheet HTTP", response.status, response.statusText);
+            throw new Error(`Google Sheet fetch failed: ${response.status}`)
         }
         const csvData = await response.text();
         const parsed = Papa.parse<CarouselRow>(csvData,{
@@ -63,7 +64,12 @@ export async function GET(){
             }
         })
     }catch(err:unknown){
-        console.error("API /api/videos:", err);
-        return NextResponse.json({error:"failed to fetch google sheet"},{status:500})
+        const message = err instanceof Error ? err.message : String(err);
+        const upstream = message.includes("Google Sheet fetch failed");
+        console.error("API /api/videos:", message);
+        return NextResponse.json(
+            { error: "failed to fetch google sheet", detail: process.env.NODE_ENV === "development" ? message : undefined },
+            { status: upstream ? 502 : 500 },
+        );
     }
 }
