@@ -303,6 +303,57 @@ describe("CarrouselWrapper", () => {
     vi.useRealTimers();
   });
 
+  it("skips video rows without youtubeLink (e.g. draft row) without crashing", async () => {
+    vi.useFakeTimers();
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 2 },
+      {
+        id: 25,
+        type: "video",
+        title: "No URL",
+        description: "",
+        youtubeLink: null,
+        durationSeconds: 99,
+      },
+      {
+        id: 2,
+        type: "video",
+        title: "V1",
+        description: "",
+        youtubeLink: "https://youtu.be/x",
+        durationSeconds: 2,
+      },
+    ];
+    render(<CarrouselWrapper />);
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+    await act(async () => vi.advanceTimersByTime(2000));
+    expect(screen.getByTestId("video-slide")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("skips invalid sheet row types without crashing (carousel length matches valid rows only)", () => {
+    mockCarouselState.data = [
+      { id: 1, type: "table", title: "T1", description: "", durationSeconds: 5 },
+      {
+        id: 99,
+        type: "not-a-real-type" as CarouselRow["type"],
+        title: "Bad",
+        description: "",
+        durationSeconds: 1,
+      },
+      {
+        id: 2,
+        type: "video",
+        title: "V1",
+        description: "",
+        youtubeLink: "https://youtu.be/x",
+        durationSeconds: 3,
+      },
+    ];
+    render(<CarrouselWrapper />);
+    expect(screen.getByTestId("table-slide")).toBeInTheDocument();
+  });
+
   it("manual prev restarts timer with new slide duration", async () => {
     vi.useFakeTimers();
     mockCarouselState.data = [
