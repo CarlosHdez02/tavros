@@ -308,6 +308,7 @@ const CarrouselWrapper = () => {
       {/* Manual Navigation Controls - Left Arrow */}
       <div className="absolute top-1/2 -translate-y-1/2 left-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
+          type="button"
           onClick={handlePrev}
           className="bg-[#3a3a3a]/80 hover:bg-[#E8B44F] text-[#E8B44F] hover:text-[#1a1a1a] border-2 border-[#E8B44F] rounded-full p-4 transition-all"
           title="Anterior"
@@ -334,6 +335,7 @@ const CarrouselWrapper = () => {
       {/* Manual Navigation Controls - Right Arrow */}
       <div className="absolute top-1/2 -translate-y-1/2 right-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         <button
+          type="button"
           onClick={handleNext}
           className="bg-[#3a3a3a]/80 hover:bg-[#E8B44F] text-[#E8B44F] hover:text-[#1a1a1a] border-2 border-[#E8B44F] rounded-full p-4 transition-all"
           title="Siguiente"

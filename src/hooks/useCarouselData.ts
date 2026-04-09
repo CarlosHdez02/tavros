@@ -1,7 +1,6 @@
 "use client";
 
 import TavrosService from "@/services/tavros.service";
-import type { CarouselData } from "@/types/components.type";
 import { useQuery } from "@tanstack/react-query";
 
 const tavrosService = new TavrosService();

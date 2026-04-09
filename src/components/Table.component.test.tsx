@@ -254,4 +254,91 @@ describe("Table.component (TVScheduleDisplay)", () => {
     const map = screen.queryByTestId("platforms-map");
     expect(map || screen.getByText("Cargando datos...")).toBeInTheDocument();
   });
+
+  it("transitions from active class to Sin sesión activa when time passes (sessionTick) — no crash, no blank screen", async () => {
+    vi.setSystemTime(new Date("2025-02-06T06:30:00")); // inside 06:00–07:00
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve(
+          createCheckinResponse({
+            "06:00 a 07:00": {
+              classId: "1",
+              class: "Sesión grupal 6:00 am",
+              limite: 10,
+              reservations: [],
+              totalReservations: 0,
+            },
+          }),
+        ),
+    } as Response);
+
+    const { container } = render(<TableComponent />);
+
+    await act(async () => {
+      vi.runAllTimersAsync();
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const heading = screen.getByRole("heading", { level: 1 });
+    expect(heading).toHaveTextContent(/Sesión grupal 6:00 am/i);
+    expect(screen.queryByText("Sin sesión activa")).not.toBeInTheDocument();
+    expect(screen.getByTestId("tv-schedule-root")).toBeInTheDocument();
+
+    // Class ended — same mount, no reload; sessionTick recomputes sessionData
+    vi.setSystemTime(new Date("2025-02-06T07:45:00"));
+
+    await act(async () => {
+      vi.advanceTimersByTime(30_000);
+    });
+
+    expect(screen.getByText("Sin sesión activa")).toBeInTheDocument();
+    expect(screen.getByTestId("platforms-map")).toBeInTheDocument();
+    expect(screen.getByTestId("reservation-count").textContent).toBe("0");
+    expect(container.querySelector('[data-testid="tv-schedule-root"]')).toBeInTheDocument();
+    expect(document.body.textContent?.length ?? 0).toBeGreaterThan(80);
+  });
+
+  it("when no class matches at load, keeps dark shell and shows schedule + platforms (no empty body)", async () => {
+    vi.setSystemTime(new Date("2025-02-06T22:00:00"));
+
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: () =>
+        Promise.resolve(
+          createCheckinResponse({
+            "06:00 a 07:00": {
+              classId: "1",
+              class: "Sesión grupal 6:00 am",
+              limite: 10,
+              reservations: [],
+              totalReservations: 0,
+            },
+          }),
+        ),
+    } as Response);
+
+    const { container } = render(<TableComponent />);
+
+    await act(async () => {
+      vi.runAllTimersAsync();
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const root = screen.getByTestId("tv-schedule-root");
+    expect(root).toBeVisible();
+    expect(getComputedStyle(root).backgroundColor).not.toBe("");
+
+    expect(screen.getByText("Sin sesión activa")).toBeInTheDocument();
+    expect(screen.getByTestId("platforms-map")).toBeInTheDocument();
+    expect(container.textContent).toContain("reservas");
+    expect(document.body.textContent?.length ?? 0).toBeGreaterThan(80);
+  });
 });

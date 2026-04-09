@@ -160,9 +160,13 @@ const truncateName = (firstName: string, lastName: string, maxLen = 20): string 
 };
 
 const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime = "—", size = "default" }) => {
+  const safeReservations = Array.isArray(reservations)
+    ? reservations.filter((r): r is Reservation => r != null && typeof r === "object")
+    : [];
+
   // Assign platforms by fecha_creacion ascending: oldest → platform 1, second oldest → 2, etc. (fila ignored)
   const platformAssignments = React.useMemo(() => {
-    const sorted = [...reservations].sort(
+    const sorted = [...safeReservations].sort(
       (a, b) => parseFechaCreacion(a.fecha_creacion) - parseFechaCreacion(b.fecha_creacion)
     );
     const map = new Map<number, Reservation>();
@@ -170,7 +174,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
       map.set(i + 1, r);
     });
     return map;
-  }, [reservations]);
+  }, [safeReservations]);
 
   const isLarge = size === "large";
 

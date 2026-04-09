@@ -11,12 +11,13 @@ const TVScheduleDisplay = () => {
   const [checkinData, setCheckinData] = useState<CheckinData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [, forceRender] = useState(0);
+  /** Must be in sessionData useMemo deps — time-based "active class" logic uses `new Date()` inside the memo. */
+  const [sessionTick, setSessionTick] = useState(0);
 
-  // Re-render every minute so sessionData recalculates when the hour changes
-  // (prevents blank screen when last class ends at hour boundary)
+  // Re-run session matching on an interval so when the current class ends, we show
+  // "Sin sesión activa" + empty platforms without waiting for the 5m API refetch.
   useEffect(() => {
-    const t = setInterval(() => forceRender((r) => r + 1), 60_000);
+    const t = setInterval(() => setSessionTick((n) => n + 1), 30_000);
     return () => clearInterval(t);
   }, []);
 
@@ -185,7 +186,7 @@ const TVScheduleDisplay = () => {
     } catch {
       return null;
     }
-  }, [checkinData]);
+  }, [checkinData, sessionTick]);
 
   const now = new Date();
 
@@ -257,6 +258,7 @@ const TVScheduleDisplay = () => {
 
   return (
     <div
+      data-testid="tv-schedule-root"
       style={{
         minHeight: "100vh",
         height: "100vh",
