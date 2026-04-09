@@ -171,4 +171,25 @@ describe("Table.component integration (fecha_creacion platform assignment)", () 
     const platform1 = within(map).getByText("01").parentElement?.parentElement?.parentElement;
     expect(platform1?.textContent).toContain("Mariam");
   });
+
+  it("when no class matches the current time, shows Sin sesión activa and real PlatformsMap without crashing", async () => {
+    vi.setSystemTime(new Date("2025-02-07T22:15:00")); // outside 08:00–09:00 window
+
+    render(<TableComponent />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(100);
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText("Sin sesión activa")).toBeInTheDocument();
+    expect(screen.getByTestId("tv-schedule-root")).toBeInTheDocument();
+    const map = screen.getByTestId("platforms-map");
+    expect(map).toBeInTheDocument();
+    expect(within(map).getByText("01")).toBeInTheDocument();
+    expect(document.body.textContent?.length ?? 0).toBeGreaterThan(200);
+  });
 });
