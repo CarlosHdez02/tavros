@@ -3,7 +3,7 @@
 import React from "react";
 import type { Reservation } from "@/types/Table.type";
 import { PLAN_MAPPING } from "@/types/Table.type";
-import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
+import tavrosLogo from "../../public/tavros-logo.jpeg";
 
 const TOTAL_PLATFORMS = 10;
 const GOLD = "#E8B44F";
@@ -192,7 +192,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
         width: "100%",
         height: isLarge ? "100%" : "auto",
         marginTop: isLarge ? 0 : "clamp(12px, 2vw, 20px)",
-        padding: isLarge ? "clamp(16px, 2.5vw, 32px)" : "clamp(8px, 1.5vw, 16px)",
+        padding: isLarge ? "clamp(8px, 2vh, 32px)" : "clamp(8px, 1.5vw, 16px)",
         backgroundColor: "#2d2a24",
         border: "none",
         display: "flex",
@@ -233,7 +233,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                 position: "relative",
                 gridColumn: `${col} / span ${colSpan}`,
                 gridRow: row,
-                minHeight: isLarge ? "clamp(100px, 14vh, 200px)" : "clamp(90px, 12vw, 140px)",
+                minHeight: isLarge ? 0 : "clamp(90px, 12vw, 140px)",
                 minWidth: 0,
                 backgroundColor: CARD_BG,
                 border: "none",
@@ -242,7 +242,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                padding: isLarge ? "clamp(12px, 2vw, 24px)" : "clamp(8px, 1.5vw, 14px)",
+                padding: isLarge ? "clamp(6px, 1.5vh, 24px)" : "clamp(8px, 1.5vw, 14px)",
                 overflow: "hidden",
                 boxSizing: "border-box",
               }}
@@ -262,12 +262,12 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
               >
               <div
                 style={{
-                  fontSize: isLarge ? "clamp(18px, 2.5vw, 32px)" : "clamp(11px, 1.8vw, 16px)",
+                  fontSize: isLarge ? "clamp(14px, min(2.5vw, 3vh), 32px)" : "clamp(11px, 1.8vw, 16px)",
                   fontWeight: "700",
                   color: GREY_LIGHT,
                   textTransform: "uppercase",
                   letterSpacing: "1px",
-                  marginBottom: isLarge ? "clamp(8px, 1.2vw, 16px)" : "clamp(4px, 0.8vw, 8px)",
+                  marginBottom: isLarge ? "clamp(2px, 0.8vh, 16px)" : "clamp(4px, 0.8vw, 8px)",
                   alignSelf: "flex-start",
                 }}
               >
@@ -288,16 +288,16 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    padding: isLarge ? "clamp(10px, 1.5vw, 18px)" : "clamp(6px, 1vw, 10px)",
-                    minHeight: isLarge ? "clamp(80px, 12vh, 160px)" : "clamp(40px, 6vw, 64px)",
+                    padding: isLarge ? "clamp(6px, 0.8vw, 12px)" : "clamp(6px, 1vw, 10px)",
+                    minHeight: isLarge ? 0 : "clamp(40px, 6vw, 64px)",
                     overflow: "hidden",
-                    gap: isLarge ? "clamp(6px, 1vw, 12px)" : "clamp(4px, 0.8vw, 8px)",
+                    gap: isLarge ? "clamp(4px, 0.6vw, 10px)" : "clamp(4px, 0.8vw, 8px)",
                   }}
                 >
                   {/* Row 1: Client name (above logo) */}
                   <div
                     style={{
-                      fontSize: isLarge ? "clamp(20px, 2.8vw, 32px)" : "clamp(11px, 1.8vw, 18px)",
+                      fontSize: isLarge ? "clamp(16px, min(2.8vw, 3.4vh), 32px)" : "clamp(11px, 1.8vw, 18px)",
                       fontWeight: "700",
                       color: GOLD,
                       textAlign: "center",
@@ -308,7 +308,8 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       WebkitBoxOrient: "vertical",
                       overflow: "hidden",
                       wordBreak: "break-word",
-                      minHeight: "2.4em",
+                      // Name + plan must always be visible; only the logo gives up space
+                      flexShrink: 0,
                     }}
                   >
                     {truncateName(client.name, client.last_name, 20)}
@@ -320,16 +321,19 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       alignItems: "center",
                       justifyContent: "center",
                       width: "100%",
-                      minHeight: "clamp(80px, 14vw, 140px)",
+                      flex: "1 1 0",
+                      minHeight: 0,
+                      overflow: "hidden",
                     }}
                   >
                     <img
                       src={logoSrc}
                       alt="Tavros"
                       style={{
-                        width: "70%",
-                        maxWidth: "clamp(80px, 16vw, 140px)",
-                        height: "auto",
+                        height: "100%",
+                        maxHeight: "clamp(40px, 10vh, 140px)",
+                        width: "auto",
+                        maxWidth: "70%",
                         objectFit: "contain",
                       }}
                     />
@@ -340,6 +344,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
+                      flexShrink: 0,
                     }}
                   >
                     <div
@@ -384,7 +389,7 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                     flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
-                    minHeight: isLarge ? "clamp(80px, 12vh, 160px)" : "clamp(40px, 6vw, 64px)",
+                    minHeight: isLarge ? 0 : "clamp(40px, 6vw, 64px)",
                   }}
                 >
                   <div
@@ -392,17 +397,22 @@ const PlatformsMap: React.FC<PlatformsMapProps> = ({ reservations, sessionTime =
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      flex: 1,
+                      flex: "1 1 0",
+                      minHeight: 0,
                       width: "100%",
+                      overflow: "hidden",
+                      padding: "clamp(4px, 0.6vw, 8px) 0",
+                      boxSizing: "border-box",
                     }}
                   >
                     <img
                       src={logoSrc}
                       alt="Tavros"
                       style={{
-                        width: "70%",
-                        maxWidth: "clamp(80px, 16vw, 140px)",
-                        height: "auto",
+                        height: "100%",
+                        maxHeight: "clamp(40px, 10vh, 140px)",
+                        width: "auto",
+                        maxWidth: "70%",
                         objectFit: "contain",
                       }}
                     />

@@ -341,4 +341,65 @@ describe("Table.component (TVScheduleDisplay)", () => {
     expect(container.textContent).toContain("reservas");
     expect(document.body.textContent?.length ?? 0).toBeGreaterThan(80);
   });
+  describe("new-format class matching (BoxMagic class names)", () => {
+    const makeRes = (id: number, name: string) => ({
+      id, reserva_id: id, hash_reserva_id: String(id), name, last_name: "X", full_name: `${name} X`,
+      email: "", telefono: "", status: "activo", nombre_plan: "Grupal", canal: "app",
+      fecha_creacion: `0${id}/02 06:00:00`, pago_pendiente: false, form_asistencia_url: false,
+      mostrar_formulario: false, rating: null, imagen: "",
+    });
+
+    const renderWith = async (classes: CheckinData["data"]["classes"]) => {
+      fetchMock.mockImplementation((url: string) => {
+        if (typeof url === "string" && url.includes("/health")) {
+          return Promise.resolve({ ok: true } as Response);
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(createCheckinResponse(classes)),
+        } as Response);
+      });
+      render(<TableComponent />);
+      await act(async () => {
+        vi.runAllTimersAsync();
+      });
+      await act(async () => {
+        await Promise.resolve();
+        await Promise.resolve();
+      });
+    };
+
+    it("matches a 12:00 pm class at 12:30 (noon was previously treated as 24:00)", async () => {
+      vi.setSystemTime(new Date("2025-02-06T12:30:00"));
+      await renderWith({
+        "200-1": { classId: "200-1", class: "Sesión grupal 12:00 pm", limite: 10, reservations: [makeRes(1, "Ana")], totalReservations: 1 },
+      });
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/12:00 pm/i);
+      expect(screen.getByTestId("reservation-count").textContent).toBe("1");
+    });
+
+    it("matches the new BoxMagic label format and classes without am/pm via hora_inicio/hora_fin", async () => {
+      vi.setSystemTime(new Date("2025-02-06T10:30:00"));
+      await renderWith({
+        "400-1": { classId: "400-1", class: "Privadas Hector - 10:00 a 11:00 - Presencial", limite: 1, reservations: [makeRes(1, "Ana")], totalReservations: 1 },
+        "400-2": { classId: "400-2", class: "Sesión semiprivada 10:15 am - 10:15 a 11:15 - Presencial", hora_inicio: "10:15", hora_fin: "11:15", limite: 5, reservations: [makeRes(2, "Luis")], totalReservations: 1 },
+        "400-3": { classId: "400-3", class: "Sesión grupal 9:00 am - 09:00 a 10:00 - Presencial", hora_inicio: "09:00", hora_fin: "10:00", limite: 10, reservations: [makeRes(3, "Otro")], totalReservations: 1 },
+      });
+      expect(screen.getByTestId("reservation-count").textContent).toBe("2");
+      expect(screen.getByText("2/6 reservas")).toBeInTheDocument();
+    });
+
+    it("combines reservations from classes running in the same hour", async () => {
+      vi.setSystemTime(new Date("2025-02-06T07:20:00"));
+      await renderWith({
+        "300-1": { classId: "300-1", class: "Sesión grupal 7:00 am", limite: 10, reservations: [], totalReservations: 0 },
+        "300-2": { classId: "300-2", class: "Sesión semiprivada 7:00 am", limite: 5, reservations: [makeRes(1, "Ana"), makeRes(2, "Luis")], totalReservations: 2 },
+        "300-3": { classId: "300-3", class: "Sesión grupal 8:00 am", limite: 10, reservations: [makeRes(3, "Otro")], totalReservations: 1 },
+      });
+      expect(screen.getByTestId("reservation-count").textContent).toBe("2");
+      expect(screen.getByText("2/15 reservas")).toBeInTheDocument();
+      // Class with reservations leads the header
+      expect(screen.getByRole("heading", { level: 1 }).textContent).toMatch(/^Sesión semiprivada 7:00 am/);
+    });
+  });
 });
