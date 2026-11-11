@@ -24,6 +24,10 @@ export interface Reservation {
 export interface ClassData {
   classId: string;
   class?: string;
+  /** Raw BoxMagic fields, "HH:MM" 24h */
+  nombre?: string;
+  hora_inicio?: string;
+  hora_fin?: string;
   limite: number;
   totalReservations?: number;
   reservations: Reservation[];

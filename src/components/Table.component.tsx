@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
+import tavrosLogo from "../../public/tavros-logo.jpeg";
 import { CheckinData, ProcessedSession } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 
@@ -114,12 +114,14 @@ const TVScheduleDisplay = () => {
       em: number,
     ) => {
       const start = sh * 60 + sm;
-      const end = eh * 60 + em;
+      let end = eh * 60 + em;
+      // e.g. "11:00 a 00:00" — end on/after midnight
+      if (end <= start) end += 24 * 60;
       return currentTotalMinutes >= start && currentTotalMinutes < end;
     };
 
     // Old format: key contains "HH:MM a HH:MM"
-    let currentClassEntry = classEntries.find(([key]) => {
+    const oldFormatEntry = classEntries.find(([key]) => {
       const m = key.match(/(\d{1,2}):(\d{2})\s*a\s*(\d{1,2}):(\d{2})/);
       if (m) {
         return isTimeInRange(
@@ -132,44 +134,68 @@ const TVScheduleDisplay = () => {
       return false;
     });
 
-    // New format: time in classData.class (e.g. "Sesión grupal 6:00 am")
-    if (!currentClassEntry) {
-      currentClassEntry = classEntries.find(([, data]) => {
-        const cn = data?.class ?? "";
-        const am = cn.match(/(\d{1,2}):(\d{2})\s*am/i);
-        const pm = cn.match(/(\d{1,2}):(\d{2})\s*pm/i);
-        if (am) {
-          const h = parseInt(am[1], 10);
-          const m = parseInt(am[2], 10);
+    // New format: time in classData.class (e.g. "Sesión grupal 6:00 am", "Sesión grupal 12:00 pm").
+    // Several classes can run in the same hour (e.g. grupal + semiprivada at 7:00 am) and all of
+    // those clients are physically on the platforms, so collect every match instead of only the first.
+    const matchingEntries = oldFormatEntry
+      ? [oldFormatEntry]
+      : classEntries.filter(([, data]) => {
+          // 1) Raw 24h fields from the API, 2) "HH:MM a HH:MM" in the label, 3) "H:MM am/pm" in the name
+          const hm = (v?: string) => v?.match(/^(\d{1,2}):(\d{2})/);
+          const start = hm(data?.hora_inicio);
+          const end = hm(data?.hora_fin);
+          if (start && end) {
+            return isTimeInRange(+start[1], +start[2], +end[1], +end[2]);
+          }
+          const range = (data?.class ?? "").match(/(\d{1,2}):(\d{2})\s+a\s+(\d{1,2}):(\d{2})/);
+          if (range) {
+            return isTimeInRange(+range[1], +range[2], +range[3], +range[4]);
+          }
+          const t = (data?.class ?? "").match(/(\d{1,2}):(\d{2})\s*([ap])\.?\s*m\b/i);
+          if (!t) return false;
+          const h12 = parseInt(t[1], 10);
+          const m = parseInt(t[2], 10);
+          const isPm = t[3].toLowerCase() === "p";
+          // 12:xx am → 0, 12:xx pm → 12 (previously 12 pm became 24 and never matched)
+          const h = (h12 % 12) + (isPm ? 12 : 0);
           return isTimeInRange(h, m, h + 1, m);
-        }
-        if (pm) {
-          const h = 12 + parseInt(pm[1], 10);
-          const m = parseInt(pm[2], 10);
-          return isTimeInRange(h, m, h + 1, m);
-        }
-        return false;
-      });
-    }
+        });
 
     // No fallback: if no class matches current time, show "Sin sesión activa"
     // (prevents showing wrong class when last class ended at hour boundary)
-    if (!currentClassEntry) return null;
+    if (matchingEntries.length === 0) return null;
 
-    const [, classData] = currentClassEntry;
+    // Class with the most reservations first so it drives the header / platform order
+    const reservationCountOf = (c: (typeof matchingEntries)[number][1]) =>
+      c?.totalReservations ?? c?.reservations?.length ?? 0;
+    const sortedEntries = [...matchingEntries].sort(
+      ([, a], [, b]) => reservationCountOf(b) - reservationCountOf(a),
+    );
+    const [primaryKey, classData] = sortedEntries[0];
 
     // Time display: from key (old format) or class property (new format)
-    const keyTime = currentClassEntry[0].match(/(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/);
+    const keyTime = primaryKey.match(/(\d{1,2}:\d{2}\s*a\s*\d{1,2}:\d{2})/);
     const timeDisplay = keyTime
       ? keyTime[1]
       : (classData?.class ?? "Sesión activa");
 
-    const reservations = classData?.reservations ?? [];
-    const reservationsCount =
-      classData?.totalReservations ?? reservations.length;
+    const seen = new Set<string | number>();
+    const reservations = sortedEntries
+      .flatMap(([, c]) => (Array.isArray(c?.reservations) ? c.reservations : []))
+      .filter((r) => {
+        const key = r?.reserva_id ?? r?.id;
+        if (key == null) return true;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    const reservationsCount = sortedEntries.reduce(
+      (sum, [, c]) => sum + reservationCountOf(c),
+      0,
+    );
 
       return {
-        id: classData?.classId ?? "unknown",
+        id: sortedEntries.map(([, c]) => c?.classId ?? "unknown").join("+"),
         time: timeDisplay,
         date: new Intl.DateTimeFormat("es-ES", {
           weekday: "long",
@@ -177,8 +203,8 @@ const TVScheduleDisplay = () => {
           month: "long",
         }).format(now),
         sessionType: "Group",
-        className: classData?.class ?? "Clase",
-        capacity: classData?.limite ?? 0,
+        className: sortedEntries.map(([, c]) => c?.class ?? "Clase").join(" + "),
+        capacity: sortedEntries.reduce((sum, [, c]) => sum + (c?.limite ?? 0), 0),
         reservations,
         reservationsCount,
         color: "#10b981",
@@ -308,7 +334,8 @@ const TVScheduleDisplay = () => {
             src={typeof tavrosLogo === "string" ? tavrosLogo : tavrosLogo.src}
             alt="Tavros Logo"
             style={{
-              height: "clamp(140px, 20vw, 280px)",
+              // Height-based so the platforms map keeps enough room on 1080p TVs
+              height: "clamp(80px, 15vh, 180px)",
               width: "auto",
               objectFit: "contain",
             }}

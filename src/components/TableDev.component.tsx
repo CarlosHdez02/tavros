@@ -1,5 +1,5 @@
 import React from "react";
-import tavrosLogo from "../../public/WhatsApp_Image_2025-12-01_at_16.46.37-removebg-preview.png";
+import tavrosLogo from "../../public/tavros-logo.jpeg";
 import type { Reservation } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 
