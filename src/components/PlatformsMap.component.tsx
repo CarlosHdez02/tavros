@@ -3,7 +3,7 @@
 import React from "react";
 import type { Reservation } from "@/types/Table.type";
 import { PLAN_MAPPING } from "@/types/Table.type";
-import tavrosLogo from "../../public/tavros-logo.jpeg";
+import tavrosLogo from "../../public/tavros-logo.png";
 
 const TOTAL_PLATFORMS = 10;
 const GOLD = "#E8B44F";

@@ -1,5 +1,5 @@
 import React from "react";
-import tavrosLogo from "../../public/tavros-logo.jpeg";
+import tavrosLogo from "../../public/tavros-logo.png";
 import type { Reservation } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 
