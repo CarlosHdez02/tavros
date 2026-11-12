@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
-import tavrosLogo from "../../public/tavros-logo.jpeg";
+import tavrosLogo from "../../public/tavros-logo.png";
 import { CheckinData, ProcessedSession } from "@/types/Table.type";
 import PlatformsMap from "./PlatformsMap.component";
 

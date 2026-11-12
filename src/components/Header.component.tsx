@@ -1,7 +1,7 @@
 'use client'
 import Image from "next/image";
 import React, { useState } from "react";
-import tavros from "../../public/tavros-logo.jpeg";
+import tavros from "../../public/tavros-logo.png";
 
 const StoicHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
