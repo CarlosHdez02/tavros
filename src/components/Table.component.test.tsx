@@ -2,7 +2,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, act } from "@testing-library/react";
 import type { CheckinData } from "@/types/Table.type";
-import TableComponent from "./Table.component";
+import TableComponent, { __resetCheckinCacheForTests } from "./Table.component";
 
 // Mock PlatformsMap to isolate Table logic
 vi.mock("./PlatformsMap.component", () => ({
@@ -29,6 +29,7 @@ describe("Table.component (TVScheduleDisplay)", () => {
   let fetchMock: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
+    __resetCheckinCacheForTests();
     vi.useFakeTimers();
     // Default: mock fetch for all URLs
     fetchMock = vi.fn((url: string) => {

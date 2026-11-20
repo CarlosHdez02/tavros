@@ -13,7 +13,8 @@ function parseYoutubeLink(youtubeLink: string | null | undefined): {
   videoId: string | null;
   isShort: boolean;
 } {
-  if (!youtubeLink?.trim()) {
+  // Sheet cells can arrive as numbers/booleans — anything but a non-empty string is "no video"
+  if (typeof youtubeLink !== "string" || !youtubeLink.trim()) {
     return { videoId: null, isShort: false };
   }
   const cleanUrl = youtubeLink.trim();

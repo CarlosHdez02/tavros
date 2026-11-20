@@ -7,9 +7,40 @@ import PlatformsMap from "./PlatformsMap.component";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://tavros-scraper-1.onrender.com";
 
+/**
+ * The carousel remounts this component every time the table slide comes around.
+ * Keep the last good response at module level so a remount shows the class
+ * immediately (no loading screen) and a failed/slow refetch (e.g. scraper cold
+ * start) never wipes out the class that is currently running.
+ */
+let checkinCache: { date: string; data: CheckinData | null; fetchedAt: number } | null =
+  null;
+/** Skip refetching on remount if the cached data is this fresh. */
+const CACHE_FRESH_MS = 60_000;
+
+export const __resetCheckinCacheForTests = () => {
+  checkinCache = null;
+};
+
+const getCurrentDateString = () => {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, "0");
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const year = now.getFullYear();
+  return `${day}-${month}-${year}`;
+};
+
+const readCache = (): CheckinData | null | undefined =>
+  checkinCache && checkinCache.date === getCurrentDateString()
+    ? checkinCache.data
+    : undefined;
+
 const TVScheduleDisplay = () => {
-  const [checkinData, setCheckinData] = useState<CheckinData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const cached = readCache();
+  const [checkinData, setCheckinDataState] = useState<CheckinData | null>(
+    cached ?? null,
+  );
+  const [loading, setLoading] = useState<boolean>(cached === undefined);
   const [error, setError] = useState<string | null>(null);
   /** Must be in sessionData useMemo deps — time-based "active class" logic uses `new Date()` inside the memo. */
   const [sessionTick, setSessionTick] = useState(0);
@@ -21,29 +52,26 @@ const TVScheduleDisplay = () => {
     return () => clearInterval(t);
   }, []);
 
-  // Helper to get current date in DD-MM-YYYY format
-  const getCurrentDateString = () => {
-    const now = new Date();
-    const day = String(now.getDate()).padStart(2, "0");
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const year = now.getFullYear();
-    return `${day}-${month}-${year}`;
+  const setCheckinData = (data: CheckinData | null, dateStr: string) => {
+    checkinCache = { date: dateStr, data, fetchedAt: Date.now() };
+    setCheckinDataState(data);
   };
 
   // Fetch data from API
   const fetchCheckinData = async () => {
+    const dateStr = getCurrentDateString();
     try {
-      setLoading(true);
+      // Only show the loading screen when there is nothing to show yet
+      if (readCache() === undefined) setLoading(true);
       setError(null);
 
-      const dateStr = getCurrentDateString();
       const response = await fetch(`${API_BASE_URL}/api/checkin/${dateStr}`);
 
       if (!response.ok) {
         try {
           const errorJson = await response.json();
           if (errorJson.error === "No data available") {
-            setCheckinData(null);
+            setCheckinData(null, dateStr);
             setLoading(false);
             return;
           }
@@ -54,9 +82,14 @@ const TVScheduleDisplay = () => {
       }
 
       const data: CheckinData = await response.json();
-      setCheckinData(data);
+      setCheckinData(data, dateStr);
     } catch (err) {
+      // Keep showing the last good data (if any) — never blank the class mid-session
       console.error("Error fetching check-in data:", err);
+      if (checkinCache && checkinCache.date !== dateStr) {
+        // New day and fetch failed: yesterday's classes must not be shown
+        setCheckinDataState(null);
+      }
       setError(err instanceof Error ? err.message : "Failed to fetch data");
     } finally {
       setLoading(false);
@@ -65,7 +98,11 @@ const TVScheduleDisplay = () => {
 
   // Initial fetch and auto-refresh every 5 minutes
   useEffect(() => {
-    fetchCheckinData();
+    const fresh =
+      checkinCache &&
+      checkinCache.date === getCurrentDateString() &&
+      Date.now() - checkinCache.fetchedAt < CACHE_FRESH_MS;
+    if (!fresh) fetchCheckinData();
 
     const dataRefreshInterval = setInterval(
       () => {
