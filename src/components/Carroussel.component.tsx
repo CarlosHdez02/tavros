@@ -8,6 +8,7 @@ import {
   normalizeSlideId,
   parseRowType,
 } from "@/utils/carousel.utils";
+import { retryImport, safeReload } from "@/utils/recovery";
 import { CarouselSlideErrorBoundary } from "./CarouselSlideErrorBoundary";
 import SingleVideo from "./Video-cards.component";
 
@@ -20,10 +21,17 @@ const CarouselLoadingPlaceholder = () => (
   </div>
 );
 
-const GalleryComponent = dynamic(() => import("./Gallery.component"), {
+/**
+ * TV browsers leak memory over many hours of YouTube iframes being created and
+ * destroyed; eventually the tab crashes to a white page. Refresh at a loop
+ * boundary (only when the server is reachable) well before that happens.
+ */
+const SCHEDULED_REFRESH_MS = 6 * 60 * 60 * 1000;
+
+const GalleryComponent = dynamic(() => retryImport(() => import("./Gallery.component")), {
   loading: () => <CarouselLoadingPlaceholder />,
 });
-const TableComponent = dynamic(() => import("./Table.component"), {
+const TableComponent = dynamic(() => retryImport(() => import("./Table.component")), {
   loading: () => <CarouselLoadingPlaceholder />,
 });
 
@@ -50,6 +58,7 @@ const CarrouselWrapper = () => {
   /** Prevents spam-click races: react-youtube/youtube-player can call APIs with a null container if destroy/create overlap. */
   const lastManualNavAtRef = React.useRef<number | null>(null);
   const MANUAL_NAV_COOLDOWN_MS = 450;
+  const mountedAtRef = React.useRef<number>(Date.now());
 
   const tryBeginManualNavigation = React.useCallback(() => {
     const now = performance.now();
@@ -146,6 +155,14 @@ const CarrouselWrapper = () => {
       return Math.min(n, len - 1);
     });
   }, [carrouselComponents.length]);
+
+  // Loop finished (back at slide 0): if the page has been up for hours, refresh it.
+  React.useEffect(() => {
+    if (currentIndex !== 0) return;
+    if (Date.now() - mountedAtRef.current > SCHEDULED_REFRESH_MS) {
+      safeReload("scheduled refresh after full loop");
+    }
+  }, [currentIndex]);
 
   const advanceToNextRef = React.useRef(advanceToNext);
   advanceToNextRef.current = advanceToNext;

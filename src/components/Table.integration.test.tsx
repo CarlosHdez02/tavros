@@ -2,7 +2,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, act, within } from "@testing-library/react";
 import type { CheckinData } from "@/types/Table.type";
-import TableComponent from "./Table.component";
+import TableComponent, { __resetCheckinCacheForTests } from "./Table.component";
 
 /**
  * Integration tests: Table + real PlatformsMap.
@@ -24,6 +24,7 @@ describe("Table.component integration (fecha_creacion platform assignment)", () 
   const originalFetch = global.fetch;
 
   beforeEach(() => {
+    __resetCheckinCacheForTests();
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2025-02-07T08:30:00")); // 8:30am — within 08:00-09:00
     global.fetch = vi.fn((url: string) => {

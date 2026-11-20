@@ -118,3 +118,10 @@
     @apply border-[--accent];
   }
 }
+/* Never flash white while a YouTube iframe (or any embed) is loading on the TV
+   (the root uses color-scheme: dark; a mismatch with the embedded document makes
+   Chromium paint an opaque white canvas inside the iframe until it loads) */
+iframe {
+  color-scheme: normal;
+  background-color: #0f1419;
+}
